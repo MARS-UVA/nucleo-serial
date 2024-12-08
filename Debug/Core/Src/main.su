@@ -1,0 +1,12 @@
+../Core/Src/main.c:76:6:writeDebug	16	static
+../Core/Src/main.c:81:6:writeDebugString	16	static
+../Core/Src/main.c:86:6:writeDebugFormat	24	static
+../Core/Src/main.c:111:8:hallPosToMillimeters	16	static
+../Core/Src/main.c:121:5:main	8	static
+../Core/Src/main.c:178:6:SystemClock_Config	88	static
+../Core/Src/main.c:220:13:MX_USART3_UART_Init	8	static
+../Core/Src/main.c:255:13:MX_GPIO_Init	40	static
+../Core/Src/main.c:279:6:processHallCallback	24	static
+../Core/Src/main.c:293:6:HAL_GPIO_EXTI_Callback	24	static
+../Core/Src/main.c:340:6:MPU_Config	24	static
+../Core/Src/main.c:371:6:Error_Handler	4	static,ignoring_inline_asm
