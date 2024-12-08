@@ -279,8 +279,6 @@ static void MX_GPIO_Init(void)
 void processHallCallback(GPIO_TypeDef *otherGPIOx, uint16_t otherLessCoolPin, long *position, long *thisChannel, long *otherChannel, int dir)
 {
 	(*thisChannel)++;
-//	hallData->leading = HAL_GPIO_ReadPin(x, otherLessCoolPin) ? otherLessCoolPin : thisCoolPin;
-	//	if (hallData->leading == otherLessCoolPin)
 	if (HAL_GPIO_ReadPin(GPIOF, otherLessCoolPin))
 	{
 		(*position) += dir * (*otherChannel);
@@ -296,38 +294,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 	{
 	case LINEAR_ACTUATOR_H1:
 		processHallCallback(LINEAR_ACTUATOR_H2_GPIOx, LINEAR_ACTUATOR_H2, &hallData.position, &hallData.h1, &hallData.h2, -1);
-//		if (HAL_GPIO_ReadPin(LINEAR_ACTUATOR_H2_GPIOx, LINEAR_ACTUATOR_H2))
-//			hallData.leading = LINEAR_ACTUATOR_H2;
-//		else
-//			hallData.leading = LINEAR_ACTUATOR_H1;
-//		hallData.h1++;
-//
-//		hallData.leading = HAL_GPIO_ReadPin(LINEAR_ACTUATOR_H2_GPIOx, LINEAR_ACTUATOR_H2) ? LINEAR_ACTUATOR_H2 : LINEAR_ACTUATOR_H1;
-//
-//		if (hallData.leading == LINEAR_ACTUATOR_H2)
-//		{
-//			hallData.position += (hallData.leading == LINEAR_ACTUATOR_H1 ? 1 : -1) * hallData.h2;
-//			hallData.h1 = 0;
-//			hallData.h2 = 0;
-//		}
 		break;
 	case LINEAR_ACTUATOR_H2:
 		processHallCallback(LINEAR_ACTUATOR_H1_GPIOx, LINEAR_ACTUATOR_H1, &hallData.position, &hallData.h2, &hallData.h1, 1);
-
-//		if (HAL_GPIO_ReadPin(LINEAR_ACTUATOR_H1_GPIOx, LINEAR_ACTUATOR_H1))
-//			hallData.leading = LINEAR_ACTUATOR_H1;
-//		else
-//			hallData.leading = LINEAR_ACTUATOR_H2;
-//		hallData.h2++;
-//
-//		hallData.leading = HAL_GPIO_ReadPin(LINEAR_ACTUATOR_H1_GPIOx, LINEAR_ACTUATOR_H1) ? LINEAR_ACTUATOR_H1 : LINEAR_ACTUATOR_H2;
-//
-//		if (hallData.leading == LINEAR_ACTUATOR_H1)
-//		{
-//			hallData.position += (hallData.leading == LINEAR_ACTUATOR_H1 ? 1 : -1) * hallData.h1;
-//			hallData.h1 = 0;
-//			hallData.h2 = 0;
-//		}
 		break;
 	default:
 		break;
