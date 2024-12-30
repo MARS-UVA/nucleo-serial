@@ -97,10 +97,21 @@ void writeDebugFormat(const char *format, ...)
 {
 	va_list args;
 	va_start(args, format);
-	int buff_size = vsnprintf(NULL, 0, format, args);
+
+	va_list args_copy;
+	va_copy(args_copy, args);
+	int buff_size = vsnprintf(NULL, 0, format, args_copy);
+	va_end(args_copy);
 
 	char *buff = malloc(buff_size + 1);
-	vsprintf(buff, format, args);
+
+	if (buff == NULL)
+	{
+		va_end(args);
+		return;
+	}
+
+	vsnprintf(buff, buff_size + 1, format, args);
 	writeDebug(buff, buff_size);
 	free(buff);
 
