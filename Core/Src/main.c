@@ -367,14 +367,19 @@ int main(void)
   /* USER CODE BEGIN 2 */
   MX_CAN1_Init();
 
-  TalonSRX talonSRX = TalonSRXInit(&hcan1, 12);
+  writeDebugString("???\r\n");
+  for (int i = 1; i < 2; i++)
+  {
+  TalonSRX talonSRX = TalonSRXInit(&hcan1, 1);
   sendGlobalEnableFrame();
-  talonSRX.setInverted(&talonSRX, true);
+//  talonSRX.setInverted(&talonSRX, true);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  writeDebugString("ily\r\n");
   while (1)
+//  for (int j = 0; j < 100; j++)
   {
     /* USER CODE END WHILE */
 
@@ -396,6 +401,7 @@ int main(void)
 //	{
 //		writeDebugString("invalid packet read\r\n");
 //	}
+  }
   }
   /* USER CODE END 3 */
 }
