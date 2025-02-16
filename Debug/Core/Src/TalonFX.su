@@ -1,5 +1,5 @@
 ../Core/Src/TalonFX.c:5:6:sendFXCANMessage	24	static
 ../Core/Src/TalonFX.c:10:6:setFX	40	static
-../Core/Src/TalonFX.c:16:6:setNeutralModeFX	24	static
-../Core/Src/TalonFX.c:22:6:applySupplyCurrentLimitFX	40	static
-../Core/Src/TalonFX.c:36:9:TalonFXInit	56	static
+../Core/Src/TalonFX.c:19:6:setNeutralModeFX	24	static
+../Core/Src/TalonFX.c:25:6:applySupplyCurrentLimitFX	40	static
+../Core/Src/TalonFX.c:39:9:TalonFXInit	56	static

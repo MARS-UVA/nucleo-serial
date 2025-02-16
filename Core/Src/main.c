@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "TalonSRX.h"
+#include "TalonFX.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -368,9 +369,8 @@ int main(void)
   MX_CAN1_Init();
 
   writeDebugString("???\r\n");
-  for (int i = 1; i < 2; i++)
-  {
   TalonSRX talonSRX = TalonSRXInit(&hcan1, 1);
+  TalonFX talonFX = TalonFXInit(&hcan1, 39);
   sendGlobalEnableFrame();
 //  talonSRX.setInverted(&talonSRX, true);
   /* USER CODE END 2 */
@@ -387,6 +387,7 @@ int main(void)
 	  sendGlobalEnableFrame();
 
 	  talonSRX.set(&talonSRX, -1);
+	  talonFX.set(&talonFX, 0.2);
 
 	  HAL_Delay(10);
 //	if (DEBUG)
@@ -401,7 +402,6 @@ int main(void)
 //	{
 //		writeDebugString("invalid packet read\r\n");
 //	}
-  }
   }
   /* USER CODE END 3 */
 }
