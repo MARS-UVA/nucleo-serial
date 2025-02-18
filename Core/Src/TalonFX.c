@@ -8,9 +8,10 @@ void sendFXCANMessage(TalonFX *talonFX, int identifier, char *message, uint8_t l
 }
 
 void setFX(TalonFX *talonFX, double speed) {
-	int valueInt = (int) (speed * 1023);
+	int valueInt = (int) (speed * 1024);
 
-	sendFXCANMessage(talonFX, 0x204b540, (char[]){0, 1, 0, 0, 0, 0, (valueInt >> 8) & 255, valueInt & 255}, 8);
+//	sendFXCANMessage(talonFX, 0x204b540, (char[]){0, 1, 0, 0, 0, 0, (valueInt >> 8) & 255, valueInt & 255}, 8);
+	sendFXCANMessage(talonFX, 0x204b540, (char[]){0, 1, 0, 0, 0, 0, valueInt & 255, (valueInt >> 8) & 255}, 8);
 }
 
 void setNeutralModeFX(TalonFX *talonFX, NeutralModeValue neutralModeValue) {

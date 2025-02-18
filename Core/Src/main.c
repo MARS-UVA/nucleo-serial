@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include "TalonSRX.h"
+#include "TalonFX.h"
+#include "util.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -368,9 +370,10 @@ int main(void)
   MX_CAN1_Init();
 
   writeDebugString("???\r\n");
-  for (int i = 1; i < 2; i++)
-  {
-  TalonSRX talonSRX = TalonSRXInit(&hcan1, 1);
+//  for (int i = 1; i < 2; i++)
+//  {
+//  TalonFX talonFX = TalonFXInit(&hcan1, 39);
+  TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
   sendGlobalEnableFrame();
 //  talonSRX.setInverted(&talonSRX, true);
   /* USER CODE END 2 */
@@ -385,10 +388,11 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  sendGlobalEnableFrame();
-
-	  talonSRX.set(&talonSRX, -1);
-
-	  HAL_Delay(10);
+//	  talonFX.set(&talonFX, 1);
+	  talonSRX.setInverted(&talonSRX, true);
+	  talonSRX.set(&talonSRX, 1);
+//	  writeDebugString("pensive\r\n");
+	  HAL_Delay(1);
 //	if (DEBUG)
 //		writeDebugString("hi\r\n");
 //	SerialPacket packet = readFromJetson();
@@ -402,7 +406,7 @@ int main(void)
 //		writeDebugString("invalid packet read\r\n");
 //	}
   }
-  }
+//  }
   /* USER CODE END 3 */
 }
 
