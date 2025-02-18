@@ -1,5 +1,12 @@
 ../Core/Src/TalonFX.c:5:6:sendFXCANMessage	1
+<<<<<<< HEAD
 ../Core/Src/TalonFX.c:10:6:setFX	1
 ../Core/Src/TalonFX.c:17:6:setNeutralModeFX	2
 ../Core/Src/TalonFX.c:23:6:applySupplyCurrentLimitFX	4
 ../Core/Src/TalonFX.c:37:9:TalonFXInit	1
+=======
+../Core/Src/TalonFX.c:10:6:setFX	2
+../Core/Src/TalonFX.c:19:6:setNeutralModeFX	2
+../Core/Src/TalonFX.c:25:6:applySupplyCurrentLimitFX	4
+../Core/Src/TalonFX.c:39:9:TalonFXInit	1
+>>>>>>> 25c7c963cc5e062a3773381b43007b31203c8e76
