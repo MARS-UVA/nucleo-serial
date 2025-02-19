@@ -15,7 +15,7 @@ void setSRX(TalonSRX *talonSRX, double value)
 {
 	int valueInt = (int) (value * 1023);
 
-	sendSRXCANMessage(talonSRX, 0x2040200, (char[]){(valueInt >> 16) & 255, (valueInt >> 8) & 255, valueInt & 255, 0, 0, 0, 0x1b, talonSRX->inverted ? 0x40 : 0x00}, 8);
+	sendSRXCANMessage(talonSRX, 0x2040200, (char[]){(valueInt >> 16) & 255, (valueInt >> 8) & 255, valueInt & 255, 0, 0, 0, 0x0b, talonSRX->inverted ? 0x40 : 0x00}, 8);
 }
 
 TalonSRX TalonSRXInit(CAN_HandleTypeDef *hcan, int32_t identifier)

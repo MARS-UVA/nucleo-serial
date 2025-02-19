@@ -369,8 +369,11 @@ int main(void)
   MX_CAN1_Init();
 
   writeDebugString("started\r\n");
-//  TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
+  TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
   TalonFX talonFX = TalonFXInit(&hcan1, 39);
+
+  writeDebugString("initialized\r\n");
+
   sendGlobalEnableFrame();
 //  talonSRX.setInverted(&talonSRX, true);
   /* USER CODE END 2 */
@@ -384,8 +387,10 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  sendGlobalEnableFrame();
 
-//	  talonSRX.set(&talonSRX, 1);
+	  talonSRX.set(&talonSRX, 1);
 	  talonFX.set(&talonFX, 0.2);
+
+	  writeDebugString("here\r\n");
 
 	  HAL_Delay(10);
 //	if (DEBUG)
@@ -477,16 +482,16 @@ static void MX_CAN1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN1_Init 2 */
-  CAN_FilterTypeDef sf;
-  sf.FilterMaskIdHigh = 0x0000;
-  sf.FilterMaskIdLow = 0x0000;
-  sf.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-  sf.FilterBank = 0;
-  sf.FilterMode = CAN_FILTERMODE_IDMASK;
-  sf.FilterScale = CAN_FILTERSCALE_32BIT;
-  sf.FilterActivation = CAN_FILTER_ENABLE;
-  if (HAL_CAN_ConfigFilter(&hcan1, &sf) != HAL_OK)
-	Error_Handler();
+//  CAN_FilterTypeDef sf;
+//  sf.FilterMaskIdHigh = 0x0000;
+//  sf.FilterMaskIdLow = 0x0000;
+//  sf.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+//  sf.FilterBank = 0;
+//  sf.FilterMode = CAN_FILTERMODE_IDMASK;
+//  sf.FilterScale = CAN_FILTERSCALE_32BIT;
+//  sf.FilterActivation = CAN_FILTER_ENABLE;
+//  if (HAL_CAN_ConfigFilter(&hcan1, &sf) != HAL_OK)
+//	Error_Handler();
 
   if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID, can_irq))
 	Error_Handler();
@@ -494,8 +499,8 @@ static void MX_CAN1_Init(void)
   if (HAL_CAN_Start(&hcan1) != HAL_OK)
 	Error_Handler();
 
-  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
-	Error_Handler();
+//  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+//	Error_Handler();
   /* USER CODE END CAN1_Init 2 */
 
 }
@@ -590,9 +595,9 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void can_irq(CAN_HandleTypeDef *pcan) {
-  CAN_RxHeaderTypeDef msg;
-  uint8_t data[8];
-  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, data);
+//  CAN_RxHeaderTypeDef msg;
+//  uint8_t data[8];
+//  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, data);
 //  writeDebugString(data);
 }
 /* USER CODE END 4 */
