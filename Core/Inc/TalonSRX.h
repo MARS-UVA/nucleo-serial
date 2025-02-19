@@ -14,6 +14,7 @@
 typedef struct talonSRX {
 	CAN_HandleTypeDef *hcan;
 	int identifier;
+	bool inverted;
 	void (*setInverted)(struct talonSRX*, bool);
 	void (*set)(struct talonSRX*, double);
 } TalonSRX;

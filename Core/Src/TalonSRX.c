@@ -8,17 +8,14 @@ void sendSRXCANMessage(TalonSRX *talonSRX, int identifier, char *message, uint8_
 
 void setInvertedSRX(TalonSRX *talonSRX, bool invert)
 {
-	if (!invert)
-		return;
-
-  sendSRXCANMessage(talonSRX, 0x2040080, "\x00\x00\x00\x00\x00\x00\x00\x08", 8);
+  talonSRX->inverted = invert;
 }
 
 void setSRX(TalonSRX *talonSRX, double value)
 {
 	int valueInt = (int) (value * 1023);
 
-	sendSRXCANMessage(talonSRX, 0x2040200, (char[]){(valueInt >> 16) & 255, (valueInt >> 8) & 255, valueInt & 255, 0, 0, 0, 0x0b, 0}, 8);
+	sendSRXCANMessage(talonSRX, 0x2040200, (char[]){(valueInt >> 16) & 255, (valueInt >> 8) & 255, valueInt & 255, 0, 0, 0, 0x1b, talonSRX->inverted ? 0x40 : 0x00}, 8);
 }
 
 TalonSRX TalonSRXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
@@ -27,7 +24,8 @@ TalonSRX TalonSRXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 			.hcan = hcan,
 			.setInverted = setInvertedSRX,
 			.set = setSRX,
-			.identifier = identifier
+			.identifier = identifier,
+			.inverted = false
 	};
 
     sendSRXCANMessage(&talonSRX, 0x2040080, "\x00\x00\x00\x00\x00\x00\x00\x00", 8);

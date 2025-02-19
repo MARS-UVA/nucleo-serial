@@ -27,10 +27,6 @@
 #include <stdarg.h>
 #include "TalonSRX.h"
 #include "TalonFX.h"
-<<<<<<< HEAD
-#include "util.h"
-=======
->>>>>>> 25c7c963cc5e062a3773381b43007b31203c8e76
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -372,43 +368,26 @@ int main(void)
   /* USER CODE BEGIN 2 */
   MX_CAN1_Init();
 
-  writeDebugString("???\r\n");
-<<<<<<< HEAD
-//  for (int i = 1; i < 2; i++)
-//  {
-//  TalonFX talonFX = TalonFXInit(&hcan1, 39);
-  TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
-=======
-  TalonSRX talonSRX = TalonSRXInit(&hcan1, 1);
+  writeDebugString("started\r\n");
+//  TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
   TalonFX talonFX = TalonFXInit(&hcan1, 39);
->>>>>>> 25c7c963cc5e062a3773381b43007b31203c8e76
   sendGlobalEnableFrame();
 //  talonSRX.setInverted(&talonSRX, true);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  writeDebugString("ily\r\n");
   while (1)
-//  for (int j = 0; j < 100; j++)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 	  sendGlobalEnableFrame();
-<<<<<<< HEAD
-//	  talonFX.set(&talonFX, 1);
-	  talonSRX.setInverted(&talonSRX, true);
-	  talonSRX.set(&talonSRX, 1);
-//	  writeDebugString("pensive\r\n");
-	  HAL_Delay(1);
-=======
 
-	  talonSRX.set(&talonSRX, -1);
+//	  talonSRX.set(&talonSRX, 1);
 	  talonFX.set(&talonFX, 0.2);
 
 	  HAL_Delay(10);
->>>>>>> 25c7c963cc5e062a3773381b43007b31203c8e76
 //	if (DEBUG)
 //		writeDebugString("hi\r\n");
 //	SerialPacket packet = readFromJetson();
@@ -422,10 +401,6 @@ int main(void)
 //		writeDebugString("invalid packet read\r\n");
 //	}
   }
-<<<<<<< HEAD
-//  }
-=======
->>>>>>> 25c7c963cc5e062a3773381b43007b31203c8e76
   /* USER CODE END 3 */
 }
 
@@ -618,7 +593,7 @@ void can_irq(CAN_HandleTypeDef *pcan) {
   CAN_RxHeaderTypeDef msg;
   uint8_t data[8];
   HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, data);
-  writeDebugString(data);
+//  writeDebugString(data);
 }
 /* USER CODE END 4 */
 

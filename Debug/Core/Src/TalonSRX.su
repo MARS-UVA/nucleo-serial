@@ -1,4 +1,4 @@
 ../Core/Src/TalonSRX.c:4:6:sendSRXCANMessage	24	static
 ../Core/Src/TalonSRX.c:9:6:setInvertedSRX	16	static
-../Core/Src/TalonSRX.c:17:6:setSRX	40	static
-../Core/Src/TalonSRX.c:24:10:TalonSRXInit	48	static
+../Core/Src/TalonSRX.c:14:6:setSRX	40	static
+../Core/Src/TalonSRX.c:21:10:TalonSRXInit	56	static

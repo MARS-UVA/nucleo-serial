@@ -8,17 +8,11 @@ void sendFXCANMessage(TalonFX *talonFX, int identifier, char *message, uint8_t l
 }
 
 void setFX(TalonFX *talonFX, double speed) {
-<<<<<<< HEAD
-	int valueInt = (int) (speed * 1024);
-
-//	sendFXCANMessage(talonFX, 0x204b540, (char[]){0, 1, 0, 0, 0, 0, (valueInt >> 8) & 255, valueInt & 255}, 8);
-=======
 	short valueInt = (short) (speed * 1024);
 	if (valueInt < 0) {
 		valueInt = 0xfff - (-1 * valueInt);
 	}
 
->>>>>>> 25c7c963cc5e062a3773381b43007b31203c8e76
 	sendFXCANMessage(talonFX, 0x204b540, (char[]){0, 1, 0, 0, 0, 0, valueInt & 255, (valueInt >> 8) & 255}, 8);
 }
 
