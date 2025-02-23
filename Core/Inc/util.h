@@ -11,5 +11,6 @@
 #include "main.h"
 
 void sendCANMessage(CAN_HandleTypeDef *hcan, int identifier, char *message, uint8_t length);
+void floatToByteArray(float f, char *arr);
 
 #endif /* INC_UTIL_H_ */

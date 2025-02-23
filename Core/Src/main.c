@@ -366,33 +366,58 @@ int main(void)
   MX_USART2_UART_Init();
   MX_CAN1_Init();
   /* USER CODE BEGIN 2 */
-  MX_CAN1_Init();
 
   writeDebugString("started\r\n");
-  TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
+  TalonSRX talonSRX = TalonSRXInit(&hcan1, 1);
   TalonFX talonFX = TalonFXInit(&hcan1, 39);
 
   writeDebugString("initialized\r\n");
 
   sendGlobalEnableFrame();
 //  talonSRX.setInverted(&talonSRX, true);
+  Slot0Configs c = {
+  	 .kP = 0.1,
+  	 .kI = 0.1,
+  	 .kD  = 0,
+  	 .kS = 0,
+  	 .kV = 0,
+  	 .kA = 0,
+  	 .kG = 0,
+  };
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  talonFX.applyConfig(&talonFX, &c);
+  int tick = 0;
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 	  sendGlobalEnableFrame();
+#define lmao 1
 
-	  talonSRX.set(&talonSRX, 1);
-	  talonFX.set(&talonFX, 0.2);
 
-	  writeDebugString("here\r\n");
+//	  writeDebugString("here\r\n");
 
 	  HAL_Delay(10);
+
+//	  tick++;
+//
+//	  if (tick > 500)
+//	  {
+		  talonFX.set(&talonFX, 0);
+//	  }
+//	  else
+//	  {
+//		  talonSRX.set(&talonSRX, lmao);
+//		  talonFX.set(&talonFX, lmao);
+//		  talonFX.setNeutralMode(&talonFX, BRAKE);
+//	  }
+
+//	  talonFX.setControl(&talonFX, 3, 1.0);
+
 //	if (DEBUG)
 //		writeDebugString("hi\r\n");
 //	SerialPacket packet = readFromJetson();
@@ -493,9 +518,9 @@ static void MX_CAN1_Init(void)
 //  if (HAL_CAN_ConfigFilter(&hcan1, &sf) != HAL_OK)
 //	Error_Handler();
 
-  if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID, can_irq))
-	Error_Handler();
-
+//  if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID, can_irq))
+//	Error_Handler();
+//
   if (HAL_CAN_Start(&hcan1) != HAL_OK)
 	Error_Handler();
 

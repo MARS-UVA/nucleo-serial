@@ -20,3 +20,19 @@ void sendCANMessage(CAN_HandleTypeDef *hcan, int identifier, char *message, uint
 	  if (HAL_CAN_AddTxMessage(hcan, &hdr, (unsigned char *) message, &mb) != HAL_OK)
 		Error_Handler();
 }
+
+void floatToByteArray(float f, char *arr)
+{
+    unsigned int asInt = *((int*) &f);
+
+    for (int i = 0; i < 4; i++)
+        arr[i] = (asInt >> 8 * i) & 0xFF;
+}
+
+void float16ToByteArray(float f, char *arr)
+{
+    unsigned int asInt = *((int*) &f);
+
+    for (int i = 0; i < 4; i++)
+        arr[i] = (asInt >> 8 * i) & 0xFF;
+}
