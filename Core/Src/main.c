@@ -97,7 +97,7 @@ uint8_t calculateChecksum(uint8_t *buffer, uint8_t length)
 
 void writeDebug(const char *buffer, uint8_t length)
 {
-    HAL_UART_Transmit(&huart3, (uint8_t *) buffer, length, HAL_MAX_DELAY);
+    HAL_UART_Transmit(&huart2, (uint8_t *) buffer, length, HAL_MAX_DELAY);
 }
 
 void writeDebugString(const char *buffer)
@@ -438,14 +438,18 @@ int main(void)
     /* USER CODE BEGIN 3 */
     if (DEBUG)
       writeDebugString("\r\n\r\n\r\n\hi\r\n");
+      writeDebugString("Hello???");
 
-    SerialPacket packet = readFromJetson();
-    if (!packet.invalid) {
-      writeDebugString("got a packet\r\n");
-      // TODO: update to match new protocol readAction(packet);
-    } else {
-      writeDebugString("invalid packet read\r\n");
-    }
+//    SerialPacket packet = readFromJetson();
+//    if (!packet.invalid) {
+//      writeDebugString("got a packet\r\n");
+//      // TODO: update to match new protocol readAction(packet);
+//    } else {
+//      writeDebugString("invalid packet read\r\n");
+//    }
+   HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+   HAL_Delay(500);
+
   }
   /* USER CODE END 3 */
 }
@@ -568,11 +572,23 @@ static void MX_USART3_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
 /* USER CODE BEGIN MX_GPIO_Init_1 */
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : LED1_Pin */
+  GPIO_InitStruct.Pin = LED1_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(LED1_GPIO_Port, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
