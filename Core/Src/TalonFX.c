@@ -17,9 +17,12 @@ void setFX(TalonFX *talonFX, double speed) {
 }
 
 void setNeutralModeFX(TalonFX *talonFX, NeutralModeValue neutralModeValue) {
-	char mode[] = {(neutralModeValue == COAST ? 0 : 4), 0, 0, 0, 0, 0, 0, 0};
-
-	sendFXCANMessage(talonFX, 0x204b4c0, mode, 8);
+	char mode[] = { 0x21, 0x6E, 0x08, (neutralModeValue == COAST ? 0 : 1), 0, 0, 0, 0xAA};
+	for (int pair = 0; pair < (neutralModeValue == COAST ? 2 : 1); pair++) {
+		sendFXCANMessage(talonFX, 0x2047c00, mode, 8);
+		HAL_Delay(1);
+	}
+	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
 }
 
 void applySupplyCurrentLimitFX(TalonFX *talonFX, float current) {
