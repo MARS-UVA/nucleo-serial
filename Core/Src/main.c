@@ -131,160 +131,186 @@ void writeDebugFormat(const char *format, ...)
     va_end(args);
 }
 
-// TODO: update protocol
-SerialPacket readFromJetson()
-{
-  // HEADER BYTE
-  uint8_t header;
-  HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart2, &header, 1, HAL_MAX_DELAY);
-  if (hal_status != HAL_OK)
-  {
-    // Error_Handler();
-    writeDebugString("invalid packet");
-    return (SerialPacket) {
-        .invalid = 1
-    };
-  }
-  if (DEBUG)
-  {
-    writeDebugString("header: ");
-    char print[5];
-    sprintf(print, "%d", header);
-    writeDebugString(print);
-    writeDebugString("\r\n");
-  }
+// for reading in packet all at once
+SerialPacket readFromJetson() {
+	uint8_t *RxBuffer; // buffer to store received bytes
+	uint8_t packetLength = 7; // expected packet length (1 header plus 1 byte for each motor/actuator)
 
-  // TOP LEFT WHEEL BYTE
-  uint8_t top_left_wheel;
-  hal_status = HAL_UART_Receive(&huart2, &top_left_wheel, 1, HAL_MAX_DELAY);
-  if (hal_status != HAL_OK)
-  {
-    // Error_Handler();
-    writeDebugString("invalid packet");
-    return (SerialPacket) {
-        .invalid = 1
-    };
-  }
-  if (DEBUG)
-  {
-    writeDebugString("top left wheel: ");
-    char print[5];
-    sprintf(print, "%d", top_left_wheel);
-    writeDebugString(print);
-    writeDebugString("\r\n");
-  }
+	HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart2, &header, packetLength, HAL_MAX_DELAY);
+	if (hal_status != HAL_OK) {
+		writeDebugString("Error during UART Receive");
+	    return (SerialPacket) {
+	        .invalid = 1
+	    };
+	}
 
-  // BACK LEFT WHEEL BYTE
-  uint8_t back_left_wheel;
-  hal_status = HAL_UART_Receive(&huart2, &back_left_wheel, 1, HAL_MAX_DELAY);
-  if (hal_status != HAL_OK)
-  {
-    // Error_Handler();
-    writeDebugString("invalid packet");
-    return (SerialPacket) {
-        .invalid = 1
-    };
-  }
-  if (DEBUG)
-  {
-    writeDebugString("back left wheel: ");
-    char print[5];
-    sprintf(print, "%d", back_left_wheel);
-    writeDebugString(print);
-    writeDebugString("\r\n");
-  }
+	return (SerialPacket) {
+		.invalid = 0,
+		.header = RxBuffer[0],
+		.top_left_wheel = RxBuffer[1],
+		.back_left_wheel = RxBuffer[2],
+		.top_right_wheel  = RxBuffer[3],
+		.back_right_wheel = RxBuffer[4],
+		.drum  = RxBuffer[5],
+		.actuator  = RxBuffer[6],
+	};
 
-  // TOP RIGHT WHEEL BYTE
-  uint8_t top_right_wheel;
-  hal_status = HAL_UART_Receive(&huart2, &top_right_wheel, 1, HAL_MAX_DELAY);
-  if (hal_status != HAL_OK)
-  {
-    // Error_Handler();
-    writeDebugString("invalid packet");
-    return (SerialPacket) {
-        .invalid = 1
-    };
-  }
-  if (DEBUG)
-  {
-    writeDebugString("top right wheel: ");
-    char print[5];
-    sprintf(print, "%d", top_right_wheel);
-    writeDebugString(print);
-    writeDebugString("\r\n");
-  }
-
-  // BACK RIGHT WHEEL BYTE
-  uint8_t back_right_wheel;
-  hal_status = HAL_UART_Receive(&huart2, &back_right_wheel, 1, HAL_MAX_DELAY);
-  if (hal_status != HAL_OK)
-  {
-    // Error_Handler();
-    writeDebugString("invalid packet");
-    return (SerialPacket) {
-        .invalid = 1
-    };
-  }
-  if (DEBUG)
-  {
-    writeDebugString("back right wheel: ");
-    char print[5];
-    sprintf(print, "%d", back_right_wheel);
-    writeDebugString(print);
-    writeDebugString("\r\n");
-  }
-
-  // DRUM BYTE
-  uint8_t drum;
-  hal_status = HAL_UART_Receive(&huart2, &drum, 1, HAL_MAX_DELAY);
-  if (hal_status != HAL_OK)
-  {
-    // Error_Handler();
-    writeDebugString("invalid packet");
-    return (SerialPacket) {
-        .invalid = 1
-    };
-  }
-  if (DEBUG)
-  {
-    writeDebugString("drum: ");
-    char print[5];
-    sprintf(print, "%d", drum);
-    writeDebugString(print);
-    writeDebugString("\r\n");
-  }
-
-  // ACTUATOR BYTE
-  uint8_t actuator;
-  hal_status = HAL_UART_Receive(&huart2, &actuator, 1, HAL_MAX_DELAY);
-  if (hal_status != HAL_OK)
-  {
-    // Error_Handler();
-    writeDebugString("invalid packet");
-    return (SerialPacket) {
-        .invalid = 1
-    };
-  }
-  if (DEBUG)
-  {
-    writeDebugString("actuator: ");
-    char print[5];
-    sprintf(print, "%d", actuator);
-    writeDebugString(print);
-    writeDebugString("\r\n");
-  }
-
-  return (SerialPacket) {
-    .invalid = 0,
-    .header = header,
-    .top_left_wheel = top_left_wheel,
-    .back_left_wheel = back_left_wheel,
-    .top_right_wheel = top_right_wheel,
-    .back_right_wheel = back_right_wheel,
-    .drum = drum,
-    .actuator = actuator,
-  };
 }
+
+// TODO: update protocol
+//SerialPacket readFromJetson()
+//{
+//  // HEADER BYTE
+//  uint8_t header;
+//  HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart2, &header, 1, HAL_MAX_DELAY);
+//  if (hal_status != HAL_OK)
+//  {
+//    // Error_Handler();
+//    writeDebugString("invalid packet");
+//    return (SerialPacket) {
+//        .invalid = 1
+//    };
+//  }
+//  if (DEBUG)
+//  {
+//    writeDebugString("header: ");
+//    char print[5];
+//    sprintf(print, "%d", header);
+//    writeDebugString(print);
+//    writeDebugString("\r\n");
+//  }
+//
+//  // TOP LEFT WHEEL BYTE
+//  uint8_t top_left_wheel;
+//  hal_status = HAL_UART_Receive(&huart2, &top_left_wheel, 1, HAL_MAX_DELAY);
+//  if (hal_status != HAL_OK)
+//  {
+//    // Error_Handler();
+//    writeDebugString("invalid packet");
+//    return (SerialPacket) {
+//        .invalid = 1
+//    };
+//  }
+//  if (DEBUG)
+//  {
+//    writeDebugString("top left wheel: ");
+//    char print[5];
+//    sprintf(print, "%d", top_left_wheel);
+//    writeDebugString(print);
+//    writeDebugString("\r\n");
+//  }
+//
+//  // BACK LEFT WHEEL BYTE
+//  uint8_t back_left_wheel;
+//  hal_status = HAL_UART_Receive(&huart2, &back_left_wheel, 1, HAL_MAX_DELAY);
+//  if (hal_status != HAL_OK)
+//  {
+//    // Error_Handler();
+//    writeDebugString("invalid packet");
+//    return (SerialPacket) {
+//        .invalid = 1
+//    };
+//  }
+//  if (DEBUG)
+//  {
+//    writeDebugString("back left wheel: ");
+//    char print[5];
+//    sprintf(print, "%d", back_left_wheel);
+//    writeDebugString(print);
+//    writeDebugString("\r\n");
+//  }
+//
+//  // TOP RIGHT WHEEL BYTE
+//  uint8_t top_right_wheel;
+//  hal_status = HAL_UART_Receive(&huart2, &top_right_wheel, 1, HAL_MAX_DELAY);
+//  if (hal_status != HAL_OK)
+//  {
+//    // Error_Handler();
+//    writeDebugString("invalid packet");
+//    return (SerialPacket) {
+//        .invalid = 1
+//    };
+//  }
+//  if (DEBUG)
+//  {
+//    writeDebugString("top right wheel: ");
+//    char print[5];
+//    sprintf(print, "%d", top_right_wheel);
+//    writeDebugString(print);
+//    writeDebugString("\r\n");
+//  }
+//
+//  // BACK RIGHT WHEEL BYTE
+//  uint8_t back_right_wheel;
+//  hal_status = HAL_UART_Receive(&huart2, &back_right_wheel, 1, HAL_MAX_DELAY);
+//  if (hal_status != HAL_OK)
+//  {
+//    // Error_Handler();
+//    writeDebugString("invalid packet");
+//    return (SerialPacket) {
+//        .invalid = 1
+//    };
+//  }
+//  if (DEBUG)
+//  {
+//    writeDebugString("back right wheel: ");
+//    char print[5];
+//    sprintf(print, "%d", back_right_wheel);
+//    writeDebugString(print);
+//    writeDebugString("\r\n");
+//  }
+//
+//  // DRUM BYTE
+//  uint8_t drum;
+//  hal_status = HAL_UART_Receive(&huart2, &drum, 1, HAL_MAX_DELAY);
+//  if (hal_status != HAL_OK)
+//  {
+//    // Error_Handler();
+//    writeDebugString("invalid packet");
+//    return (SerialPacket) {
+//        .invalid = 1
+//    };
+//  }
+//  if (DEBUG)
+//  {
+//    writeDebugString("drum: ");
+//    char print[5];
+//    sprintf(print, "%d", drum);
+//    writeDebugString(print);
+//    writeDebugString("\r\n");
+//  }
+//
+//  // ACTUATOR BYTE
+//  uint8_t actuator;
+//  hal_status = HAL_UART_Receive(&huart2, &actuator, 1, HAL_MAX_DELAY);
+//  if (hal_status != HAL_OK)
+//  {
+//    // Error_Handler();
+//    writeDebugString("invalid packet");
+//    return (SerialPacket) {
+//        .invalid = 1
+//    };
+//  }
+//  if (DEBUG)
+//  {
+//    writeDebugString("actuator: ");
+//    char print[5];
+//    sprintf(print, "%d", actuator);
+//    writeDebugString(print);
+//    writeDebugString("\r\n");
+//  }
+//
+//  return (SerialPacket) {
+//    .invalid = 0,
+//    .header = header,
+//    .top_left_wheel = top_left_wheel,
+//    .back_left_wheel = back_left_wheel,
+//    .top_right_wheel = top_right_wheel,
+//    .back_right_wheel = back_right_wheel,
+//    .drum = drum,
+//    .actuator = actuator,
+//  };
+//}
 /*
 void directDriveLeft(float power, float upperbound) {}
 void directDriveRight(float power, float upperbound) {}
@@ -442,6 +468,13 @@ int main(void)
     SerialPacket packet = readFromJetson();
     if (!packet.invalid) {
       writeDebugString("got a packet\r\n");
+      writeDebugString("Top Left Wheel Output: ", packet.top_left_wheel);
+      writeDebugString("Back Left Wheel Output: ", packet.back_left_wheel);
+      writeDebugString("Top Right Wheel Output: ", packet.top_right_wheel);
+      writeDebugString("Back Right Wheel Output: ", packet.back_right_wheel);
+      writeDebugString("Bucket Drum Output: ", packet.drum);
+      writeDebugString("Track Actuator Position Output: ", packet.actuator);
+
       // TODO: update to match new protocol readAction(packet);
     } else {
       writeDebugString("invalid packet read\r\n");
