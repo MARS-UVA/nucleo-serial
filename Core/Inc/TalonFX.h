@@ -33,6 +33,7 @@ typedef struct talonFX {
 	void(*applySupplyCurrentLimit)(struct talonFX*, float);
 	void(*applyConfig)(struct talonFX*, Slot0Configs*);
 	void(*setControl)(struct talonFX*, int, double);
+	void(*voltageCycleClosedLoopRampPeriod) (struct talonFX*, float);
 } TalonFX;
 
 TalonFX TalonFXInit();

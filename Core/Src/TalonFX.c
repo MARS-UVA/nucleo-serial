@@ -52,6 +52,18 @@ void applyConfigFX(TalonFX *talonFX, Slot0Configs *config)
 		sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
 		HAL_Delay(1);
 	}
+
+//	char y[] = {0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+//	floatToByteArray(speed, &y[0]);
+//	y[0] = 0x00;
+//	y[1] = 0x01;
+//	floatToByteArray(feedforwardV, &y[4]);
+//	y[4] = 0x00;
+//	y[5] = 0x00;
+//	sendFXCANMessage(talonFX, 0x2047c00, y, 8);
+//	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
+//
+
 }
 
 void setControlFX(TalonFX *talonFX, int velocity, double feedforward)
@@ -65,6 +77,15 @@ void setControlFX(TalonFX *talonFX, int velocity, double feedforward)
 	sendFXCANMessage(talonFX, 0x2043700, x, 8);
 }
 
+void voltageCycleClosedLoopRampPeriodFX(TalonFX *talonFX, float period)
+{
+	char x[] = {0x21, 0x83, 0x08, 0x00, 0x00, 0x00, 0x00, 0xaa};
+	floatToByteArray(period, &x[3]);
+	sendFXCANMessage(talonFX, 0x2047c00, x, 8);
+	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
+	HAL_Delay(1);
+}
+
 TalonFX TalonFXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 {
 	TalonFX talonFX = {
@@ -74,6 +95,7 @@ TalonFX TalonFXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 			.applySupplyCurrentLimit = applySupplyCurrentLimitFX,
 			.identifier = identifier,
 			.applyConfig = applyConfigFX,
+			.voltageCycleClosedLoopRampPeriod = voltageCycleClosedLoopRampPeriodFX,
 			.setControl = setControlFX
 	};
 
@@ -81,3 +103,4 @@ TalonFX TalonFXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 
 	return talonFX;
 }
+

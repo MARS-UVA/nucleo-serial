@@ -385,10 +385,13 @@ int main(void)
   	 .kG = 0,
   };
   /* USER CODE END 2 */
+  sendGlobalEnableFrame();
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  talonFX.applyConfig(&talonFX, &c);
+  //talonFX.applyConfig(&talonFX, &c);
+  talonFX.voltageCycleClosedLoopRampPeriod(&talonFX, 0);
+
   int tick = 0;
   while (1)
   {
@@ -396,23 +399,27 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  sendGlobalEnableFrame();
-#define lmao 1
+
+#define lmao 0.1
 
 
 //	  writeDebugString("here\r\n");
+	  sendGlobalEnableFrame();
+	  talonFX.setControl(&talonFX, 1, 0.1);
 
-	  HAL_Delay(10);
-
+	  //talonFX.applyConfig(&talonFX, &c, 1, 0.1);
+	  HAL_Delay(1);
+	  //talonFX.applySupplyCurrentLimit(&talonFX, 0.001);
 //	  tick++;
 //
 //	  if (tick > 500)
 //	  {
-		  talonFX.set(&talonFX, 0);
+		  //talonFX.set(&talonFX, 0);
 //	  }
 //	  else
 //	  {
-//		  talonSRX.set(&talonSRX, lmao);
-//		  talonFX.set(&talonFX, lmao);
+		  //talonSRX.set(&talonSRX, lmao);
+		  //talonFX.set(&talonFX, lmao);
 //		  talonFX.setNeutralMode(&talonFX, BRAKE);
 //	  }
 
