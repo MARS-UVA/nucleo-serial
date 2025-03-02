@@ -28,7 +28,8 @@ void setNeutralModeFX(TalonFX *talonFX, NeutralModeValue neutralModeValue) {
 void applySupplyCurrentLimitFX(TalonFX *talonFX, float current) {
 	char x[] = {0x21, 0x72, 0x08, 0, 0, 0, 0, 0xaa};
 	floatToByteArray(current, &x[3]);
-	sendFXCANMessage(talonFX, 0x2047c19, x, 8);
+	sendFXCANMessage(talonFX, 0x2047c00, x, 8);
+	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
 }
 
 void applyConfigFX(TalonFX *talonFX, Slot0Configs *config)
