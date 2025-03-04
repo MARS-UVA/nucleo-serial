@@ -133,10 +133,10 @@ void writeDebugFormat(const char *format, ...)
 
 // for reading in packet all at once
 SerialPacket readFromJetson() {
-	uint8_t *RxBuffer; // buffer to store received bytes
+	uint8_t RxBuffer[7]; // buffer to store received bytes
 	uint8_t packetLength = 7; // expected packet length (1 header plus 1 byte for each motor/actuator)
 
-	HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart2, &header, packetLength, HAL_MAX_DELAY);
+	HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart2, RxBuffer, packetLength, HAL_MAX_DELAY);
 	if (hal_status != HAL_OK) {
 		writeDebugString("Error during UART Receive");
 	    return (SerialPacket) {
@@ -462,21 +462,21 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    if (DEBUG)
-      writeDebugString("\r\n\r\n\r\n\hi\r\n");
+	  writeDebugString("HELLO?\r\n");
+    if (DEBUG) {
+    	SerialPacket packet = readFromJetson();
+    	if(!packet.invalid) {
+		  writeDebugString("Packet Received\r\n");
+		  writeDebugFormat("Top Left Wheel Output: %x\r\n", packet.top_left_wheel);
+		  writeDebugFormat("Back Left Wheel Output: %x\r\n", packet.back_left_wheel);
+		  writeDebugFormat("Top Right Wheel Output: %x\r\n", packet.top_right_wheel);
+		  writeDebugFormat("Back Right Wheel Output: %x\r\n", packet.back_right_wheel);
+		  writeDebugFormat("Bucket Drum Output: %x\r\n", packet.drum);
+		  writeDebugFormat("Track Actuator Position Output: %x\r\n", packet.actuator);
+    	}
 
-    SerialPacket packet = readFromJetson();
-    if (!packet.invalid) {
-      writeDebugString("got a packet\r\n");
-      writeDebugString("Top Left Wheel Output: ", packet.top_left_wheel);
-      writeDebugString("Back Left Wheel Output: ", packet.back_left_wheel);
-      writeDebugString("Top Right Wheel Output: ", packet.top_right_wheel);
-      writeDebugString("Back Right Wheel Output: ", packet.back_right_wheel);
-      writeDebugString("Bucket Drum Output: ", packet.drum);
-      writeDebugString("Track Actuator Position Output: ", packet.actuator);
-
-      // TODO: update to match new protocol readAction(packet);
-    } else {
+    }
+	else {
       writeDebugString("invalid packet read\r\n");
     }
   }
@@ -605,6 +605,7 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */

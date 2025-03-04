@@ -34,34 +34,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := Jetson Decoder
+BUILD_ARTIFACT_NAME := nucleo-serial
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-Jetson\ Decoder.elf \
+nucleo-serial.elf \
 
 MAP_FILES += \
-Jetson\ Decoder.map \
+nucleo-serial.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-Jetson\ Decoder.list \
+nucleo-serial.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: Jetson\ Decoder.elf secondary-outputs
+main-build: nucleo-serial.elf secondary-outputs
 
 # Tool invocations
-Jetson\ Decoder.elf Jetson\ Decoder.map: $(OBJS) $(USER_OBJS) C:\Users\rojo\STM32CubeIDE\workspace_1.17.0\Jetson\ Decoder\STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Jetson Decoder.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\rojo\STM32CubeIDE\workspace_1.17.0\Jetson Decoder\STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Jetson Decoder.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+nucleo-serial.elf nucleo-serial.map: $(OBJS) $(USER_OBJS) C:\Users\auste\Documents\Github\nucleo-serial\STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "nucleo-serial.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\auste\Documents\Github\nucleo-serial\STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="nucleo-serial.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -70,14 +70,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-Jetson\ Decoder.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "Jetson Decoder.list"
+nucleo-serial.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "nucleo-serial.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) Jetson\ Decoder.elf Jetson\ Decoder.list Jetson\ Decoder.map Jetson\\ Decoder.elf default.size.stdout
+	-$(RM) default.size.stdout nucleo-serial.elf nucleo-serial.list nucleo-serial.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
