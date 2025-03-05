@@ -14,6 +14,7 @@ void setFX(TalonFX *talonFX, double speed) {
 	}
 
 	sendFXCANMessage(talonFX, 0x204b540, (char[]){0, 1, 0, 0, 0, 0, valueInt & 255, (valueInt >> 8) & 255}, 8);
+	HAL_Delay(1);
 }
 
 void setNeutralModeFX(TalonFX *talonFX, NeutralModeValue neutralModeValue) {
@@ -26,10 +27,14 @@ void setNeutralModeFX(TalonFX *talonFX, NeutralModeValue neutralModeValue) {
 }
 
 void applySupplyCurrentLimitFX(TalonFX *talonFX, float current) {
-	char x[] = {0x21, 0x72, 0x08, 0, 0, 0, 0, 0xaa};
+	char x[] = {0x21, 0x70, 0x08, 0, 0, 0, 0, 0xaa};
 	floatToByteArray(current, &x[3]);
 	sendFXCANMessage(talonFX, 0x2047c00, x, 8);
 	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
+	HAL_Delay(1);
+	sendFXCANMessage(talonFX, 0x2047c00, x, 8);
+	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
+	HAL_Delay(1);
 }
 
 void applyConfigFX(TalonFX *talonFX, Slot0Configs *config)
@@ -75,12 +80,16 @@ void setControlFX(TalonFX *talonFX, int velocity, double feedforward)
 
 	char x[] = {0, 1, velocity & 0xff, (velocity >> 8) & 0xff, 0, 0, feedforwardInt & 0xff, (feedforwardInt >> 8) & 0xff};
 	sendFXCANMessage(talonFX, 0x2043700, x, 8);
+	HAL_Delay(1);
 }
 
 void voltageCycleClosedLoopRampPeriodFX(TalonFX *talonFX, float period)
 {
-	char x[] = {0x21, 0x83, 0x08, 0x00, 0x00, 0x00, 0x00, 0xaa};
+	char x[] = {0x21, 0x84, 0x08, 0x00, 0x00, 0x00, 0x00, 0xaa};
 	floatToByteArray(period, &x[3]);
+	sendFXCANMessage(talonFX, 0x2047c00, x, 8);
+	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
+	HAL_Delay(1);
 	sendFXCANMessage(talonFX, 0x2047c00, x, 8);
 	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
 	HAL_Delay(1);

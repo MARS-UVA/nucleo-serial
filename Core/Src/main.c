@@ -390,8 +390,8 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   //talonFX.applyConfig(&talonFX, &c);
-  talonFX.voltageCycleClosedLoopRampPeriod(&talonFX, 0);
-
+  //talonFX.voltageCycleClosedLoopRampPeriod(&talonFX, 0);
+  talonFX.applySupplyCurrentLimit(&talonFX, 5);
   int tick = 0;
   while (1)
   {
@@ -404,12 +404,9 @@ int main(void)
 
 
 //	  writeDebugString("here\r\n");
-	  sendGlobalEnableFrame();
-	  talonFX.setControl(&talonFX, 1, 0.1);
-
-	  //talonFX.applyConfig(&talonFX, &c, 1, 0.1);
-	  HAL_Delay(1);
-	  //talonFX.applySupplyCurrentLimit(&talonFX, 0.001);
+	  //talonFX.applyConfig(&talonFX, &c);
+	  //talonFX.setControl(&talonFX, 150, 1);
+	  //HAL_Delay(1);
 //	  tick++;
 //
 //	  if (tick > 500)
@@ -423,7 +420,7 @@ int main(void)
 //		  talonFX.setNeutralMode(&talonFX, BRAKE);
 //	  }
 
-//	  talonFX.setControl(&talonFX, 3, 1.0);
+	  //talonFX.applySupplyCurrentLimit(&talonFX, 0.1);
 
 //	if (DEBUG)
 //		writeDebugString("hi\r\n");
@@ -445,6 +442,7 @@ int main(void)
   * @brief System Clock Configuration
   * @retval None
   */
+
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
