@@ -25,6 +25,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+
+#include "debug.h"
+#include "serial.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,6 +55,7 @@
 UART_HandleTypeDef huart2;
 UART_HandleTypeDef huart3;
 
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -68,12 +72,12 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-typedef struct serialPacket {
-	uint8_t opcode;
-	uint8_t payload_size;
-	uint8_t *payload;
-	uint8_t invalid;
-} SerialPacket;
+//typedef struct serialPacket {
+//	uint8_t opcode;
+//	uint8_t payload_size;
+//	uint8_t *payload;
+//	uint8_t invalid;
+//} SerialPacket;
 
 uint8_t calculateChecksum(uint8_t *buffer, uint8_t length)
 {
@@ -83,134 +87,100 @@ uint8_t calculateChecksum(uint8_t *buffer, uint8_t length)
 	return checksum;
 }
 
-void writeDebug(const char *buffer, uint8_t length)
-{
-	HAL_UART_Transmit(&huart3, (uint8_t *) buffer, length, HAL_MAX_DELAY);
-}
 
-void writeDebugString(const char *buffer)
-{
-	writeDebug(buffer, strlen(buffer));
-}
-
-void writeDebugFormat(const char *format, ...)
-{
-	va_list args;
-	va_start(args, format);
-
-	va_list args_copy;
-	va_copy(args_copy, args);
-	int buff_size = vsnprintf(NULL, 0, format, args_copy);
-	va_end(args_copy);
-
-	char *buff = malloc(buff_size + 1);
-
-	if (buff == NULL)
-	{
-		va_end(args);
-		return;
-	}
-
-	vsnprintf(buff, buff_size + 1, format, args);
-	writeDebug(buff, buff_size);
-	free(buff);
-
-	va_end(args);
-}
-
-SerialPacket readFromJetson()
-{
-	uint8_t read;
-	HAL_StatusTypeDef hal_status;
-
-	// read header
-	hal_status = HAL_UART_Receive(&huart2, &read, 1, HAL_MAX_DELAY);
-
-	if (hal_status != HAL_OK)
-	{
-//		Error_Handler();
-		return (SerialPacket) {
-			.invalid = 1
-		};
-	}
-
-	// check header valid
-	if (read != 0xff)
-	{
-		writeDebugFormat("Read invalid header: %x\r\n", &read);
-
-//		Error_Handler();
-		return (SerialPacket) {
-			.invalid = 1
-		};
-	}
-
-	if (DEBUG)
-	{
-		writeDebugString("new packet started\r\n");
-	}
-	// read payload size
-	hal_status = HAL_UART_Receive(&huart2, &read, 1, HAL_MAX_DELAY);
-
-	if (hal_status != HAL_OK)
-	{
-//		Error_Handler();
-		return (SerialPacket) {
-			.invalid = 1
-		};
-	}
-
-
-	uint8_t opcode = (read & 0xc0) >> 6;
-	uint8_t payload_size = read & 0x3f;
-
-	// read payload
-	uint8_t *buffer = malloc(payload_size);
-
-	hal_status = HAL_UART_Receive(&huart2, buffer, payload_size, HAL_MAX_DELAY);
-
-	if (hal_status != HAL_OK)
-	{
-//		Error_Handler();
-		return (SerialPacket) {
-			.invalid = 1
-		};
-	}
-	// read checksum
-	hal_status = HAL_UART_Receive(&huart2, &read, 1, HAL_MAX_DELAY);
-
-	if (hal_status != HAL_OK)
-	{
-//		Error_Handler();
-		return (SerialPacket) {
-			.invalid = 1
-		};
-	}
-
-	// check checksum
-	if (calculateChecksum(buffer, payload_size) != read)
-	{
-//		Error_Handler();
-		return (SerialPacket) {
-			.invalid = 1
-		};
-	}
-
-	// print whatever was read to the serial console
-	if (DEBUG)
-	{
-		writeDebugString("Buffer read: ");
-		writeDebug((char *) buffer, payload_size);
-		writeDebugString("\r\n");
-	}
-
-	return (SerialPacket) {
-		.opcode = opcode,
-		.payload_size = payload_size,
-		.payload = buffer,
-		.invalid = 0
-	};
-}
+//SerialPacket readFromJetson()
+//{
+//	uint8_t read;
+//	HAL_StatusTypeDef hal_status;
+//
+//	// read header
+//	hal_status = HAL_UART_Receive(&huart2, &read, 1, HAL_MAX_DELAY);
+//
+//	if (hal_status != HAL_OK)
+//	{
+////		Error_Handler();
+//		return (SerialPacket) {
+//			.invalid = 1
+//		};
+//	}
+//
+//	// check header valid
+//	if (read != 0xff)
+//	{
+//		writeDebugFormat("Read invalid header: %x\r\n", &read);
+//
+////		Error_Handler();
+//		return (SerialPacket) {
+//			.invalid = 1
+//		};
+//	}
+//
+//	if (DEBUG)
+//	{
+//		writeDebugString("new packet started\r\n");
+//	}
+//	// read payload size
+//	hal_status = HAL_UART_Receive(&huart2, &read, 1, HAL_MAX_DELAY);
+//
+//	if (hal_status != HAL_OK)
+//	{
+////		Error_Handler();
+//		return (SerialPacket) {
+//			.invalid = 1
+//		};
+//	}
+//
+//
+//	uint8_t opcode = (read & 0xc0) >> 6;
+//	uint8_t payload_size = read & 0x3f;
+//
+//	// read payload
+//	uint8_t *buffer = malloc(payload_size);
+//
+//	hal_status = HAL_UART_Receive(&huart2, buffer, payload_size, HAL_MAX_DELAY);
+//
+//	if (hal_status != HAL_OK)
+//	{
+////		Error_Handler();
+//		return (SerialPacket) {
+//			.invalid = 1
+//		};
+//	}
+//	// read checksum
+//	hal_status = HAL_UART_Receive(&huart2, &read, 1, HAL_MAX_DELAY);
+//
+//	if (hal_status != HAL_OK)
+//	{
+////		Error_Handler();
+//		return (SerialPacket) {
+//			.invalid = 1
+//		};
+//	}
+//
+//	// check checksum
+//	if (calculateChecksum(buffer, payload_size) != read)
+//	{
+////		Error_Handler();
+//		return (SerialPacket) {
+//			.invalid = 1
+//		};
+//	}
+//
+//	// print whatever was read to the serial console
+//	if (DEBUG)
+//	{
+//		writeDebugString("Buffer read: ");
+//		writeDebug((char *) buffer, payload_size);
+//		writeDebugString("\r\n");
+//	}
+//
+//	return (SerialPacket) {
+//		.opcode = opcode,
+//		.payload_size = payload_size,
+//		.payload = buffer,
+//		.invalid = 0
+//	};
+//}
 
 void directDriveLeft(float power, float upperbound) {}
 void directDriveRight(float power, float upperbound) {}
@@ -226,89 +196,74 @@ void stop()
 
 #define DEBUG_BUFFER_LENGTH 64
 
-void directControl(SerialPacket packet)
-{
-	char debug_buffer[DEBUG_BUFFER_LENGTH] = {0};
-	for (int i = 0; i < packet.payload_size; i++)
-	{
-		float command = ((int) packet.payload[i] - 100) / 100.0f;
+//void directControl(SerialPacket packet)
+//{
+//	char debug_buffer[DEBUG_BUFFER_LENGTH] = {0};
+//	for (int i = 0; i < packet.payload_size; i++)
+//	{
+//		float command = ((int) packet.payload[i] - 100) / 100.0f;
+//
+//		switch (i)
+//		{
+//		case 0:
+//			directDriveLeft(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
+//
+//			sprintf(debug_buffer, "Front left: %.6f\r\n", command);
+//			writeDebug(debug_buffer, strlen(debug_buffer));
+////			writeDebugFormat("Front left: %.6f", command);
+//			break;
+//		case 1:
+//			directDriveRight(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
+//
+//			sprintf(debug_buffer, "Front right: %.6f\r\n", command);
+//			writeDebug(debug_buffer, strlen(debug_buffer));
+////			writeDebugFormat("Front right: %.6f", command);
+//			break;
+//		case 2:
+//			directDriveLeft(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
+//
+//			sprintf(debug_buffer, "Back left: %.6f\r\n", command);
+//			writeDebug(debug_buffer, strlen(debug_buffer));
+////			writeDebugFormat("Back left: %.6f", command);
+//			break;
+//		case 3:
+//			directDriveRight(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
+//
+//			sprintf(debug_buffer, "Back left: %.6f\r\n", command);
+//			writeDebug(debug_buffer, strlen(debug_buffer));
+////			writeDebugFormat("Back right: %.6f", command);
+//			break;
+//		default:
+//			writeDebugString("Unimplemented command written!\r\n");
+//			break;
+//		}
+//	}
+//}
+//
+//void pidControl(SerialPacket packet)
+//{
+//	// TODO: Implement
+//}
+//
+//void readAction(SerialPacket packet)
+//{
+//	switch (packet.opcode)
+//	{
+//	case OPCODE_STOP:
+//		stop();
+//		break;
+//	case OPCODE_DIRECT_CONTROL:
+//		directControl(packet);
+//		break;
+//	case OPCODE_PID_CONTROL:
+//		pidControl(packet);
+//		break;
+//	case OPCODE_NOP:
+//		break;
+//	}
+//}
 
-		switch (i)
-		{
-		case 0:
-			directDriveLeft(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
 
-			sprintf(debug_buffer, "Front left: %.6f\r\n", command);
-			writeDebug(debug_buffer, strlen(debug_buffer));
-//			writeDebugFormat("Front left: %.6f", command);
-			break;
-		case 1:
-			directDriveRight(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-
-			sprintf(debug_buffer, "Front right: %.6f\r\n", command);
-			writeDebug(debug_buffer, strlen(debug_buffer));
-//			writeDebugFormat("Front right: %.6f", command);
-			break;
-		case 2:
-			directDriveLeft(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-
-			sprintf(debug_buffer, "Back left: %.6f\r\n", command);
-			writeDebug(debug_buffer, strlen(debug_buffer));
-//			writeDebugFormat("Back left: %.6f", command);
-			break;
-		case 3:
-			directDriveRight(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-
-			sprintf(debug_buffer, "Back left: %.6f\r\n", command);
-			writeDebug(debug_buffer, strlen(debug_buffer));
-//			writeDebugFormat("Back right: %.6f", command);
-			break;
-		default:
-			writeDebugString("Unimplemented command written!\r\n");
-			break;
-		}
-	}
-}
-
-void pidControl(SerialPacket packet)
-{
-	// TODO: Implement
-}
-
-void readAction(SerialPacket packet)
-{
-	switch (packet.opcode)
-	{
-	case OPCODE_STOP:
-		stop();
-		break;
-	case OPCODE_DIRECT_CONTROL:
-		directControl(packet);
-		break;
-	case OPCODE_PID_CONTROL:
-		pidControl(packet);
-		break;
-	case OPCODE_NOP:
-		break;
-	}
-}
-
-void writeToJetson(uint8_t *data, uint8_t payload_size)
-{
-	uint8_t length = payload_size + 3;
-	uint8_t *encoded = malloc(length);
-	encoded[0] = 0xff;
-	encoded[1] = payload_size | 0xc0;
-	memcpy(encoded+2, data, payload_size);
-	encoded[length - 1] = calculateChecksum(data, payload_size);
-
-	HAL_StatusTypeDef HALStatus = HAL_UART_Transmit(&huart2, encoded, length, HAL_MAX_DELAY);
-
-	if (HALStatus != HAL_OK)
-		Error_Handler();
-
-	free(encoded);
-}
 /* USER CODE END 0 */
 
 /**
@@ -356,17 +311,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	if (DEBUG)
+	if (DEBUG){
 		writeDebugString("hi\r\n");
-	SerialPacket packet = readFromJetson();
-	if (!packet.invalid)
-	{
-		writeDebugString("starting action\r\n");
-		readAction(packet);
-	}
-	else
-	{
-		writeDebugString("invalid packet read\r\n");
 	}
   }
   /* USER CODE END 3 */

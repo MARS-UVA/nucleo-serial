@@ -58,34 +58,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := Nucleo-Serial
+BUILD_ARTIFACT_NAME := nucleo-serial
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-Nucleo-Serial.elf \
+nucleo-serial.elf \
 
 MAP_FILES += \
-Nucleo-Serial.map \
+nucleo-serial.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-Nucleo-Serial.list \
+nucleo-serial.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: Nucleo-Serial.elf secondary-outputs
+main-build: nucleo-serial.elf secondary-outputs
 
 # Tool invocations
-Nucleo-Serial.elf Nucleo-Serial.map: $(OBJS) $(USER_OBJS) /Projects/mars/nucleo-serial-cpp/STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "Nucleo-Serial.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"/Projects/mars/nucleo-serial-cpp/STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Nucleo-Serial.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+nucleo-serial.elf nucleo-serial.map: $(OBJS) $(USER_OBJS) C:\Users\auste\Documents\Github\nucleo-serial\STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "nucleo-serial.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\auste\Documents\Github\nucleo-serial\STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="nucleo-serial.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -94,14 +94,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-Nucleo-Serial.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "Nucleo-Serial.list"
+nucleo-serial.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "nucleo-serial.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) Nucleo-Serial.elf Nucleo-Serial.list Nucleo-Serial.map default.size.stdout
+	-$(RM) default.size.stdout nucleo-serial.elf nucleo-serial.list nucleo-serial.map
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)
