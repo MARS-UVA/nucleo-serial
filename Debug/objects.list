@@ -1,5 +1,6 @@
 "./Core/Src/TalonFX.o"
 "./Core/Src/TalonSRX.o"
+"./Core/Src/actuatorControl.o"
 "./Core/Src/can.o"
 "./Core/Src/control.o"
 "./Core/Src/debug.o"
