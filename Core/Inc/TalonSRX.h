@@ -10,6 +10,9 @@
 
 #include <stdbool.h>
 #include "main.h"
+#include "util.h"
+#include "can.h"
+#include <math.h>
 
 typedef struct talonSRX {
 	CAN_HandleTypeDef *hcan;

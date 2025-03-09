@@ -1,5 +1,4 @@
 #include "TalonSRX.h"
-#include "util.h"
 
 void sendSRXCANMessage(TalonSRX *talonSRX, int identifier, char *message, uint8_t length)
 {

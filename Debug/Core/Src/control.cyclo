@@ -1,1 +1,2 @@
-../Core/Src/control.c:5:6:directControl	1
+../Core/Src/control.c:16:6:initializeTalons	1
+../Core/Src/control.c:29:6:directControl	1

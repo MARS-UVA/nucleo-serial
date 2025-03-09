@@ -1,56 +1,53 @@
 #include "control.h"
-#include "debug.h"
+
+extern CAN_HandleTypeDef hcan1;
+
+TalonFX frontLeft;
+TalonFX backLeft;
+TalonFX frontRight;
+TalonFX backRight;
+TalonFX bucketDrum;
+TalonSRX leftActuator;
+TalonSRX rightActuator;
+
+
+
+// Initialize Talon "objects"
+void initializeTalons() {
+	frontLeft = TalonFXInit(&hcan1, FRONT_LEFT_WHEEL_ID);
+	backLeft = TalonFXInit(&hcan1, BACK_LEFT_WHEEL_ID);
+	frontRight = TalonFXInit(&hcan1, FRONT_RIGHT_WHEEL_ID);
+	backRight = TalonFXInit(&hcan1, BACK_RIGHT_WHEEL_ID);
+	bucketDrum = TalonFXInit(&hcan1, BUCKET_DRUM_ID);
+	// TODO: apply PID Configs
+
+	leftActuator = TalonSRXInit(&hcan1, LEFT_ACTUATOR_ID);
+	rightActuator = TalonSRXInit(&hcan1, RIGHT_ACTUATOR_ID);
+}
 
 // Given packet from Jetson, set outputs of motors and actuators
 void directControl(SerialPacket packet)
 {
+	// Send global enable frame (so that Talons actively receive CAN packets)
+	sendGlobalEnableFrame(&hcan1);
 
-	// Set outputs of left motors
-	uint8_t leftSpeed = packet.top_left_wheel;
+	// Set output speeds of left motors
+	uint8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff
+	frontLeft.setControl(&frontLeft, leftSpeed, 1); // sets velocity of TalonFX (in turns per second) to leftSpeed
+	backLeft.setControl(&backLeft, leftSpeed, 1);
 
-	// Set outputs of right motors
+
+	// Set output speeds of right motors
 	uint8_t rightSpeed = packet.top_right_wheel;
+	frontRight.setControl(&frontRight, rightSpeed, 1);
+	backRight.setControl(&backRight, rightSpeed, 1);
+
+	// Set output speed of the bucket drum
+	uint8_t bucketDrumSpeed = packet.drum;
+	bucketDrum.setControl(&bucketDrum, bucketDrumSpeed, 1);
 
 	// Set outputs of linear actuators
 	uint8_t actuatorPosition = packet.actuator;
-
-//	for (int i = 0; i < packet.payload_size; i++)
-//	{
-//		float command = ((int) packet.payload[i] - 100) / 100.0f;
-//
-//		switch (i)
-//		{
-//		case 0:
-//			directDriveLeft(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-//
-//			sprintf(debug_buffer, "Front left: %.6f\r\n", command);
-//			writeDebug(debug_buffer, strlen(debug_buffer));
-////			writeDebugFormat("Front left: %.6f", command);
-//			break;
-//		case 1:
-//			directDriveRight(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-//
-//			sprintf(debug_buffer, "Front right: %.6f\r\n", command);
-//			writeDebug(debug_buffer, strlen(debug_buffer));
-////			writeDebugFormat("Front right: %.6f", command);
-//			break;
-//		case 2:
-//			directDriveLeft(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-//
-//			sprintf(debug_buffer, "Back left: %.6f\r\n", command);
-//			writeDebug(debug_buffer, strlen(debug_buffer));
-////			writeDebugFormat("Back left: %.6f", command);
-//			break;
-//		case 3:
-//			directDriveRight(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-//
-//			sprintf(debug_buffer, "Back left: %.6f\r\n", command);
-//			writeDebug(debug_buffer, strlen(debug_buffer));
-////			writeDebugFormat("Back right: %.6f", command);
-//			break;
-//		default:
-//			writeDebugString("Unimplemented command written!\r\n");
-//			break;
-//		}
-//	}
+	leftActuator.set(&leftActuator, actuatorPosition); // TODO: import function that sets position based on potentiometer feedback
+	rightActuator.set(&rightActuator, 0);
 }
