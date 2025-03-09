@@ -30,7 +30,7 @@ SerialPacket readFromJetson() {
 
 void writeToJetson(uint8_t *data, uint8_t payload_size)
 {
-	// needs to be modified
+	// needs to be implemented
 
 //
 //	uint8_t length = payload_size + 3;

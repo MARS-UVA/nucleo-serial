@@ -1,5 +1,5 @@
 
-nucleo-serial.elf:     file format elf32-littlearm
+Nucleo-Serial.elf:     file format elf32-littlearm
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 0000002e  00000000  00000000  000071d4  2**0
                   CONTENTS, READONLY
- 12 .debug_info   00009e57  00000000  00000000  00007202  2**0
+ 12 .debug_info   00009e50  00000000  00000000  00007202  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00001990  00000000  00000000  00011059  2**0
+ 13 .debug_abbrev 00001991  00000000  00000000  00011052  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 000007e0  00000000  00000000  000129f0  2**3
+ 14 .debug_aranges 000007e0  00000000  00000000  000129e8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 000005f4  00000000  00000000  000131d0  2**0
+ 15 .debug_rnglists 000005f4  00000000  00000000  000131c8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00027b27  00000000  00000000  000137c4  2**0
+ 16 .debug_macro  0000271b  00000000  00000000  000137bc  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000acd3  00000000  00000000  0003b2eb  2**0
+ 17 .debug_line   0000acd3  00000000  00000000  00015ed7  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000f2ca4  00000000  00000000  00045fbe  2**0
+ 18 .debug_str    000f2ca4  00000000  00000000  00020baa  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  00138c62  2**0
+ 19 .comment      00000043  00000000  00000000  0011384e  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00002cb4  00000000  00000000  00138ca8  2**2
+ 20 .debug_frame  00002cb4  00000000  00000000  00113894  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000005c  00000000  00000000  0013b95c  2**0
+ 21 .debug_line_str 0000005c  00000000  00000000  00116548  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
