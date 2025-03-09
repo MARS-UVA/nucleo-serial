@@ -1,0 +1,3 @@
+../Core/Src/util.c:9:6:sendCANMessage	2
+../Core/Src/util.c:24:6:floatToByteArray	2
+../Core/Src/util.c:32:6:float16ToByteArray	2
