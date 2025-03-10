@@ -15,10 +15,10 @@ TalonSRX rightActuator;
 // Initialize Talon "objects"
 void initializeTalons() {
 	frontLeft = TalonFXInit(&hcan1, FRONT_LEFT_WHEEL_ID);
-	backLeft = TalonFXInit(&hcan1, BACK_LEFT_WHEEL_ID);
-	frontRight = TalonFXInit(&hcan1, FRONT_RIGHT_WHEEL_ID);
-	backRight = TalonFXInit(&hcan1, BACK_RIGHT_WHEEL_ID);
-	bucketDrum = TalonFXInit(&hcan1, BUCKET_DRUM_ID);
+//	backLeft = TalonFXInit(&hcan1, BACK_LEFT_WHEEL_ID);
+//	frontRight = TalonFXInit(&hcan1, FRONT_RIGHT_WHEEL_ID);
+//	backRight = TalonFXInit(&hcan1, BACK_RIGHT_WHEEL_ID);
+//	bucketDrum = TalonFXInit(&hcan1, BUCKET_DRUM_ID);
 	// TODO: apply PID Configs
 
 	leftActuator = TalonSRXInit(&hcan1, LEFT_ACTUATOR_ID);
@@ -34,20 +34,20 @@ void directControl(SerialPacket packet)
 	// Set output speeds of left motors
 	uint8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff
 	frontLeft.setControl(&frontLeft, leftSpeed, 1); // sets velocity of TalonFX (in turns per second) to leftSpeed
-	backLeft.setControl(&backLeft, leftSpeed, 1);
+//	backLeft.setControl(&backLeft, leftSpeed, 1);
 
 
 	// Set output speeds of right motors
 	uint8_t rightSpeed = packet.top_right_wheel;
-	frontRight.setControl(&frontRight, rightSpeed, 1);
-	backRight.setControl(&backRight, rightSpeed, 1);
+//	frontRight.setControl(&frontRight, rightSpeed, 1);
+//	backRight.setControl(&backRight, rightSpeed, 1);
 
 	// Set output speed of the bucket drum
 	uint8_t bucketDrumSpeed = packet.drum;
-	bucketDrum.setControl(&bucketDrum, bucketDrumSpeed, 1);
+//	bucketDrum.setControl(&bucketDrum, bucketDrumSpeed, 1);
 
 	// Set outputs of linear actuators
 	uint8_t actuatorPosition = packet.actuator;
-	leftActuator.set(&leftActuator, actuatorPosition); // TODO: import function that sets position based on potentiometer feedback
+	leftActuator.set(&leftActuator, actuatorPosition); // TODO: call actuator control function
 	rightActuator.set(&rightActuator, 0);
 }

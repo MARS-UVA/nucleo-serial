@@ -29,6 +29,7 @@
 #include "debug.h"
 #include "serial.h"
 #include "control.h"
+#include "TalonFX.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -222,6 +223,7 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
 //  initializeTalons();
+  TalonFX talonFX = TalonFXInit(&hcan1, FRONT_LEFT_WHEEL_ID);
 
   /* USER CODE END 2 */
 
@@ -232,6 +234,15 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	sendGlobalEnableFrame(&hcan1);
+	talonFX.set(&talonFX, 0.5);
+
+	if (DEBUG){
+		writeDebugString("Running\r\n");
+	}
+
+
+
 	SerialPacket motorValues = readFromJetson(); // receive a packet from Jetson
 	writeDebugString("Packet Received\r\n");
 	writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_left_wheel);
@@ -240,10 +251,10 @@ int main(void)
 	writeDebugFormat("Back Right Wheel Output: %x\r\n", motorValues.back_right_wheel);
 	writeDebugFormat("Bucket Drum Output: %x\r\n", motorValues.drum);
 	writeDebugFormat("Track Actuator Position Output: %x\r\n", motorValues.actuator);
+
+	HAL_Delay(10);
 //	directControl(motorValues); // set motor outputs accordingly
-	if (DEBUG){
-		writeDebugString("Running\r\n");
-	}
+
   }
   /* USER CODE END 3 */
 }

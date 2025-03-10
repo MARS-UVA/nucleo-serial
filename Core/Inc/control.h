@@ -9,6 +9,7 @@
 #include "TalonFX.h"
 #include "debug.h"
 #include "can.h"
+#include "actuatorControl.h"
 
 
 // Define CAN IDs of each motor/actuator
