@@ -30,7 +30,10 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr_ex.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart_ex.h \
- ../Core/Inc/debug.h ../Core/Inc/serial.h
+ ../Core/Inc/debug.h ../Core/Inc/serial.h ../Core/Inc/control.h \
+ ../Core/Inc/serial.h ../Core/Inc/TalonSRX.h ../Core/Inc/main.h \
+ ../Core/Inc/util.h ../Core/Inc/can.h ../Core/Inc/TalonFX.h \
+ ../Core/Inc/debug.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h:
 ../Core/Inc/stm32f7xx_hal_conf.h:
@@ -65,3 +68,11 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart_ex.h:
 ../Core/Inc/debug.h:
 ../Core/Inc/serial.h:
+../Core/Inc/control.h:
+../Core/Inc/serial.h:
+../Core/Inc/TalonSRX.h:
+../Core/Inc/main.h:
+../Core/Inc/util.h:
+../Core/Inc/can.h:
+../Core/Inc/TalonFX.h:
+../Core/Inc/debug.h:

@@ -28,6 +28,7 @@
 
 #include "debug.h"
 #include "serial.h"
+#include "control.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -220,6 +221,7 @@ int main(void)
   MX_I2C1_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
+//  initializeTalons();
 
   /* USER CODE END 2 */
 
@@ -230,8 +232,17 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	SerialPacket motorValues = readFromJetson(); // receive a packet from Jetson
+	writeDebugString("Packet Received\r\n");
+	writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_left_wheel);
+	writeDebugFormat("Back Left Wheel Output: %x\r\n", motorValues.back_left_wheel);
+	writeDebugFormat("Top Right Wheel Output: %x\r\n", motorValues.top_right_wheel);
+	writeDebugFormat("Back Right Wheel Output: %x\r\n", motorValues.back_right_wheel);
+	writeDebugFormat("Bucket Drum Output: %x\r\n", motorValues.drum);
+	writeDebugFormat("Track Actuator Position Output: %x\r\n", motorValues.actuator);
+//	directControl(motorValues); // set motor outputs accordingly
 	if (DEBUG){
-		writeDebugString("hi\r\n");
+		writeDebugString("Running\r\n");
 	}
   }
   /* USER CODE END 3 */

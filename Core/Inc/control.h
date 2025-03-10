@@ -12,16 +12,17 @@
 
 
 // Define CAN IDs of each motor/actuator
-#define FRONT_LEFT_WHEEL_ID 0
-#define BACK_LEFT_WHEEL_ID 1
-#define FRONT_RIGHT_WHEEL_ID 2
-#define BACK_RIGHT_WHEEL_ID 3
-#define BUCKET_DRUM_ID 4
-#define LEFT_ACTUATOR_ID 5
-#define RIGHT_ACTUATOR_ID 6
+#define FRONT_LEFT_WHEEL_ID 36
+#define BACK_LEFT_WHEEL_ID 37
+#define FRONT_RIGHT_WHEEL_ID 38
+#define BACK_RIGHT_WHEEL_ID 39
+#define BUCKET_DRUM_ID 25
+#define LEFT_ACTUATOR_ID 0
+#define RIGHT_ACTUATOR_ID 1
 
 
 void directControl(SerialPacket packet);
+void initializeTalons();
 
 
 #endif
