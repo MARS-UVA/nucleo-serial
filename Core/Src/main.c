@@ -222,38 +222,41 @@ int main(void)
   MX_I2C1_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
-//  initializeTalons();
-  TalonFX talonFX = TalonFXInit(&hcan1, FRONT_LEFT_WHEEL_ID);
+  initializeTalons();
+//  TalonFX talonFX = TalonFXInit(&hcan1, FRONT_LEFT_WHEEL_ID);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  int count = 0;
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-	sendGlobalEnableFrame(&hcan1);
-	talonFX.set(&talonFX, 0.5);
+//	sendGlobalEnableFrame(&hcan1);
+//	talonFX.set(&talonFX, 0.2);
 
 	if (DEBUG){
 		writeDebugString("Running\r\n");
 	}
 
 
-
-	SerialPacket motorValues = readFromJetson(); // receive a packet from Jetson
-	writeDebugString("Packet Received\r\n");
-	writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_left_wheel);
-	writeDebugFormat("Back Left Wheel Output: %x\r\n", motorValues.back_left_wheel);
-	writeDebugFormat("Top Right Wheel Output: %x\r\n", motorValues.top_right_wheel);
-	writeDebugFormat("Back Right Wheel Output: %x\r\n", motorValues.back_right_wheel);
-	writeDebugFormat("Bucket Drum Output: %x\r\n", motorValues.drum);
-	writeDebugFormat("Track Actuator Position Output: %x\r\n", motorValues.actuator);
-
-	HAL_Delay(10);
-//	directControl(motorValues); // set motor outputs accordingly
+	SerialPacket motorValues;
+	if (count % 10 == 0) {
+		motorValues = readFromJetson(); // receive a packet from Jetson
+		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_left_wheel);
+	}
+//	writeDebugString("Packet Received\r\n");
+//	writeDebugFormat("Back Left Wheel Output: %x\r\n", motorValues.back_left_wheel);
+//	writeDebugFormat("Top Right Wheel Output: %x\r\n", motorValues.top_right_wheel);
+//	writeDebugFormat("Back Right Wheel Output: %x\r\n", motorValues.back_right_wheel);
+//	writeDebugFormat("Bucket Drum Output: %x\r\n", motorValues.drum);
+//	writeDebugFormat("Track Actuator Position Output: %x\r\n", motorValues.actuator);
+	count += 1;
+	directControl(motorValues); // set motor outputs accordingly
+	HAL_Delay(1);
 
   }
   /* USER CODE END 3 */
@@ -384,6 +387,9 @@ static void MX_CAN1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN1_Init 2 */
+  if (HAL_CAN_Start(&hcan1) != HAL_OK) {
+	Error_Handler();
+  }
 
   /* USER CODE END CAN1_Init 2 */
 
