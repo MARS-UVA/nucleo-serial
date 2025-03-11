@@ -368,7 +368,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   writeDebugString("started\r\n");
-  TalonSRX talonSRX = TalonSRXInit(&hcan1, 1);
+  TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
   TalonFX talonFX = TalonFXInit(&hcan1, 39);
 
   writeDebugString("initialized\r\n");
@@ -389,9 +389,10 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  //talonFX.applyConfig(&talonFX, &c);
-  //talonFX.voltageCycleClosedLoopRampPeriod(&talonFX, 0);
-  talonFX.applySupplyCurrentLimit(&talonFX, 5);
+//  talonFX.applyConfig(&talonFX, &c);
+//  talonFX.setNeutralMode(&talonFX, BRAKE);
+//  sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
+
   int tick = 0;
   while (1)
   {
@@ -411,7 +412,10 @@ int main(void)
 //
 //	  if (tick > 500)
 //	  {
-		  //talonFX.set(&talonFX, 0);
+//		  talonFX.set(&talonFX, 0);
+	  talonFX.applySupplyCurrentLimit(&talonFX, 0.5);
+	  talonFX.set(&talonFX, 0.5);
+	  talonFX.applySupplyCurrentLimit(&talonFX, 1);
 //	  }
 //	  else
 //	  {
@@ -624,11 +628,45 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void can_irq(CAN_HandleTypeDef *pcan) {
-//  CAN_RxHeaderTypeDef msg;
-//  uint8_t data[8];
-//  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, data);
-//  writeDebugString(data);
+ListNode msgs = {};
+ListNode *lastMsg = &msgs;
+
+CANPacket receiveCAN(int id)
+{
+	ListNode *ptr = &msgs;
+	while (ptr->next != NULL)
+	{
+		ListNode *nextPtr = ptr->next;
+		if (nextPtr->data.header.ExtId == id)
+		{
+			ptr->next = nextPtr->next;
+			CANPacket packet = nextPtr->data;
+			free(nextPtr);
+			return packet;
+		}
+
+		ptr = nextPtr;
+	}
+
+	return (CANPacket) {
+		.data = NULL
+	};
+}
+
+void can_irq(CAN_HandleTypeDef *pcan)
+{
+  CAN_RxHeaderTypeDef msg;
+  uint8_t *data = malloc(8);
+  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, data);
+  CANPacket packet = {
+		  .header = msg,
+		  .data = data
+  };
+  ListNode *nextNode = malloc(sizeof(ListNode));
+  nextNode->data = packet;
+  nextNode->next = NULL;
+  lastMsg->next = nextNode;
+  lastMsg = nextNode;
 }
 /* USER CODE END 4 */
 

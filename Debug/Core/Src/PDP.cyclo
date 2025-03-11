@@ -1,0 +1,3 @@
+../Core/Src/PDP.c:10:6:requestCurrentReadings	1
+../Core/Src/PDP.c:16:6:getSixParam	2
+../Core/Src/PDP.c:66:7:getChannelCurrent	5

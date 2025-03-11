@@ -1,3 +1,4 @@
 ../Core/Src/util.c:9:6:sendCANMessage	56	static
-../Core/Src/util.c:24:6:floatToByteArray	24	static
-../Core/Src/util.c:32:6:float16ToByteArray	24	static
+../Core/Src/util.c:24:2:pdpGetCurrentReadings	72	static
+../Core/Src/util.c:50:6:floatToByteArray	24	static
+../Core/Src/util.c:58:6:float16ToByteArray	24	static

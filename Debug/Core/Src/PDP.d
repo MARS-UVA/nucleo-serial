@@ -1,4 +1,4 @@
-Core/Src/TalonFX.o: ../Core/Src/TalonFX.c ../Core/Inc/TalonFX.h \
+Core/Src/PDP.o: ../Core/Src/PDP.c ../Core/Inc/PDP.h ../Core/Inc/util.h \
  ../Core/Inc/main.h ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h \
  ../Core/Inc/stm32f7xx_hal_conf.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_rcc.h \
@@ -27,9 +27,9 @@ Core/Src/TalonFX.o: ../Core/Src/TalonFX.c ../Core/Inc/TalonFX.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr_ex.h \
  ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart.h \
- ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart_ex.h \
- ../Core/Inc/util.h ../Core/Inc/util.h
-../Core/Inc/TalonFX.h:
+ ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart_ex.h
+../Core/Inc/PDP.h:
+../Core/Inc/util.h:
 ../Core/Inc/main.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h:
 ../Core/Inc/stm32f7xx_hal_conf.h:
@@ -60,5 +60,3 @@ Core/Src/TalonFX.o: ../Core/Src/TalonFX.c ../Core/Inc/TalonFX.h \
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_pwr_ex.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal_uart_ex.h:
-../Core/Inc/util.h:
-../Core/Inc/util.h:
