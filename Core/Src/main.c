@@ -54,6 +54,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc2;
 
 CAN_HandleTypeDef hcan1;
 
@@ -77,6 +78,7 @@ static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART6_UART_Init(void);
+static void MX_ADC2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -108,77 +110,6 @@ void stop()
 	// TODO: Implement
 }
 
-#define CONTROL_UPPER_BOUND 1.0f
-#define DRIVETRAIN_SCALE 0.5f
-
-#define DEBUG_BUFFER_LENGTH 64
-
-//void directControl(SerialPacket packet)
-//{
-//	char debug_buffer[DEBUG_BUFFER_LENGTH] = {0};
-//	for (int i = 0; i < packet.payload_size; i++)
-//	{
-//		float command = ((int) packet.payload[i] - 100) / 100.0f;
-//
-//		switch (i)
-//		{
-//		case 0:
-//			directDriveLeft(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-//
-//			sprintf(debug_buffer, "Front left: %.6f\r\n", command);
-//			writeDebug(debug_buffer, strlen(debug_buffer));
-////			writeDebugFormat("Front left: %.6f", command);
-//			break;
-//		case 1:
-//			directDriveRight(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-//
-//			sprintf(debug_buffer, "Front right: %.6f\r\n", command);
-//			writeDebug(debug_buffer, strlen(debug_buffer));
-////			writeDebugFormat("Front right: %.6f", command);
-//			break;
-//		case 2:
-//			directDriveLeft(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-//
-//			sprintf(debug_buffer, "Back left: %.6f\r\n", command);
-//			writeDebug(debug_buffer, strlen(debug_buffer));
-////			writeDebugFormat("Back left: %.6f", command);
-//			break;
-//		case 3:
-//			directDriveRight(command * DRIVETRAIN_SCALE, CONTROL_UPPER_BOUND);
-//
-//			sprintf(debug_buffer, "Back left: %.6f\r\n", command);
-//			writeDebug(debug_buffer, strlen(debug_buffer));
-////			writeDebugFormat("Back right: %.6f", command);
-//			break;
-//		default:
-//			writeDebugString("Unimplemented command written!\r\n");
-//			break;
-//		}
-//	}
-//}
-//
-//void pidControl(SerialPacket packet)
-//{
-//	// TODO: Implement
-//}
-//
-//void readAction(SerialPacket packet)
-//{
-//	switch (packet.opcode)
-//	{
-//	case OPCODE_STOP:
-//		stop();
-//		break;
-//	case OPCODE_DIRECT_CONTROL:
-//		directControl(packet);
-//		break;
-//	case OPCODE_PID_CONTROL:
-//		pidControl(packet);
-//		break;
-//	case OPCODE_NOP:
-//		break;
-//	}
-//}
 
 
 /* USER CODE END 0 */
@@ -221,7 +152,9 @@ int main(void)
   MX_CAN1_Init();
   MX_I2C1_Init();
   MX_USART6_UART_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
+  writeDebugString("Starting program!");
   initializeTalons();
 //  TalonFX talonFX = TalonFXInit(&hcan1, FRONT_LEFT_WHEEL_ID);
 
@@ -230,6 +163,8 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   int count = 0;
+  writeDebugString("Entering while loop!");
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -247,13 +182,15 @@ int main(void)
 	if (count % 10 == 0) {
 		motorValues = readFromJetson(); // receive a packet from Jetson
 		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_left_wheel);
+		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_right_wheel);
+		writeDebugFormat("Track Actuator Position Output: %x\r\n", motorValues.actuator);
+
 	}
 //	writeDebugString("Packet Received\r\n");
 //	writeDebugFormat("Back Left Wheel Output: %x\r\n", motorValues.back_left_wheel);
 //	writeDebugFormat("Top Right Wheel Output: %x\r\n", motorValues.top_right_wheel);
 //	writeDebugFormat("Back Right Wheel Output: %x\r\n", motorValues.back_right_wheel);
 //	writeDebugFormat("Bucket Drum Output: %x\r\n", motorValues.drum);
-//	writeDebugFormat("Track Actuator Position Output: %x\r\n", motorValues.actuator);
 	count += 1;
 	directControl(motorValues); // set motor outputs accordingly
 	HAL_Delay(1);
@@ -352,6 +289,58 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief ADC2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC2_Init(void)
+{
+
+  /* USER CODE BEGIN ADC2_Init 0 */
+
+  /* USER CODE END ADC2_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC2_Init 1 */
+
+  /* USER CODE END ADC2_Init 1 */
+
+  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+  */
+  hadc2.Instance = ADC2;
+  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc2.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc2.Init.ContinuousConvMode = DISABLE;
+  hadc2.Init.DiscontinuousConvMode = DISABLE;
+  hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc2.Init.NbrOfConversion = 1;
+  hadc2.Init.DMAContinuousRequests = DISABLE;
+  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  if (HAL_ADC_Init(&hadc2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_12;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC2_Init 2 */
+
+  /* USER CODE END ADC2_Init 2 */
 
 }
 

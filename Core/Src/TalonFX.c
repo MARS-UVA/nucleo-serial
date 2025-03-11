@@ -107,7 +107,5 @@ TalonFX TalonFXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 			.setControl = setControlFX
 	};
 
-    sendFXCANMessage(&talonFX, 0x2040080, "\x00\x00\x00\x00\x00\x00\x00\x00", 8);
-
 	return talonFX;
 }
