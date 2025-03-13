@@ -15,7 +15,7 @@
 typedef struct pdp {
 	CAN_HandleTypeDef *hcan;
 	int identifier;
-	unsigned long cache;
+	uint64_t cache;
 	short cacheWords[6];
 	float (*getChannelCurrent) (struct pdp*, int channelID);
 	void (*getSixParam) (struct pdp*, int arbID);

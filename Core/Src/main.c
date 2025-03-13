@@ -405,17 +405,19 @@ int main(void)
 
 
 //	  writeDebugString("here\r\n");
-	  //talonFX.applyConfig(&talonFX, &c);
-	  //talonFX.setControl(&talonFX, 150, 1);
-	  //HAL_Delay(1);
+	  talonFX.applyConfig(&talonFX, &c);
+	  talonFX.setControl(&talonFX, 50, 1);
+//	  talonFX.setControl(&talonFX, -50, 1);
+
+	  HAL_Delay(1);
 //	  tick++;
 //
 //	  if (tick > 500)
 //	  {
 //		  talonFX.set(&talonFX, 0);
-	  talonFX.applySupplyCurrentLimit(&talonFX, 0.5);
-	  talonFX.set(&talonFX, 0.5);
-	  talonFX.applySupplyCurrentLimit(&talonFX, 1);
+//	  talonFX.applySupplyCurrentLimit(&talonFX, 0.5);
+//	  talonFX.set(&talonFX, 0.5);
+//	  talonFX.applySupplyCurrentLimit(&talonFX, 1);
 //	  }
 //	  else
 //	  {

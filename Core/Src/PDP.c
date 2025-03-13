@@ -17,7 +17,7 @@ void getSixParam(PDP* pdp, int arbID) {
 	requestCurrentReadings(pdp);
 	CANPacket packet;
 	// TODO: break out after waiting; has potential to make code hang indefinitely
-	while ((packet = receiveCAN(0x8041400)).data == NULL);
+	while ((packet = receiveCAN(arbID)).data == NULL);
 	pdp->cache = *packet.data;
 	pdp->cacheWords[0] = (uint8_t) pdp->cache;
 
@@ -63,6 +63,7 @@ void getSixParam(PDP* pdp, int arbID) {
 	numPtr12[0] = (short) (numPtr12[0] | ((short) ((pdp->cache >> 60) & 15)));
 }
 
+// given PDP channel ID, returns the current in Amps at the channel
 float getChannelCurrent(PDP* pdp, int channelID)
 {
 	float num = 0;
