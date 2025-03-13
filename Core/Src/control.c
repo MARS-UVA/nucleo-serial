@@ -48,7 +48,9 @@ void directControl(SerialPacket packet)
 
 	// Set outputs of linear actuators
 	uint8_t actuatorPosition = packet.actuator;
-	leftActuator.set(&leftActuator, 0.5); // TODO: call actuator control function
-	rightActuator.set(&rightActuator, 0.5);
+	float percentExtension = (float) actuatorPosition / 255; // convert value between 0 and 255 to decimal between 0 and 1
+//	leftActuator.set(&leftActuator, 0.5);
+//	rightActuator.set(&rightActuator, 0.5);
+	setActuatorLength(leftActuator, rightActuator, percentExtension); // TODO: hook up ADCs to test
 
 }
