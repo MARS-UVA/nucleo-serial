@@ -17,7 +17,9 @@ void getSixParam(PDP* pdp, int arbID) {
 	requestCurrentReadings(pdp);
 	CANPacket packet;
 	// TODO: break out after waiting; has potential to make code hang indefinitely
-	while ((packet = receiveCAN(arbID)).data == NULL);
+	// 3/13 testing: code hangs here. according to debugger, only one CAN packet was received. The next one
+	// is NULL.
+	while ((packet = receiveCAN(arbID | pdp->identifier)).data == NULL);
 	pdp->cache = *packet.data;
 	pdp->cacheWords[0] = (uint8_t) pdp->cache;
 
@@ -78,5 +80,19 @@ float getChannelCurrent(PDP* pdp, int channelID)
 		num = pdp->cacheWords[channelID - 12] * 0.125;
 	}
 	return num;
+}
+
+PDP PDPInit(CAN_HandleTypeDef *hcan, int32_t identifier)
+{
+	PDP pdp = {
+		.hcan = hcan,
+		.identifier = identifier,
+		.cache = 0,
+		.cacheWords = {0},
+		.getChannelCurrent = getChannelCurrent,
+		.getSixParam = getSixParam,
+		.requestCurrentReadings = requestCurrentReadings};
+
+	return pdp;
 }
 

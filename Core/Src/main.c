@@ -27,6 +27,7 @@
 #include <stdarg.h>
 #include "TalonSRX.h"
 #include "TalonFX.h"
+#include "PDP.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -369,9 +370,8 @@ int main(void)
 
   writeDebugString("started\r\n");
   TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
-  TalonFX talonFX = TalonFXInit(&hcan1, 39);
-
-  writeDebugString("initialized\r\n");
+  TalonFX talonFX = TalonFXInit(&hcan1, 25);
+  PDP pdp = PDPInit(&hcan1, 62);
 
   sendGlobalEnableFrame();
 //  talonSRX.setInverted(&talonSRX, true);
@@ -400,24 +400,28 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  sendGlobalEnableFrame();
+	  writeDebugString("Running\r\n");
 
 #define lmao 0.1
 
 
 //	  writeDebugString("here\r\n");
 	  talonFX.applyConfig(&talonFX, &c);
-	  talonFX.setControl(&talonFX, 50, 1);
-//	  talonFX.setControl(&talonFX, -50, 1);
-
+//	  talonFX.set(&talonFX, 0.5);
+//	  talonFX.setControl(&talonFX, 125, 1);
+	  talonFX.setControl(&talonFX, 0, 1);
+//	  float current = pdp.getChannelCurrent(&pdp, 0); // get channel current for Kraken
+//	  writeDebugFormat("Current: %f.\r\n", current);
 	  HAL_Delay(1);
 //	  tick++;
 //
 //	  if (tick > 500)
 //	  {
 //		  talonFX.set(&talonFX, 0);
-//	  talonFX.applySupplyCurrentLimit(&talonFX, 0.5);
+//	  talonFX.applySupplyCurrentLimit(&talonFX, 90);
+//	  talonFX.voltageCycleClosedLoopRampPeriod(&talonFX, 0.5);
+
 //	  talonFX.set(&talonFX, 0.5);
-//	  talonFX.applySupplyCurrentLimit(&talonFX, 1);
 //	  }
 //	  else
 //	  {

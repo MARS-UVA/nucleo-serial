@@ -1,3 +1,4 @@
 ../Core/Src/PDP.c:10:6:requestCurrentReadings	16	static
 ../Core/Src/PDP.c:16:6:getSixParam	104	static
-../Core/Src/PDP.c:67:7:getChannelCurrent	24	static
+../Core/Src/PDP.c:69:7:getChannelCurrent	24	static
+../Core/Src/PDP.c:85:5:PDPInit	72	static
