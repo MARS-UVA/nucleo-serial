@@ -12,6 +12,7 @@
 
 #include "stm32f7xx_hal.h"
 #include "TalonSRX.h"
+#include "debug.h"
 
 #define TOLERANCE 1.004
 #define SLOWFACTOR 0.99

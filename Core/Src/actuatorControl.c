@@ -19,6 +19,8 @@ void setActuatorLength(TalonSRX leftActuator, TalonSRX rightActuator, float perc
 
 	  struct ActuatorValues percentOutputs;
 	  uint16_t targetPosition = percentExtension * FULL_ADC_RANGE;
+//	  writeDebugFormat("Current position: %d\r\n", leftPosition);
+//	  writeDebugFormat("Target position: %d\r\n", targetPosition);
 	  // if current actuator length is approximately equal to target length, set Talon SRX outputs to 0
 	  if (leftPosition < targetPosition + POSITION_TOLERANCE && leftPosition > targetPosition - POSITION_TOLERANCE) {
 		  percentOutputs = (struct ActuatorValues) {
