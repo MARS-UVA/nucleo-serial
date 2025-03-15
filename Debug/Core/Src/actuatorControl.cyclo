@@ -1,2 +1,2 @@
-../Core/Src/actuatorControl.c:11:6:setActuatorLength	5
+../Core/Src/actuatorControl.c:10:6:setActuatorLength	4
 ../Core/Src/actuatorControl.c:44:23:syncLinearActuators	9

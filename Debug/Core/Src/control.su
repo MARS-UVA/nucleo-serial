@@ -1,2 +1,2 @@
 ../Core/Src/control.c:16:6:initializeTalons	48	static
-../Core/Src/control.c:29:6:directControl	64	static
+../Core/Src/control.c:31:6:directControl	64	static

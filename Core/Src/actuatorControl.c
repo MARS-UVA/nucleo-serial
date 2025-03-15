@@ -6,7 +6,6 @@ extern ADC_HandleTypeDef hadc2;
 #define POSITION_TOLERANCE 10
 
 
-
 // sets actuator length for a length between 0 (fully retracted) and 1 (fully extended)
 void setActuatorLength(TalonSRX leftActuator, TalonSRX rightActuator, float percentExtension) {
 	// Get current length of actuators
@@ -28,10 +27,11 @@ void setActuatorLength(TalonSRX leftActuator, TalonSRX rightActuator, float perc
 			.right = 0,
 		  };
 	  }
-	  if (leftPosition < targetPosition) {
+	  else
+		  if (leftPosition < targetPosition) {
 		  percentOutputs = syncLinearActuators(1); // extend actuators at full speed
 	  }
-	  else if (leftPosition < percentExtension * FULL_ADC_RANGE) {
+	  else {
 		  percentOutputs = syncLinearActuators(-1); // retract actuators at full speed
 	  }
 	  leftActuator.set(&leftActuator, percentOutputs.left);

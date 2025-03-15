@@ -23,6 +23,8 @@ void initializeTalons() {
 
 	leftActuator = TalonSRXInit(&hcan1, LEFT_ACTUATOR_ID);
 	rightActuator = TalonSRXInit(&hcan1, RIGHT_ACTUATOR_ID);
+	leftActuator.setInverted(&leftActuator, true);
+	rightActuator.setInverted(&rightActuator, true);
 }
 
 // Given packet from Jetson, set outputs of motors and actuators
@@ -49,8 +51,16 @@ void directControl(SerialPacket packet)
 	// Set outputs of linear actuators
 	uint8_t actuatorPosition = packet.actuator;
 	float percentExtension = (float) actuatorPosition / 255; // convert value between 0 and 255 to decimal between 0 and 1
-//	leftActuator.set(&leftActuator, 0.5);
-//	rightActuator.set(&rightActuator, 0.5);
-	setActuatorLength(leftActuator, rightActuator, percentExtension); // TODO: hook up ADCs to test
+	if (DIRECT_ACTUATOR_CONTROL) {
+		// this expects packet.actuator to be a two's complement value between 127 and -127
+		// eg. a 0xff corresponds to -1/128 = 0.8% output, 0x7F corresponds to 128/128 = 100% output
+		float actuatorOutput = ((int8_t) packet.actuator) / 127.0;
+//		writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
+		leftActuator.set(&leftActuator, actuatorOutput);
+		rightActuator.set(&rightActuator, actuatorOutput);
+	}
+	else {
+		setActuatorLength(leftActuator, rightActuator, percentExtension);
+	}
 
 }
