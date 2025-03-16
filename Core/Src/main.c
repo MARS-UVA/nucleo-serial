@@ -85,24 +85,7 @@ static void MX_ADC2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-//typedef struct serialPacket {
-//	uint8_t opcode;
-//	uint8_t payload_size;
-//	uint8_t *payload;
-//	uint8_t invalid;
-//} SerialPacket;
 
-uint8_t calculateChecksum(uint8_t *buffer, uint8_t length)
-{
-	uint8_t checksum = 0;
-	for (int i = 0; i < length; i++)
-		checksum += buffer[i];
-	return checksum;
-}
-
-
-void directDriveLeft(float power, float upperbound) {}
-void directDriveRight(float power, float upperbound) {}
 
 // stop all systems
 void stop()
@@ -156,7 +139,6 @@ int main(void)
   /* USER CODE BEGIN 2 */
   writeDebugString("Starting program!");
   initializeTalons();
-//  TalonFX talonFX = TalonFXInit(&hcan1, FRONT_LEFT_WHEEL_ID);
 
   /* USER CODE END 2 */
 
@@ -170,27 +152,22 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//	sendGlobalEnableFrame(&hcan1);
-//	talonFX.set(&talonFX, 0.2);
 
 	if (DEBUG){
-		writeDebugString("Running\r\n");
+//		writeDebugString("Running\r\n");
 	}
 
 
 	SerialPacket motorValues;
+	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
 	if (count % 10 == 0) {
 		motorValues = readFromJetson(); // receive a packet from Jetson
 		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_left_wheel);
-		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_right_wheel);
-		writeDebugFormat("Track Actuator Position Output: %x\r\n", motorValues.actuator);
+//		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_right_wheel);
+//		writeDebugFormat("Track Actuator Position Output: %x\r\n", motorValues.actuator);
 
 	}
-//	writeDebugString("Packet Received\r\n");
-//	writeDebugFormat("Back Left Wheel Output: %x\r\n", motorValues.back_left_wheel);
-//	writeDebugFormat("Top Right Wheel Output: %x\r\n", motorValues.top_right_wheel);
-//	writeDebugFormat("Back Right Wheel Output: %x\r\n", motorValues.back_right_wheel);
-//	writeDebugFormat("Bucket Drum Output: %x\r\n", motorValues.drum);
+
 	count += 1;
 	directControl(motorValues); // set motor outputs accordingly
 	HAL_Delay(1);
