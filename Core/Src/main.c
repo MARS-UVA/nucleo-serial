@@ -160,7 +160,7 @@ int main(void)
 
 	SerialPacket motorValues;
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
-	if (count % 10 == 0) {
+	if (count % 5 == 0) {
 		motorValues = readFromJetson(); // receive a packet from Jetson
 		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_left_wheel);
 //		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_right_wheel);
