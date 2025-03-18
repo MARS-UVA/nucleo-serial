@@ -19,8 +19,21 @@ void getSixParam(PDP* pdp, int arbID) {
 	// TODO: break out after waiting; has potential to make code hang indefinitely
 	// 3/13 testing: code hangs here. according to debugger, only one CAN packet was received. The next one
 	// is NULL.
-	while ((packet = receiveCAN(arbID | pdp->identifier)).data == NULL);
-	pdp->cache = *packet.data;
+	for (int i = 0; i < 10; i++)
+	{
+		packet = receiveCAN(arbID | pdp->identifier);
+		if (packet.data != NULL)
+			break;
+
+		HAL_Delay(10);
+	}
+
+	if (packet.data == NULL)
+		return;
+
+	writeDebugFormat("??? %hd, %hd, %hd\r\n", packet.data[5], packet.data[6], packet.data[7]);
+
+	pdp->cache = *((long *) packet.data);
 	pdp->cacheWords[0] = (uint8_t) pdp->cache;
 
 	short* numPtr1 = pdp->cacheWords;

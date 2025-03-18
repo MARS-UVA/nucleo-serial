@@ -369,11 +369,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   writeDebugString("started\r\n");
-  TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
+  TalonSRX talonSRX = TalonSRXInit(&hcan1, 1);
   TalonFX talonFX = TalonFXInit(&hcan1, 25);
   PDP pdp = PDPInit(&hcan1, 62);
 
-  sendGlobalEnableFrame();
+//  sendGlobalEnableFrame();
 //  talonSRX.setInverted(&talonSRX, true);
   Slot0Configs c = {
   	 .kP = 0.1,
@@ -385,7 +385,6 @@ int main(void)
   	 .kG = 0,
   };
   /* USER CODE END 2 */
-  sendGlobalEnableFrame();
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
@@ -400,18 +399,16 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 	  sendGlobalEnableFrame();
-	  writeDebugString("Running\r\n");
-
-#define lmao 0.1
-
+//	  writeDebugString("Running\r\n");
+	  HAL_Delay(1);
 
 //	  writeDebugString("here\r\n");
-	  talonFX.applyConfig(&talonFX, &c);
-//	  talonFX.set(&talonFX, 0.5);
+//	  talonFX.applyConfig(&talonFX, &c);
+	  talonFX.set(&talonFX, 0.75);
 //	  talonFX.setControl(&talonFX, 125, 1);
-	  talonFX.setControl(&talonFX, 0, 1);
-//	  float current = pdp.getChannelCurrent(&pdp, 0); // get channel current for Kraken
-//	  writeDebugFormat("Current: %f.\r\n", current);
+//	  talonFX.setControl(&talonFX, 1, 1);
+	  float current = pdp.getChannelCurrent(&pdp, 14); // get channel current for Kraken
+	  writeDebugFormat("Current: %f.\r\n", current);
 	  HAL_Delay(1);
 //	  tick++;
 //
@@ -452,7 +449,6 @@ int main(void)
   * @brief System Clock Configuration
   * @retval None
   */
-
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -522,25 +518,25 @@ static void MX_CAN1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN1_Init 2 */
-//  CAN_FilterTypeDef sf;
-//  sf.FilterMaskIdHigh = 0x0000;
-//  sf.FilterMaskIdLow = 0x0000;
-//  sf.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-//  sf.FilterBank = 0;
-//  sf.FilterMode = CAN_FILTERMODE_IDMASK;
-//  sf.FilterScale = CAN_FILTERSCALE_32BIT;
-//  sf.FilterActivation = CAN_FILTER_ENABLE;
-//  if (HAL_CAN_ConfigFilter(&hcan1, &sf) != HAL_OK)
-//	Error_Handler();
+  CAN_FilterTypeDef sf;
+  sf.FilterMaskIdHigh = 0x0000;
+  sf.FilterMaskIdLow = 0x0000;
+  sf.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+  sf.FilterBank = 0;
+  sf.FilterMode = CAN_FILTERMODE_IDMASK;
+  sf.FilterScale = CAN_FILTERSCALE_32BIT;
+  sf.FilterActivation = CAN_FILTER_ENABLE;
+  if (HAL_CAN_ConfigFilter(&hcan1, &sf) != HAL_OK)
+	Error_Handler();
 
-//  if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID, can_irq))
-//	Error_Handler();
-//
+  if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID, can_irq))
+	Error_Handler();
+
   if (HAL_CAN_Start(&hcan1) != HAL_OK)
 	Error_Handler();
 
-//  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
-//	Error_Handler();
+  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+	Error_Handler();
   /* USER CODE END CAN1_Init 2 */
 
 }
@@ -622,15 +618,15 @@ static void MX_USART3_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+  /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
