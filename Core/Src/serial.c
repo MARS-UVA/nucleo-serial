@@ -1,7 +1,7 @@
 #include "serial.h"
 #include "debug.h"
 
-extern UART_HandleTypeDef huart2;
+extern UART_HandleTypeDef huart2; // todo: change this to huart6
 
 // reads a single packet from Jetson on UART 2
 SerialPacket readFromJetson() {

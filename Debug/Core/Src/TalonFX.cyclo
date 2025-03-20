@@ -3,6 +3,6 @@
 ../Core/Src/TalonFX.c:19:6:setNeutralModeFX	3
 ../Core/Src/TalonFX.c:28:6:applySupplyCurrentLimitFX	1
 ../Core/Src/TalonFX.c:39:6:applyConfigFX	2
-../Core/Src/TalonFX.c:73:6:setControlFX	1
-../Core/Src/TalonFX.c:85:6:voltageCycleClosedLoopRampPeriodFX	1
-../Core/Src/TalonFX.c:97:9:TalonFXInit	1
+../Core/Src/TalonFX.c:73:6:setControlFX	2
+../Core/Src/TalonFX.c:93:6:voltageCycleClosedLoopRampPeriodFX	1
+../Core/Src/TalonFX.c:105:9:TalonFXInit	1

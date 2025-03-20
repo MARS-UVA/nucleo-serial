@@ -21,7 +21,7 @@
 #define LEFT_ACTUATOR_ID 0
 #define RIGHT_ACTUATOR_ID 1
 
-#define DIRECT_ACTUATOR_CONTROL 0 // 1 if we want to set the outputs of the Talon SRXs directly and bypass the potentiometer feedback
+#define DIRECT_ACTUATOR_CONTROL 1 // 1 if we want to set the outputs of the Talon SRXs directly and bypass the potentiometer feedback
 
 
 void directControl(SerialPacket packet);

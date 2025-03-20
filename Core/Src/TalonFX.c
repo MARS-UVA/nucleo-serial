@@ -72,12 +72,20 @@ void applyConfigFX(TalonFX *talonFX, Slot0Configs *config)
 
 void setControlFX(TalonFX *talonFX, int velocity, double feedforward)
 {
-	velocity *= 16;
+	// Get velocity value (3 bytes)
+	if (velocity >= 0) {
+		velocity *= 16;
+	}
+	else {
+		velocity = 0x40000 - (-16 * velocity);
+	}
+	// Get feedforward value
 	int feedforwardInt = feedforward * 100;
 	if (feedforward < 0)
 		feedforwardInt = (~(feedforwardInt * -1)) + 1;
 
-	char x[] = {0, 1, velocity & 0xff, (velocity >> 8) & 0xff, 0, 0, feedforwardInt & 0xff, (feedforwardInt >> 8) & 0xff};
+
+	char x[] = {0, 1, velocity & 0xff, (velocity >> 8) & 0xff, velocity >> 16 & 0xff, 0, feedforwardInt & 0xff, (feedforwardInt >> 8) & 0xff};
 	sendFXCANMessage(talonFX, 0x2043700, x, 8);
 	HAL_Delay(1);
 }
