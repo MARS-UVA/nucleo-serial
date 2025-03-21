@@ -7,13 +7,13 @@
 
 #include "PDP.h"
 
-void requestCurrentReadings(PDP *pdp)
+void requestCurrentReadingsPDP(PDP *pdp)
 {
 	sendCANMessage(pdp->hcan, 0x8041640 | pdp->identifier, "\x00\x00\x00\x00\x20\x00", 6);
 }
 
 
-void getSixParam(PDP* pdp, uint64_t *cache) {
+void getSixParamPDP(PDP* pdp, uint64_t *cache) {
 	for (int i = 0; i < 5; i++)
 	{
 		if (pdp->receivedNew)
@@ -68,25 +68,51 @@ void getSixParam(PDP* pdp, uint64_t *cache) {
 }
 
 // given PDP channel ID, returns the current in Amps at the channel
-float getChannelCurrent(PDP* pdp, int channelID)
+float getChannelCurrentPDP(PDP* pdp, int channelID)
 {
-	requestCurrentReadings(pdp);
+	pdp->requestCurrentReadings(pdp);
 
 	float num = 0;
 	if (channelID >= 0 && channelID <= 5) {
-		getSixParam(pdp, &(pdp->cache0));
+		pdp->getSixParam(pdp, &(pdp->cache0));
 		num = pdp->cacheWords[channelID] * 0.125;
 	} else if (channelID >= 6 && channelID <= 11) {
-		getSixParam(pdp, &(pdp->cache40));
+		pdp->getSixParam(pdp, &(pdp->cache40));
 		num = pdp->cacheWords[channelID - 6] * 0.125;
 	} else {
-		getSixParam(pdp, &(pdp->cache80));
+		pdp->getSixParam(pdp, &(pdp->cache80));
 		num = pdp->cacheWords[channelID - 12] * 0.125;
 	}
 
 	pdp->receivedNew = false;
 
 	return num;
+}
+
+void receiveCANPDP(PDP *pdp, CAN_RxHeaderTypeDef *msg, uint64_t *data)
+{
+	  // not a pdp
+	  if ((msg->ExtId & 0x8041400) != 0x8041400)
+		  return;
+
+	  // not correct pdp id
+	  if ((msg->ExtId & pdp->identifier) != pdp->identifier)
+		  return;
+
+	  switch (msg->ExtId & 0xc0)
+	  {
+	  case 0x00:
+		  pdp->cache0 = *data;
+		  break;
+	  case 0x40:
+		  pdp->cache40 = *data;
+		  break;
+	  case 0x80:
+		  pdp->cache80 = *data;
+		  break;
+	  }
+
+	  pdp->receivedNew = true;
 }
 
 PDP PDPInit(CAN_HandleTypeDef *hcan, int32_t identifier)
@@ -98,9 +124,10 @@ PDP PDPInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 		.cache40 = 0,
 		.cache80 = 0,
 		.cacheWords = {0},
-		.getChannelCurrent = getChannelCurrent,
-		.getSixParam = getSixParam,
-		.requestCurrentReadings = requestCurrentReadings,
+		.getChannelCurrent = getChannelCurrentPDP,
+		.getSixParam = getSixParamPDP,
+		.requestCurrentReadings = requestCurrentReadingsPDP,
+		.receiveCAN = receiveCANPDP,
 		.receivedNew = false
 	};
 

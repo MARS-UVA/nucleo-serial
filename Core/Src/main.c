@@ -638,29 +638,7 @@ void can_irq(CAN_HandleTypeDef *pcan)
   CAN_RxHeaderTypeDef msg;
   uint64_t data;
   HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, (uint8_t *) &data);
-
-  // not a pdp
-  if ((msg.ExtId & 0x8041400) != 0x8041400)
-	  return;
-
-  // not correct pdp id
-  if ((msg.ExtId & pdp.identifier) != pdp.identifier)
-	  return;
-
-  switch (msg.ExtId & 0xc0)
-  {
-  case 0x00:
-	  pdp.cache0 = data;
-	  break;
-  case 0x40:
-	  pdp.cache40 = data;
-	  break;
-  case 0x80:
-	  pdp.cache80 = data;
-	  break;
-  }
-
-  pdp.receivedNew = true;
+  pdp.receiveCAN(&pdp, &msg, &data);
 }
 /* USER CODE END 4 */
 

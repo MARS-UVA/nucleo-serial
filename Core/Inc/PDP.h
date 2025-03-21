@@ -22,6 +22,7 @@ typedef struct pdp {
 	float (*getChannelCurrent) (struct pdp*, int channelID);
 	void (*getSixParam) (struct pdp*, uint64_t *cache);
 	void (*requestCurrentReadings) (struct pdp*);
+	void (*receiveCAN) (struct pdp*, CAN_RxHeaderTypeDef *msg, uint64_t *data);
 	bool receivedNew;
 } PDP;
 
