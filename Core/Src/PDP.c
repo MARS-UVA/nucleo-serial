@@ -14,9 +14,6 @@ void requestCurrentReadings(PDP *pdp)
 
 
 void getSixParam(PDP* pdp, uint64_t *cache) {
-	// TODO: break out after waiting; has potential to make code hang indefinitely
-	// 3/13 testing: code hangs here. according to debugger, only one CAN packet was received. The next one
-	// is NULL.
 	for (int i = 0; i < 5; i++)
 	{
 		if (pdp->receivedNew)
@@ -25,7 +22,6 @@ void getSixParam(PDP* pdp, uint64_t *cache) {
 		HAL_Delay(10);
 	}
 
-//	writeDebugFormat("??? %hd, %hd, %hd\r\n", packet.data[5], packet.data[6], packet.data[7]);
 
 	pdp->cacheWords[0] = (uint8_t) *cache;
 

@@ -407,7 +407,7 @@ int main(void)
 //	  writeDebugString("here\r\n");
 //	  talonFX.applyConfig(&talonFX, &c);
 //	  talonFX.set(&talonFX, 0.75);
-	  talonSRX.set(&talonSRX, 1);
+	  talonSRX.set(&talonSRX, 0.5);
 //	  talonFX.setControl(&talonFX, 125, 1);
 //	  talonFX.setControl(&talonFX, 1, 1);
 	  float current = pdp.getChannelCurrent(&pdp, 3); // get channel current for Kraken
@@ -633,31 +633,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-ListNode msgs = {};
-ListNode *lastMsg = &msgs;
-
-CANPacket receiveCAN(int id)
-{
-	ListNode *ptr = &msgs;
-	while (ptr->next != NULL)
-	{
-		ListNode *nextPtr = ptr->next;
-		if (nextPtr->data.header.ExtId == id)
-		{
-			ptr->next = nextPtr->next;
-			CANPacket packet = nextPtr->data;
-			free(nextPtr);
-			return packet;
-		}
-
-		ptr = nextPtr;
-	}
-
-	return (CANPacket) {
-		.data = NULL
-	};
-}
-
 void can_irq(CAN_HandleTypeDef *pcan)
 {
   CAN_RxHeaderTypeDef msg;

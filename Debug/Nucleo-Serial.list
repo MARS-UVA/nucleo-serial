@@ -27,25 +27,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 0000002e  00000000  00000000  000091d4  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0000e5b0  00000000  00000000  00009202  2**0
+ 12 .debug_info   0000e4b4  00000000  00000000  00009202  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 0000255d  00000000  00000000  000177b2  2**0
+ 13 .debug_abbrev 00002530  00000000  00000000  000176b6  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000a68  00000000  00000000  00019d10  2**3
+ 14 .debug_aranges 00000a60  00000000  00000000  00019be8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_rnglists 000007ec  00000000  00000000  0001a778  2**0
+ 15 .debug_rnglists 000007d9  00000000  00000000  0001a648  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00028922  00000000  00000000  0001af64  2**0
+ 16 .debug_macro  00028922  00000000  00000000  0001ae21  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0000cc99  00000000  00000000  00043886  2**0
+ 17 .debug_line   0000cc4e  00000000  00000000  00043743  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000f671d  00000000  00000000  0005051f  2**0
+ 18 .debug_str    000f66cb  00000000  00000000  00050391  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  00146c3c  2**0
+ 19 .comment      00000043  00000000  00000000  00146a5c  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000038bc  00000000  00000000  00146c80  2**2
+ 20 .debug_frame  00003894  00000000  00000000  00146aa0  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 00000046  00000000  00000000  0014a53c  2**0
+ 21 .debug_line_str 00000046  00000000  00000000  0014a334  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -476,9 +476,6 @@ void getSixParam(PDP* pdp, uint64_t *cache) {
  800064c:	af00      	add	r7, sp, #0
  800064e:	6078      	str	r0, [r7, #4]
  8000650:	6039      	str	r1, [r7, #0]
-	// TODO: break out after waiting; has potential to make code hang indefinitely
-	// 3/13 testing: code hangs here. according to debugger, only one CAN packet was received. The next one
-	// is NULL.
 	for (int i = 0; i < 5; i++)
  8000652:	2300      	movs	r3, #0
  8000654:	63fb      	str	r3, [r7, #60]	@ 0x3c
@@ -506,7 +503,6 @@ void getSixParam(PDP* pdp, uint64_t *cache) {
  8000676:	bf00      	nop
 	}
 
-//	writeDebugFormat("??? %hd, %hd, %hd\r\n", packet.data[5], packet.data[6], packet.data[7]);
 
 	pdp->cacheWords[0] = (uint8_t) *cache;
  8000678:	683b      	ldr	r3, [r7, #0]
@@ -1942,10 +1938,10 @@ int main(void)
 //	  writeDebugString("here\r\n");
 //	  talonFX.applyConfig(&talonFX, &c);
 //	  talonFX.set(&talonFX, 0.75);
-	  talonSRX.set(&talonSRX, 1);
+	  talonSRX.set(&talonSRX, 0.5);
  80010b2:	f8d7 30ac 	ldr.w	r3, [r7, #172]	@ 0xac
  80010b6:	f107 029c 	add.w	r2, r7, #156	@ 0x9c
- 80010ba:	eeb7 0b00 	vmov.f64	d0, #112	@ 0x3f800000  1.0
+ 80010ba:	eeb6 0b00 	vmov.f64	d0, #96	@ 0x3f000000  0.5
  80010be:	4610      	mov	r0, r2
  80010c0:	4798      	blx	r3
 //	  talonFX.setControl(&talonFX, 125, 1);
@@ -2439,10 +2435,8 @@ static void MX_GPIO_Init(void)
  8001398:	40023800 	.word	0x40023800
 
 0800139c <can_irq>:
-		.data = NULL
-	};
-}
 
+/* USER CODE BEGIN 4 */
 void can_irq(CAN_HandleTypeDef *pcan)
 {
  800139c:	b580      	push	{r7, lr}
