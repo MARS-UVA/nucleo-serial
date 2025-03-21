@@ -329,6 +329,8 @@ void sendGlobalEnableFrame()
 	  if (HAL_CAN_AddTxMessage(&hcan1, &hdr, (unsigned char *) "\x01\x00", &mb) != HAL_OK)
 		Error_Handler();
 }
+
+PDP pdp;
 /* USER CODE END 0 */
 
 /**
@@ -369,9 +371,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   writeDebugString("started\r\n");
-  TalonSRX talonSRX = TalonSRXInit(&hcan1, 1);
+  TalonSRX talonSRX = TalonSRXInit(&hcan1, 0);
   TalonFX talonFX = TalonFXInit(&hcan1, 25);
-  PDP pdp = PDPInit(&hcan1, 62);
+  pdp = PDPInit(&hcan1, 62);
 
 //  sendGlobalEnableFrame();
 //  talonSRX.setInverted(&talonSRX, true);
@@ -404,10 +406,11 @@ int main(void)
 
 //	  writeDebugString("here\r\n");
 //	  talonFX.applyConfig(&talonFX, &c);
-	  talonFX.set(&talonFX, 0.75);
+//	  talonFX.set(&talonFX, 0.75);
+	  talonSRX.set(&talonSRX, 1);
 //	  talonFX.setControl(&talonFX, 125, 1);
 //	  talonFX.setControl(&talonFX, 1, 1);
-	  float current = pdp.getChannelCurrent(&pdp, 14); // get channel current for Kraken
+	  float current = pdp.getChannelCurrent(&pdp, 3); // get channel current for Kraken
 	  writeDebugFormat("Current: %f.\r\n", current);
 	  HAL_Delay(1);
 //	  tick++;
@@ -658,17 +661,31 @@ CANPacket receiveCAN(int id)
 void can_irq(CAN_HandleTypeDef *pcan)
 {
   CAN_RxHeaderTypeDef msg;
-  uint8_t *data = malloc(8);
-  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, data);
-  CANPacket packet = {
-		  .header = msg,
-		  .data = data
-  };
-  ListNode *nextNode = malloc(sizeof(ListNode));
-  nextNode->data = packet;
-  nextNode->next = NULL;
-  lastMsg->next = nextNode;
-  lastMsg = nextNode;
+  uint64_t data;
+  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, (uint8_t *) &data);
+
+  // not a pdp
+  if ((msg.ExtId & 0x8041400) != 0x8041400)
+	  return;
+
+  // not correct pdp id
+  if ((msg.ExtId & pdp.identifier) != pdp.identifier)
+	  return;
+
+  switch (msg.ExtId & 0xc0)
+  {
+  case 0x00:
+	  pdp.cache0 = data;
+	  break;
+  case 0x40:
+	  pdp.cache40 = data;
+	  break;
+  case 0x80:
+	  pdp.cache80 = data;
+	  break;
+  }
+
+  pdp.receivedNew = true;
 }
 /* USER CODE END 4 */
 

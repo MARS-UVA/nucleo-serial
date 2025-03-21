@@ -15,11 +15,14 @@
 typedef struct pdp {
 	CAN_HandleTypeDef *hcan;
 	int identifier;
-	uint64_t cache;
+	uint64_t cache0;
+	uint64_t cache40;
+	uint64_t cache80;
 	short cacheWords[6];
 	float (*getChannelCurrent) (struct pdp*, int channelID);
-	void (*getSixParam) (struct pdp*, int arbID);
+	void (*getSixParam) (struct pdp*, uint64_t *cache);
 	void (*requestCurrentReadings) (struct pdp*);
+	bool receivedNew;
 } PDP;
 
 PDP PDPInit();
