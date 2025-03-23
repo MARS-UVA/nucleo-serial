@@ -415,6 +415,63 @@ void writeToJetson(uint8_t *data, uint8_t payload_size)
 
 }
 */
+<<<<<<< Updated upstream
+=======
+
+
+/**
+  * @brief  Simplified I2C data transmission to the INA219 Current Sensor
+  * 	in blocking (polling) mode. The 8-bit device address (0x80) is taken
+  * 	by shifting the 7-bit default slave address (0x40) to the left.
+  * @param  registerAddress Address of the register to be written to
+  * @param  registerValue Data to be written into the register
+  * @retval none
+  */
+void writeRegister(uint8_t registerAddress, uint16_t registerValue)
+{
+	uint8_t data[3];
+
+	data[0] = registerAddress;		// Register address
+	data[1] = registerValue >> 8; 	// MSB of 16 bit data
+	data[2] = registerValue;		// LSB of 16 bit data
+
+	HAL_StatusTypeDef hal_status = HAL_I2C_Master_Transmit(&hi2c1, 0x0080, data, 3, 100);
+	if (hal_status != HAL_OK)
+	{
+		writeDebugString("I2C write error\n");
+	}
+}
+
+/**
+  * @brief  Simplified I2C data reading of the INA219 Current Sensor
+  * 	in blocking (polling) mode. The 8-bit device address (0x80) is taken
+  * 	by shifting the 7-bit default slave address (0x40) to the left.
+  * @param  registerAddress Address of the register to be read from
+  * @param  receiveBuffer Location to store the read data
+  * @retval none
+  *
+  * CHANGED DEVICE ADDRESS TO 0X29 FROM 0X80
+  */
+void readRegister(uint8_t registerAddress, uint8_t *receiveBuffer)
+{
+	HAL_StatusTypeDef hal_status;
+
+	// First send the address that we want to read from to the pointer register
+	hal_status = HAL_I2C_Master_Transmit(&hi2c1, 0x0029, &registerAddress, 1, 100); // could be optimized for lower power consumption
+	if (hal_status != HAL_OK)
+	{
+		writeDebugString("I2C write error (register address to read from)\n");
+	}
+
+	// Then read the 2 bytes from the register and store in receiveBuffer
+	hal_status = HAL_I2C_Master_Receive(&hi2c1, 0x0029, receiveBuffer, 2, 100);
+	if (hal_status != HAL_OK)
+	{
+		writeDebugString("I2C read error\n");
+	}
+}
+
+>>>>>>> Stashed changes
 /* USER CODE END 0 */
 
 /**
@@ -453,12 +510,32 @@ int main(void)
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
+<<<<<<< Updated upstream
+=======
+  /*** I2C Current Sensing ***/
+  // 7-bit slave address = 0x40 (default when pins A0,A1 = GND)
+  // 8-bit device address = 0x80 (used in the HAL_I2C_Transmit/Receive function)
+  uint8_t buffer[2]; // for I2C reading, data storage
+  uint16_t rawValue;
+  float currentValue;
+  int redValue;
+
+  //writeRegister(0x00, 0x399F); // CONFIGURATION
+
+  //float LSB = 0.001; // LSB scaling factor: milliAmperes
+  //float shuntResistor = 0.1; // 0.1 ohm 1% sense resistor
+  //float calibrationValue = 0.04096 / (LSB * shuntResistor); // truncated, refer to data sheet equation
+  //writeDebugFormat("INA219 Calibration Register Value: 0x%x, 0d%d\r\n\n", calibrationValue);
+
+  writeRegister(0x05, 0x0199); // CALIBRATION (calibration register value: 0d409.6 --> 0d409 --> 0x0199)
+>>>>>>> Stashed changes
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+<<<<<<< Updated upstream
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -479,8 +556,28 @@ int main(void)
 	else {
       writeDebugString("invalid packet read\r\n");
     }
+=======
+	/* USER CODE END WHILE
+	  HAL_Delay(125); // data readability
+
+	  readRegister(0x04, buffer); // MEASUREMENT (of the current register)
+
+	  // CONVERSION of the current register value to Amperes
+	  rawValue = (buffer[0] << 8) | buffer[1]; // Combine MSB and LSB to form raw current value
+	  currentValue = rawValue * LSB; // Undo "LSB" scaling factor to get Ampere units
+
+	  //writeDebugFormat("%x raw \r\n", rawValue);
+	  writeDebugFormat("%.6f Amps\r\n", currentValue);
+	/* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+	  HAL_Delay(125);
+	  readRegister(0x16, buffer[1]);
+	  readRegister(0x15, buffer[0]);
+	  writeDebugFormat("%d, %d", buffer[1], buffer[0]);
+	  int fuck = 1;
+>>>>>>> Stashed changes
   }
-  /* USER CODE END 3 */
 }
 
 /**
