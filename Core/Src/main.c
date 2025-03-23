@@ -536,6 +536,7 @@ int main(void)
   while (1)
   {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -557,6 +558,8 @@ int main(void)
       writeDebugString("invalid packet read\r\n");
     }
 =======
+=======
+>>>>>>> Stashed changes
 	/* USER CODE END WHILE
 	  HAL_Delay(125); // data readability
 
@@ -576,6 +579,9 @@ int main(void)
 	  readRegister(0x15, buffer[0]);
 	  writeDebugFormat("%d, %d", buffer[1], buffer[0]);
 	  int fuck = 1;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   }
 }

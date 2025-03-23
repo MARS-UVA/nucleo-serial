@@ -25,4 +25,7 @@
 ../Core/Src/main.c:696:13:MX_GPIO_Init	1
 ../Core/Src/main.c:715:6:MPU_Config	1
 ../Core/Src/main.c:746:6:Error_Handler	1
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
