@@ -8,7 +8,7 @@ SerialPacket readFromJetson() {
 	uint8_t RxBuffer[7]; // buffer to store received bytes
 	uint8_t packetLength = 7; // expected packet length (1 header plus 1 byte for each motor/actuator)
 
-	HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart2, RxBuffer, packetLength, 0xFFFFFF); // making delay large seems to break CAN communication
+	HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart2, RxBuffer, packetLength, 0xFF); // making delay large seems to break CAN communication
 	if (hal_status != HAL_OK) {
 //		writeDebugString("Error during UART Receive");
 	    return (SerialPacket) {
