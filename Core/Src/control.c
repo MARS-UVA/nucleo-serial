@@ -24,19 +24,19 @@ void initializeTalons() {
 		0.1,
 		0,
 		0,
-		0.3,
-		0.5,
+		0,
+		0,
 		0,
 		0
 	};
 	frontLeft.applyConfig(&frontLeft, &pidConfigs);
+	backLeft.applyConfig(&backLeft, &pidConfigs);
+	frontRight.applyConfig(&frontRight, &pidConfigs);
+	backRight.applyConfig(&backRight, &pidConfigs);
 	bucketDrum.applyConfig(&bucketDrum, &pidConfigs);
 
 	leftActuator = TalonSRXInit(&hcan1, LEFT_ACTUATOR_ID);
 	rightActuator = TalonSRXInit(&hcan1, RIGHT_ACTUATOR_ID);
-	// set Talon SRXs to have inverted output so that linear actuators extend when we provide a positive output
-	leftActuator.setInverted(&leftActuator, true);
-	rightActuator.setInverted(&rightActuator, true);
 }
 
 // Given packet from Jetson, set outputs of motors and actuators
@@ -47,9 +47,10 @@ void directControl(SerialPacket packet)
 
 	// Set output speeds of left motors
 	int8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff (-127 and 128)
-	// TODO: check if we want to scale up this value so that we can have a higher max speed (eg. scale up to -127 and 128)
-	frontLeft.setControl(&frontLeft, leftSpeed, 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
-	backLeft.setControl(&backLeft, leftSpeed, 0);
+	// TODO: check if we want to scale up this value so that we can have a higher max speed (eg. scale up to above -127 and 128)
+	// invert because of the way the motors are mounted
+	frontLeft.setControl(&frontLeft, leftSpeed * -1, 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
+	backLeft.setControl(&backLeft, leftSpeed * -1, 0);
 //	frontLeft.set(&frontLeft, 0.5);
 //	backLeft.set(&backLeft, 0.5);
 
@@ -72,7 +73,7 @@ void directControl(SerialPacket packet)
 		// eg. a 0xff corresponds to -1/128 = 0.8% output, 0x7F corresponds to 128/128 = 100% output
 		float actuatorOutput = (packet.actuator) / 127.0;
 //		writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
-		leftActuator.set(&leftActuator, actuatorOutput);
+		leftActuator.set(&leftActuator, actuatorOutput); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
 		rightActuator.set(&rightActuator, actuatorOutput);
 	}
 	else {
