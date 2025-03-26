@@ -10,7 +10,7 @@ SerialPacket readFromJetson() {
 
 	HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart2, RxBuffer, packetLength, 0xFFFFFF); // making delay large seems to break CAN communication
 	if (hal_status != HAL_OK) {
-//		writeDebugString("Error during UART Receive");
+		writeDebugFormat("Error during UART Receive: %d\r\n");
 	    return (SerialPacket) {
 	        .invalid = 1
 	    };

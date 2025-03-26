@@ -65,7 +65,8 @@ UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
-
+uint8_t rx_buff[7];
+SerialPacket motorValues;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -139,6 +140,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   writeDebugString("Starting program!");
   initializeTalons();
+  HAL_UART_Receive_IT(&huart2, rx_buff, 7);
 
   /* USER CODE END 2 */
 
@@ -158,13 +160,14 @@ int main(void)
 	}
 
 
-	SerialPacket motorValues;
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
 //	if (count % 5 == 0) {
-		motorValues = readFromJetson(); // receive a packet from Jetson
-		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_left_wheel);
-//		writeDebugFormat("Top Left Wheel Output: %x\r\n", motorValues.top_right_wheel);
-//		writeDebugFormat("Track Actuator Position Output: %x\r\n", motorValues.actuator);
+//		motorValues = readFromJetson(); // receive a packet from Jetson
+		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
+		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
+		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
+//		writeDebugFormat("Top Left Wheel Output: %x\r\n", rx_buff[1]);
+
 
 //	}
 
@@ -543,7 +546,19 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	HAL_UART_Receive_IT(&huart2, rx_buff, 7);
+	motorValues = (SerialPacket) {
+		.invalid = 0,
+		.header = rx_buff[0],
+		.top_left_wheel = rx_buff[1],
+		.back_left_wheel = rx_buff[2],
+		.top_right_wheel  = rx_buff[3],
+		.back_right_wheel = rx_buff[4],
+		.drum  = rx_buff[5],
+		.actuator  = rx_buff[6],
+	};
+}
 /* USER CODE END 4 */
 
  /* MPU Configuration */
