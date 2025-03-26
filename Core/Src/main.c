@@ -67,6 +67,8 @@ UART_HandleTypeDef huart6;
 /* USER CODE BEGIN PV */
 uint8_t rx_buff[7];
 SerialPacket motorValues;
+int count = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -146,7 +148,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  int count = 0;
   writeDebugString("Entering while loop!");
 
   while (1)
@@ -157,21 +158,36 @@ int main(void)
 
 	if (DEBUG){
 //		writeDebugString("Running\r\n");
+		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
+		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
+		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
 	}
-
 
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
 //	if (count % 5 == 0) {
 //		motorValues = readFromJetson(); // receive a packet from Jetson
-		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
-		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
-		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
+
 //		writeDebugFormat("Top Left Wheel Output: %x\r\n", rx_buff[1]);
+
+	count += 1;
+	// After a certain period without receiving packets, stop the robot. todo: ensure this logic is robust
+	// right now it stops ~2s after we stop sending packets from the Jetson
+	if (count > 100) {
+		motorValues = (SerialPacket) {
+			.invalid = 0,
+			.header = 0,
+			.top_left_wheel = 0,
+			.back_left_wheel = 0,
+			.top_right_wheel  = 0,
+			.back_right_wheel = 0,
+			.drum  = 0,
+			.actuator  = 0,
+		};
+	}
 
 
 //	}
 
-	count += 1;
 	directControl(motorValues); // set motor outputs accordingly
 	HAL_Delay(1);
 
@@ -547,7 +563,10 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	HAL_UART_Receive_IT(&huart2, rx_buff, 7);
+	if (HAL_UART_Receive_IT(&huart2, rx_buff, 7) != HAL_OK) {
+		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
+	}
+	count = 0;
 	motorValues = (SerialPacket) {
 		.invalid = 0,
 		.header = rx_buff[0],

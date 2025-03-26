@@ -29,11 +29,11 @@ void initializeTalons() {
 		0,
 		0
 	};
-//	frontLeft.applyConfig(&frontLeft, &pidConfigs);
-//	backLeft.applyConfig(&backLeft, &pidConfigs);
-//	frontRight.applyConfig(&frontRight, &pidConfigs);
-//	backRight.applyConfig(&backRight, &pidConfigs);
-//	bucketDrum.applyConfig(&bucketDrum, &pidConfigs);
+	frontLeft.applyConfig(&frontLeft, &pidConfigs);
+	backLeft.applyConfig(&backLeft, &pidConfigs);
+	frontRight.applyConfig(&frontRight, &pidConfigs);
+	backRight.applyConfig(&backRight, &pidConfigs);
+	bucketDrum.applyConfig(&bucketDrum, &pidConfigs);
 
 	leftActuator = TalonSRXInit(&hcan1, LEFT_ACTUATOR_ID);
 	rightActuator = TalonSRXInit(&hcan1, RIGHT_ACTUATOR_ID);
@@ -49,21 +49,21 @@ void directControl(SerialPacket packet)
 	int8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff (-127 and 128)
 	// TODO: check if we want to scale up this value so that we can have a higher max speed (eg. scale up to above -127 and 128)
 	// invert because of the way the motors are mounted
-//	frontLeft.setControl(&frontLeft, leftSpeed * -1, 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
-//	backLeft.setControl(&backLeft, leftSpeed * -1, 0);
+	frontLeft.setControl(&frontLeft, leftSpeed * -1, 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
+	backLeft.setControl(&backLeft, leftSpeed * -1, 0);
 //	frontLeft.set(&frontLeft, 0.5);
 //	backLeft.set(&backLeft, 0.5);
 
 
 	// Set output speeds of right motors
 	int8_t rightSpeed = packet.top_right_wheel;
-//	frontRight.setControl(&frontRight, rightSpeed, 0);
-//	backRight.setControl(&backRight, rightSpeed, 0);
+	frontRight.setControl(&frontRight, rightSpeed, 0);
+	backRight.setControl(&backRight, rightSpeed, 0);
 //	frontRight.set(&frontRight, 0.5);
 //	backRight.set(&backRight, 0.5);
 	// Set output speed of the bucket drum
 	int8_t bucketDrumSpeed = packet.drum;
-//	bucketDrum.setControl(&bucketDrum, bucketDrumSpeed, 0);
+	bucketDrum.setControl(&bucketDrum, bucketDrumSpeed, 0);
 
 	// Set outputs of linear actuators
 	int8_t actuatorPosition = packet.actuator;
