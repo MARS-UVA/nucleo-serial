@@ -84,8 +84,8 @@ all: main-build
 main-build: Nucleo-Serial.elf secondary-outputs
 
 # Tool invocations
-Nucleo-Serial.elf Nucleo-Serial.map: $(OBJS) $(USER_OBJS) C:\Users\auste\Desktop\MARS\nucleo-serial\STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-g++ -o "Nucleo-Serial.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\auste\Desktop\MARS\nucleo-serial\STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Nucleo-Serial.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
+Nucleo-Serial.elf Nucleo-Serial.map: $(OBJS) $(USER_OBJS) C:\Users\auste\Documents\Github\nucleo-serial\STM32F767ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-g++ -o "Nucleo-Serial.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m7 -T"C:\Users\auste\Documents\Github\nucleo-serial\STM32F767ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Nucleo-Serial.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv5-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -lstdc++ -lsupc++ -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -66,7 +66,16 @@ UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 uint8_t rx_buff[7];
-SerialPacket motorValues;
+SerialPacket motorValues = (SerialPacket) {
+	.invalid = 0,
+	.header = 0x7F,
+	.top_left_wheel = 0x7F,
+	.back_left_wheel = 0x7F,
+	.top_right_wheel  = 0x7F,
+	.back_right_wheel = 0x7F,
+	.drum  = 0x7F,
+	.actuator  = 0x7F,
+};
 int count = 0;
 
 /* USER CODE END PV */
@@ -175,13 +184,13 @@ int main(void)
 	if (count > 100) {
 		motorValues = (SerialPacket) {
 			.invalid = 0,
-			.header = 0,
-			.top_left_wheel = 0,
-			.back_left_wheel = 0,
-			.top_right_wheel  = 0,
-			.back_right_wheel = 0,
-			.drum  = 0,
-			.actuator  = 0,
+			.header = 0x7F,
+			.top_left_wheel = 0x7F,
+			.back_left_wheel = 0x7F,
+			.top_right_wheel  = 0x7F,
+			.back_right_wheel = 0x7F,
+			.drum  = 0x7F,
+			.actuator  = 0x7F,
 		};
 	}
 

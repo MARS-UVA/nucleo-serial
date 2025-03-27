@@ -71,7 +71,7 @@ void directControl(SerialPacket packet)
 	if (DIRECT_ACTUATOR_CONTROL) {
 		// this expects packet.actuator to be a two's complement value between -127 and 127
 		// eg. a 0xff corresponds to -1/128 = 0.8% output, 0x7F corresponds to 128/128 = 100% output
-		float actuatorOutput = (packet.actuator) / 127.0;
+		float actuatorOutput = (packet.actuator - 127) / 127.0;
 //		writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
 		leftActuator.set(&leftActuator, actuatorOutput); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
 		rightActuator.set(&rightActuator, actuatorOutput);
