@@ -2,6 +2,8 @@
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c:460:19:HAL_CAN_DeInit	16	static
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c:507:13:HAL_CAN_MspInit	16	static
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c:523:13:HAL_CAN_MspDeInit	16	static
+../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c:559:19:HAL_CAN_RegisterCallback	32	static
+../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c:702:19:HAL_CAN_UnRegisterCallback	24	static
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c:840:19:HAL_CAN_ConfigFilter	32	static
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c:1034:19:HAL_CAN_Start	24	static
 ../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c:1086:19:HAL_CAN_Stop	24	static

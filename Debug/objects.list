@@ -1,3 +1,4 @@
+"./Core/Src/PDP.o"
 "./Core/Src/TalonFX.o"
 "./Core/Src/TalonSRX.o"
 "./Core/Src/actuatorControl.o"

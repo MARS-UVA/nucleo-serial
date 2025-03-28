@@ -30,6 +30,7 @@
 #include "serial.h"
 #include "control.h"
 #include "TalonFX.h"
+#include "PDP.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,6 +51,9 @@
 #define OPCODE_DIRECT_CONTROL 1
 #define OPCODE_PID_CONTROL 2
 #define OPCODE_NOP 3
+
+void can_irq(CAN_HandleTypeDef *pcan);
+
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -65,6 +69,8 @@ UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
+PDP pdp;
+
 uint8_t rx_buff[7];
 SerialPacket motorValues = (SerialPacket) {
 	.invalid = 0,
@@ -136,7 +142,6 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -149,15 +154,16 @@ int main(void)
   MX_USART6_UART_Init();
   MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
-  writeDebugString("Starting program!");
+  writeDebugString("Starting program!\r\n");
   initializeTalons();
+  pdp = PDPInit(&hcan1, 62);
   HAL_UART_Receive_IT(&huart2, rx_buff, 7);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  writeDebugString("Entering while loop!");
+  writeDebugString("Entering while loop!\r\n");
 
   while (1)
   {
@@ -170,6 +176,8 @@ int main(void)
 		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
 		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
 		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
+
+		writeDebugFormat("Current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID));
 	}
 
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
@@ -177,7 +185,6 @@ int main(void)
 //		motorValues = readFromJetson(); // receive a packet from Jetson
 
 //		writeDebugFormat("Top Left Wheel Output: %x\r\n", rx_buff[1]);
-
 	count += 1;
 	// After a certain period without receiving packets, stop the robot. todo: ensure this logic is robust
 	// right now it stops ~2s after we stop sending packets from the Jetson
@@ -185,7 +192,7 @@ int main(void)
 		motorValues = (SerialPacket) {
 			.invalid = 0,
 			.header = 0x7F,
-			.top_left_wheel = 0x7F,
+			.top_left_wheel = 0xFF,
 			.back_left_wheel = 0x7F,
 			.top_right_wheel  = 0x7F,
 			.back_right_wheel = 0x7F,
@@ -196,6 +203,7 @@ int main(void)
 
 
 //	}
+
 
 	directControl(motorValues); // set motor outputs accordingly
 	HAL_Delay(1);
@@ -381,10 +389,25 @@ static void MX_CAN1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN1_Init 2 */
-  if (HAL_CAN_Start(&hcan1) != HAL_OK) {
+  CAN_FilterTypeDef sf;
+  sf.FilterMaskIdHigh = 0x0000;
+  sf.FilterMaskIdLow = 0x0000;
+  sf.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+  sf.FilterBank = 0;
+  sf.FilterMode = CAN_FILTERMODE_IDMASK;
+  sf.FilterScale = CAN_FILTERSCALE_32BIT;
+  sf.FilterActivation = CAN_FILTER_ENABLE;
+  if (HAL_CAN_ConfigFilter(&hcan1, &sf) != HAL_OK)
 	Error_Handler();
-  }
 
+  if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID, can_irq))
+	Error_Handler();
+
+  if (HAL_CAN_Start(&hcan1) != HAL_OK)
+	Error_Handler();
+
+  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+	Error_Handler();
   /* USER CODE END CAN1_Init 2 */
 
 }
@@ -550,8 +573,8 @@ static void MX_USART6_UART_Init(void)
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
+  /* USER CODE BEGIN MX_GPIO_Init_1 */
+  /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOE_CLK_ENABLE();
@@ -566,11 +589,20 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
+  /* USER CODE BEGIN MX_GPIO_Init_2 */
+  /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
+void can_irq(CAN_HandleTypeDef *pcan)
+{
+  CAN_RxHeaderTypeDef msg;
+  uint64_t data;
+  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, (uint8_t *) &data);
+  if (pdp.receiveCAN)
+	  pdp.receiveCAN(&pdp, &msg, &data);
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (HAL_UART_Receive_IT(&huart2, rx_buff, 7) != HAL_OK) {
 		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");

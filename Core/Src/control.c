@@ -51,9 +51,6 @@ void directControl(SerialPacket packet)
 	// invert because of the way the motors are mounted
 	frontLeft.setControl(&frontLeft, ((int8_t)(leftSpeed - 127)) * -1, 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
 	backLeft.setControl(&backLeft, ((int8_t)(leftSpeed - 127)) * -1, 0);
-//	frontLeft.set(&frontLeft, 0.5);
-//	backLeft.set(&backLeft, 0.5);
-
 
 	// Set output speeds of right motors
 	int8_t rightSpeed = packet.top_right_wheel;
@@ -79,5 +76,4 @@ void directControl(SerialPacket packet)
 	else {
 		setActuatorLength(leftActuator, rightActuator, percentExtension);
 	}
-
 }
