@@ -46,7 +46,7 @@ void directControl(SerialPacket packet)
 	sendGlobalEnableFrame(&hcan1);
 
 	// Set output speeds of left motors
-	uint8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff (-127 and 128)
+	uint8_t leftSpeed = packet.front_left_wheel; // a value between 0 and 0xff (-127 and 128)
 	if (leftSpeed == 0xFF) {
 		leftSpeed = leftSpeed - 1; // edge case: 0xFF - 127 evaluates to 128, which overflows and becomes -1
 	}
@@ -59,7 +59,7 @@ void directControl(SerialPacket packet)
 
 
 	// Set output speeds of right motors
-	uint8_t rightSpeed = packet.top_right_wheel;
+	uint8_t rightSpeed = packet.front_right_wheel;
 	if (rightSpeed == 0xFF) {
 		rightSpeed = rightSpeed - 1; // edge case: 0xFF - 127 evaluates to 128, which overflows and becomes -1
 	}

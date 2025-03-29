@@ -69,9 +69,9 @@ uint8_t rx_buff[7];
 SerialPacket motorValues = (SerialPacket) {
 	.invalid = 0,
 	.header = 0x7F,
-	.top_left_wheel = 0x7F,
+	.front_left_wheel = 0x7F,
 	.back_left_wheel = 0x7F,
-	.top_right_wheel  = 0x7F,
+	.front_right_wheel  = 0x7F,
 	.back_right_wheel = 0x7F,
 	.drum  = 0x7F,
 	.actuator  = 0x7F,
@@ -167,8 +167,8 @@ int main(void)
 
 	if (DEBUG){
 //		writeDebugString("Running\r\n");
-		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
-		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
+		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.front_left_wheel);
+		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.front_right_wheel);
 		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
 	}
 
@@ -185,9 +185,9 @@ int main(void)
 		motorValues = (SerialPacket) {
 			.invalid = 0,
 			.header = 0x7F,
-			.top_left_wheel = 0x7F,
+			.front_left_wheel = 0x7F,
 			.back_left_wheel = 0x7F,
-			.top_right_wheel  = 0x7F,
+			.front_right_wheel  = 0x7F,
 			.back_right_wheel = 0x7F,
 			.drum  = 0x7F,
 			.actuator  = 0x7F,
@@ -579,9 +579,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	motorValues = (SerialPacket) {
 		.invalid = 0,
 		.header = rx_buff[0],
-		.top_left_wheel = rx_buff[1],
+		.front_left_wheel = rx_buff[1],
 		.back_left_wheel = rx_buff[2],
-		.top_right_wheel  = rx_buff[3],
+		.front_right_wheel  = rx_buff[3],
 		.back_right_wheel = rx_buff[4],
 		.drum  = rx_buff[5],
 		.actuator  = rx_buff[6],
