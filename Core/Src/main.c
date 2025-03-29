@@ -45,7 +45,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define DEBUG 1
+#define DEBUG 0
 
 #define OPCODE_STOP 0
 #define OPCODE_DIRECT_CONTROL 1
@@ -173,7 +173,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	if (DEBUG){
-//		writeDebugString("Running\r\n");
+		writeDebugString("Running\r\n");
 		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
 		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
 		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
@@ -193,7 +193,7 @@ int main(void)
 		motorValues = (SerialPacket) {
 			.invalid = 0,
 			.header = 0x7F,
-			.top_left_wheel = 0xFF,
+			.top_left_wheel = 0x7F,
 			.back_left_wheel = 0x7F,
 			.top_right_wheel  = 0x7F,
 			.back_right_wheel = 0x7F,
@@ -205,20 +205,32 @@ int main(void)
 	// every 10 cycles, poll motor currents and send to Jetson
 	if (count % 10 == 0) {
 		float motorCurrents[5];
-		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_ID);
-		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_ID);
-		motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_ID);
-		motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_ID);
-		motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_ID);
+		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
+//		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
+		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
+//		writeDebugFormat("Front right current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID));
+		motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID);
+//		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
+		motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID);
+//		writeDebugFormat("Back right current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID));
+		motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
 
-		// convert floats to bytes
-		uint8_t header = 0x1; // header 0x1 toindicate motorcurrent feedback
-		uint8_t *packet = header;
-		floatToByteArray(motorCurrents[0], (char *)packet); // uhh idk
 
+
+		// convert floats to bytes, put in packet
+	    uint8_t packet[21];  // 1-byte header + 5 floats × 4 bytes
+	    packet[0] = 0x1; // header 0x1 to indicate motor current feedback
+	    for (int i = 0; i < 5; i++) {
+	        floatToByteArray(motorCurrents[i], &packet[1 + i * 4]);
+//	        writeDebugFormat("b1: %d\r\n", packet[1]);
+//	        writeDebugFormat("b2: %d\r\n", packet[2]);
+//	        writeDebugFormat("b3: %d\r\n", packet[3]);
+//			writeDebugFormat("b4: %d\r\n", packet[4]);
+
+	    }
 
 		//send packet to Jetson
-
+	    writeToJetson(packet, 21);
 	}
 
 

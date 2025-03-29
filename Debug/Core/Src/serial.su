@@ -1,2 +1,2 @@
 ../Core/Src/serial.c:7:14:readFromJetson	64	static
-../Core/Src/serial.c:31:6:writeToJetson	16	static
+../Core/Src/serial.c:31:6:writeToJetson	24	static

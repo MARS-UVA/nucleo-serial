@@ -41,8 +41,8 @@ void writeToJetson(uint8_t *packet, uint8_t payload_size)
 //			p->actuator
 //	};
 
-//	HAL_StatusTypeDef HALStatus = HAL_UART_Transmit(&huart6, txBuffer, packetLength, HAL_MAX_DELAY);
+	HAL_StatusTypeDef HALStatus = HAL_UART_Transmit(&huart6, packet, payload_size, HAL_MAX_DELAY);
 
-//	if (HALStatus != HAL_OK)
-//		Error_Handler();
+	if (HALStatus != HAL_OK)
+		Error_Handler();
 }

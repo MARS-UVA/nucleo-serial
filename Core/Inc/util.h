@@ -13,5 +13,7 @@
 #include "main.h"
 
 void floatToByteArray(float f, char *arr);
+void altFloatToByteArray(float f, char *arr);
+
 
 #endif /* INC_UTIL_H_ */
