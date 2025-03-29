@@ -37,15 +37,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING, OCTETS
  16 .debug_macro  00029f31  00000000  00000000  00021867  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   0001529c  00000000  00000000  0004b798  2**0
+ 17 .debug_line   0001529e  00000000  00000000  0004b798  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000fccac  00000000  00000000  00060a34  2**0
+ 18 .debug_str    000fccb0  00000000  00000000  00060a36  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000043  00000000  00000000  0015d6e0  2**0
+ 19 .comment      00000043  00000000  00000000  0015d6e6  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00004b44  00000000  00000000  0015d724  2**2
+ 20 .debug_frame  00004b44  00000000  00000000  0015d72c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000005c  00000000  00000000  00162268  2**0
+ 21 .debug_line_str 0000005c  00000000  00000000  00162270  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1439,7 +1439,7 @@ void directControl(SerialPacket packet)
  8000d6e:	f7ff ff07 	bl	8000b80 <sendGlobalEnableFrame>
 
 	// Set output speeds of left motors
-	uint8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff (-127 and 128)
+	uint8_t leftSpeed = packet.front_left_wheel; // a value between 0 and 0xff (-127 and 128)
  8000d72:	78bb      	ldrb	r3, [r7, #2]
  8000d74:	75fb      	strb	r3, [r7, #23]
 	if (leftSpeed == 0xFF) {
@@ -1482,7 +1482,7 @@ void directControl(SerialPacket packet)
 
 
 	// Set output speeds of right motors
-	uint8_t rightSpeed = packet.top_right_wheel;
+	uint8_t rightSpeed = packet.front_right_wheel;
  8000db2:	793b      	ldrb	r3, [r7, #4]
  8000db4:	75bb      	strb	r3, [r7, #22]
 	if (rightSpeed == 0xFF) {
@@ -1792,13 +1792,13 @@ int main(void)
 
 	if (DEBUG){
 //		writeDebugString("Running\r\n");
-		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
+		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.front_left_wheel);
  8000fa0:	4b18      	ldr	r3, [pc, #96]	@ (8001004 <main+0xb0>)
  8000fa2:	789b      	ldrb	r3, [r3, #2]
  8000fa4:	4619      	mov	r1, r3
  8000fa6:	4818      	ldr	r0, [pc, #96]	@ (8001008 <main+0xb4>)
  8000fa8:	f7ff ffa1 	bl	8000eee <writeDebugFormat>
-		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
+		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.front_right_wheel);
  8000fac:	4b15      	ldr	r3, [pc, #84]	@ (8001004 <main+0xb0>)
  8000fae:	791b      	ldrb	r3, [r3, #4]
  8000fb0:	4619      	mov	r1, r3
@@ -2772,13 +2772,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		.header = rx_buff[0],
  8001514:	4b13      	ldr	r3, [pc, #76]	@ (8001564 <HAL_UART_RxCpltCallback+0x74>)
  8001516:	f893 c000 	ldrb.w	ip, [r3]
-		.top_left_wheel = rx_buff[1],
+		.front_left_wheel = rx_buff[1],
  800151a:	4b12      	ldr	r3, [pc, #72]	@ (8001564 <HAL_UART_RxCpltCallback+0x74>)
  800151c:	785e      	ldrb	r6, [r3, #1]
 		.back_left_wheel = rx_buff[2],
  800151e:	4b11      	ldr	r3, [pc, #68]	@ (8001564 <HAL_UART_RxCpltCallback+0x74>)
  8001520:	789d      	ldrb	r5, [r3, #2]
-		.top_right_wheel  = rx_buff[3],
+		.front_right_wheel  = rx_buff[3],
  8001522:	4b10      	ldr	r3, [pc, #64]	@ (8001564 <HAL_UART_RxCpltCallback+0x74>)
  8001524:	78dc      	ldrb	r4, [r3, #3]
 		.back_right_wheel = rx_buff[4],

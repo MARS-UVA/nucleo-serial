@@ -19,9 +19,9 @@ SerialPacket readFromJetson() {
 	return (SerialPacket) {
 		.invalid = 0,
 		.header = RxBuffer[0],
-		.top_left_wheel = RxBuffer[1],
+		.front_left_wheel = RxBuffer[1],
 		.back_left_wheel = RxBuffer[2],
-		.top_right_wheel  = RxBuffer[3],
+		.front_right_wheel  = RxBuffer[3],
 		.back_right_wheel = RxBuffer[4],
 		.drum  = RxBuffer[5],
 		.actuator  = RxBuffer[6],

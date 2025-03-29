@@ -1190,8 +1190,8 @@ Discarded input sections
  .debug_macro   0x00000000       0x16 ./Core/Src/serial.o
  .debug_macro   0x00000000      0x146 ./Core/Src/serial.o
  .debug_macro   0x00000000       0x4c ./Core/Src/serial.o
- .debug_line    0x00000000      0x970 ./Core/Src/serial.o
- .debug_str     0x00000000    0xf619e ./Core/Src/serial.o
+ .debug_line    0x00000000      0x972 ./Core/Src/serial.o
+ .debug_str     0x00000000    0xf61a2 ./Core/Src/serial.o
  .comment       0x00000000       0x44 ./Core/Src/serial.o
  .debug_frame   0x00000000       0x64 ./Core/Src/serial.o
  .ARM.attributes
@@ -6140,58 +6140,58 @@ LOAD C:/ST/STM32CubeIDE_1.18.0/STM32CubeIDE/plugins/com.st.stm32cube.ide.mcu.ext
  .debug_macro   0x00029b30      0x1f2 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.o
  .debug_macro   0x00029d22      0x20f ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.o
 
-.debug_line     0x00000000    0x1529c
+.debug_line     0x00000000    0x1529e
  .debug_line    0x00000000      0xa60 ./Core/Src/TalonFX.o
  .debug_line    0x00000a60      0x95f ./Core/Src/TalonSRX.o
  .debug_line    0x000013bf      0x7c3 ./Core/Src/can.o
  .debug_line    0x00001b82      0xa68 ./Core/Src/control.o
  .debug_line    0x000025ea      0x980 ./Core/Src/debug.o
- .debug_line    0x00002f6a      0xd31 ./Core/Src/main.o
- .debug_line    0x00003c9b      0x9b1 ./Core/Src/stm32f7xx_hal_msp.o
- .debug_line    0x0000464c      0x867 ./Core/Src/stm32f7xx_it.o
- .debug_line    0x00004eb3      0x8ac ./Core/Src/syscalls.o
- .debug_line    0x0000575f      0x588 ./Core/Src/sysmem.o
- .debug_line    0x00005ce7      0x80b ./Core/Src/system_stm32f7xx.o
- .debug_line    0x000064f2      0x7e7 ./Core/Src/util.o
- .debug_line    0x00006cd9       0x7a ./Core/Startup/startup_stm32f767zitx.o
- .debug_line    0x00006d53      0xadf ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.o
- .debug_line    0x00007832     0x1273 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.o
- .debug_line    0x00008aa5     0x1245 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.o
- .debug_line    0x00009cea      0xd2f ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.o
- .debug_line    0x0000aa19      0xffa ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.o
- .debug_line    0x0000ba13      0xc09 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.o
- .debug_line    0x0000c61c     0x37c1 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c.o
- .debug_line    0x0000fddd      0x85a ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c_ex.o
- .debug_line    0x00010637      0xfe4 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.o
- .debug_line    0x0001161b      0xf32 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.o
- .debug_line    0x0001254d     0x2d4f ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.o
+ .debug_line    0x00002f6a      0xd33 ./Core/Src/main.o
+ .debug_line    0x00003c9d      0x9b1 ./Core/Src/stm32f7xx_hal_msp.o
+ .debug_line    0x0000464e      0x867 ./Core/Src/stm32f7xx_it.o
+ .debug_line    0x00004eb5      0x8ac ./Core/Src/syscalls.o
+ .debug_line    0x00005761      0x588 ./Core/Src/sysmem.o
+ .debug_line    0x00005ce9      0x80b ./Core/Src/system_stm32f7xx.o
+ .debug_line    0x000064f4      0x7e7 ./Core/Src/util.o
+ .debug_line    0x00006cdb       0x7a ./Core/Startup/startup_stm32f767zitx.o
+ .debug_line    0x00006d55      0xadf ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.o
+ .debug_line    0x00007834     0x1273 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.o
+ .debug_line    0x00008aa7     0x1245 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.o
+ .debug_line    0x00009cec      0xd2f ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.o
+ .debug_line    0x0000aa1b      0xffa ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.o
+ .debug_line    0x0000ba15      0xc09 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.o
+ .debug_line    0x0000c61e     0x37c1 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c.o
+ .debug_line    0x0000fddf      0x85a ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c_ex.o
+ .debug_line    0x00010639      0xfe4 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.o
+ .debug_line    0x0001161d      0xf32 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.o
+ .debug_line    0x0001254f     0x2d4f ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.o
 
-.debug_str      0x00000000    0xfccac
- .debug_str     0x00000000    0xfccac ./Core/Src/TalonFX.o
+.debug_str      0x00000000    0xfccb0
+ .debug_str     0x00000000    0xfccb0 ./Core/Src/TalonFX.o
                               0xf6011 (size before relaxing)
- .debug_str     0x000fccac    0xf5f18 ./Core/Src/TalonSRX.o
- .debug_str     0x000fccac    0xf253b ./Core/Src/can.o
- .debug_str     0x000fccac    0xf6a80 ./Core/Src/control.o
- .debug_str     0x000fccac    0xf6154 ./Core/Src/debug.o
- .debug_str     0x000fccac    0xf7727 ./Core/Src/main.o
- .debug_str     0x000fccac    0xf3867 ./Core/Src/stm32f7xx_hal_msp.o
- .debug_str     0x000fccac    0xf275d ./Core/Src/stm32f7xx_it.o
- .debug_str     0x000fccac     0x9a21 ./Core/Src/syscalls.o
- .debug_str     0x000fccac     0x77bf ./Core/Src/sysmem.o
- .debug_str     0x000fccac    0xf2478 ./Core/Src/system_stm32f7xx.o
- .debug_str     0x000fccac    0xf21ef ./Core/Src/util.o
- .debug_str     0x000fccac       0x78 ./Core/Startup/startup_stm32f767zitx.o
- .debug_str     0x000fccac    0xf2eb8 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.o
- .debug_str     0x000fccac    0xf2971 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.o
- .debug_str     0x000fccac    0xf2a86 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.o
- .debug_str     0x000fccac    0xf2e9a ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.o
- .debug_str     0x000fccac    0xf27b7 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.o
- .debug_str     0x000fccac    0xf2536 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.o
- .debug_str     0x000fccac    0xf368b ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c.o
- .debug_str     0x000fccac    0xf290a ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c_ex.o
- .debug_str     0x000fccac    0xf27f3 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.o
- .debug_str     0x000fccac    0xf2756 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.o
- .debug_str     0x000fccac    0xf3141 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.o
+ .debug_str     0x000fccb0    0xf5f18 ./Core/Src/TalonSRX.o
+ .debug_str     0x000fccb0    0xf253b ./Core/Src/can.o
+ .debug_str     0x000fccb0    0xf6a84 ./Core/Src/control.o
+ .debug_str     0x000fccb0    0xf6154 ./Core/Src/debug.o
+ .debug_str     0x000fccb0    0xf772b ./Core/Src/main.o
+ .debug_str     0x000fccb0    0xf3867 ./Core/Src/stm32f7xx_hal_msp.o
+ .debug_str     0x000fccb0    0xf275d ./Core/Src/stm32f7xx_it.o
+ .debug_str     0x000fccb0     0x9a21 ./Core/Src/syscalls.o
+ .debug_str     0x000fccb0     0x77bf ./Core/Src/sysmem.o
+ .debug_str     0x000fccb0    0xf2478 ./Core/Src/system_stm32f7xx.o
+ .debug_str     0x000fccb0    0xf21ef ./Core/Src/util.o
+ .debug_str     0x000fccb0       0x78 ./Core/Startup/startup_stm32f767zitx.o
+ .debug_str     0x000fccb0    0xf2eb8 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.o
+ .debug_str     0x000fccb0    0xf2971 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.o
+ .debug_str     0x000fccb0    0xf2a86 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.o
+ .debug_str     0x000fccb0    0xf2e9a ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.o
+ .debug_str     0x000fccb0    0xf27b7 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dma.o
+ .debug_str     0x000fccb0    0xf2536 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_gpio.o
+ .debug_str     0x000fccb0    0xf368b ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c.o
+ .debug_str     0x000fccb0    0xf290a ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_i2c_ex.o
+ .debug_str     0x000fccb0    0xf27f3 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.o
+ .debug_str     0x000fccb0    0xf2756 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc_ex.o
+ .debug_str     0x000fccb0    0xf3141 ./Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_uart.o
 
 .comment        0x00000000       0x43
  .comment       0x00000000       0x43 ./Core/Src/TalonFX.o
