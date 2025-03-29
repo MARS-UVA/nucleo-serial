@@ -46,17 +46,23 @@ void directControl(SerialPacket packet)
 	sendGlobalEnableFrame(&hcan1);
 
 	// Set output speeds of left motors
-	int8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff (-127 and 128)
+	uint8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff (-127 and 128)
+	if (leftSpeed == 0xFF) {
+		leftSpeed = leftSpeed - 1; // edge case: 0xFF - 127 evaluates to 128, which overflows and becomes -1
+	}
 	// TODO: check if we want to scale up this value so that we can have a higher max speed (eg. scale up to above -127 and 128)
 	// invert because of the way the motors are mounted
 	frontLeft.setControl(&frontLeft, ((int8_t)(leftSpeed - 127)) * -1, 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
-	backLeft.setControl(&backLeft, ((int8_t)(leftSpeed - 127)) * -1, 0);
+	backLeft.setControl(&backLeft,((int8_t)(leftSpeed - 127)) * -1, 0);
 //	frontLeft.set(&frontLeft, 0.5);
 //	backLeft.set(&backLeft, 0.5);
 
 
 	// Set output speeds of right motors
-	int8_t rightSpeed = packet.top_right_wheel;
+	uint8_t rightSpeed = packet.top_right_wheel;
+	if (rightSpeed == 0xFF) {
+		rightSpeed = rightSpeed - 1; // edge case: 0xFF - 127 evaluates to 128, which overflows and becomes -1
+	}
 	frontRight.setControl(&frontRight, ((int8_t)(rightSpeed - 127)), 0);
 	backRight.setControl(&backRight, ((int8_t)(rightSpeed - 127)), 0);
 //	frontRight.set(&frontRight, 0.5);

@@ -13,12 +13,12 @@ typedef struct serialPacket {
     */
   int8_t invalid;
   uint8_t header;
-  int8_t top_left_wheel;
-  int8_t back_left_wheel;
-  int8_t top_right_wheel;
-  int8_t back_right_wheel;
-  int8_t drum;
-  int8_t actuator;
+  uint8_t top_left_wheel;
+  uint8_t back_left_wheel;
+  uint8_t top_right_wheel;
+  uint8_t back_right_wheel;
+  uint8_t drum;
+  uint8_t actuator;
 } SerialPacket;
 
 SerialPacket readFromJetson();
