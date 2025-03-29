@@ -142,6 +142,7 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+  pdp = PDPInit(&hcan1, 62);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -156,8 +157,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   writeDebugString("Starting program!\r\n");
   initializeTalons();
-  pdp = PDPInit(&hcan1, 62);
-  HAL_UART_Receive_IT(&huart2, rx_buff, 7);
+  HAL_UART_Receive_IT(&huart6, rx_buff, 7);
+
 
   /* USER CODE END 2 */
 
@@ -200,6 +201,26 @@ int main(void)
 			.actuator  = 0x7F,
 		};
 	}
+
+	// every 10 cycles, poll motor currents and send to Jetson
+	if (count % 10 == 0) {
+		float motorCurrents[5];
+		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_ID);
+		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_ID);
+		motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_ID);
+		motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_ID);
+		motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_ID);
+
+		// convert floats to bytes
+		uint8_t header = 0x1; // header 0x1 toindicate motorcurrent feedback
+		uint8_t *packet = header;
+		floatToByteArray(motorCurrents[0], (char *)packet); // uhh idk
+
+
+		//send packet to Jetson
+
+	}
+
 
 
 //	}
@@ -604,7 +625,7 @@ void can_irq(CAN_HandleTypeDef *pcan)
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (HAL_UART_Receive_IT(&huart2, rx_buff, 7) != HAL_OK) {
+	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {
 		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
 	}
 	count = 0;

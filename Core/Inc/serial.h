@@ -22,7 +22,7 @@ typedef struct serialPacket {
 } SerialPacket;
 
 SerialPacket readFromJetson();
-void writeToJetson(uint8_t *data, uint8_t payload_size);
+void writeToJetson(uint8_t *packet, uint8_t payload_size);
 
 
 #endif
