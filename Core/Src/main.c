@@ -151,7 +151,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   writeDebugString("Starting program!");
   initializeTalons();
-  HAL_UART_Receive_IT(&huart2, rx_buff, 7);
+  HAL_UART_Receive_IT(&huart6, rx_buff, 7);
 
   /* USER CODE END 2 */
 
@@ -572,7 +572,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (HAL_UART_Receive_IT(&huart2, rx_buff, 7) != HAL_OK) {
+	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {
 		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
 	}
 	count = 0;

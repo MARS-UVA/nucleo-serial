@@ -60,7 +60,7 @@ void directControl(SerialPacket packet)
 	frontRight.setControl(&frontRight, ((int8_t)(rightSpeed - 127)), 0);
 	backRight.setControl(&backRight, ((int8_t)(rightSpeed - 127)), 0);
 //	frontRight.set(&frontRight, 0.5);
-//	backRight.set(&backRight, 0.5);
+//	backRight.set(&backRight, 0);
 	// Set output speed of the bucket drum
 	int8_t bucketDrumSpeed = packet.drum;
 	bucketDrum.setControl(&bucketDrum, ((int8_t)(bucketDrumSpeed - 127)), 0);
