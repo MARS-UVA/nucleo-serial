@@ -79,8 +79,13 @@ void directControl(SerialPacket packet)
 		// eg. a 0xff corresponds to -1/128 = 0.8% output, 0x7F corresponds to 128/128 = 100% output
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
 //		writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
-		leftActuator.set(&leftActuator, actuatorOutput); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
-		rightActuator.set(&rightActuator, actuatorOutput);
+		struct ActuatorValues actuatorValues = {0, 0};
+		actuatorValues = syncLinearActuators(actuatorOutput);
+//		writeDebugFormat("Left actuator output: %f\r\n", actuatorValues.left);
+//		writeDebugFormat("Right actuator output: %f\r\n", actuatorValues.right);
+
+//		leftActuator.set(&leftActuator, actuatorValues.left); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
+//		rightActuator.set(&rightActuator, actuatorValues.right);
 	}
 	else {
 		setActuatorLength(leftActuator, rightActuator, percentExtension);

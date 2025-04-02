@@ -49,11 +49,15 @@ struct ActuatorValues syncLinearActuators(float percentOutput) {
   uint16_t leftPosition = HAL_ADC_GetValue(&hadc1); // Change to HAL_ADCEx_MultiModeStart_DMA or HAL_ADC_Start_DMA for speed
 
   HAL_ADC_PollForConversion(&hadc2, 20);
-  uint16_t rightPosition = HAL_ADC_GetValue(&hadc2);
+  uint16_t rightPosition = HAL_ADC_GetValue(&hadc2) - 795; // todo: see if calibration value makes sense
+
+	writeDebugFormat("Left actuator position: %d\r\n", leftPosition);
+	writeDebugFormat("Right actuator position: %d\r\n", rightPosition);
 
   struct ActuatorValues newPercentOutputs;
   newPercentOutputs.left = percentOutput;
   newPercentOutputs.right = percentOutput;
+
 
   // if difference between left and right actuator lengths are larger than a certain tolerance, slow down faster actuator
   if ((leftPosition > rightPosition * TOLERANCE && percentOutput > 0) || (leftPosition < rightPosition * TOLERANCE && percentOutput < 0)) {
