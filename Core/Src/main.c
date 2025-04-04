@@ -71,7 +71,11 @@ UART_HandleTypeDef huart6;
 /* USER CODE BEGIN PV */
 PDP pdp;
 
-uint8_t rx_buff[7];
+uint8_t headerSelect[1];
+uint8_t rx_buff[6];
+uint8_t pid_settings[8];
+uint8_t voltageCycleClosedLoopRampPeriod_settings[2];
+uint8_t appleSupplyCurrentLimit_settings[2];
 SerialPacket motorValues = (SerialPacket) {
 	.invalid = 0,
 	.header = 0x7F,
@@ -81,6 +85,40 @@ SerialPacket motorValues = (SerialPacket) {
 	.back_right_wheel = 0x7F,
 	.drum  = 0x7F,
 	.actuator  = 0x7F,
+};
+SerialPacket pid_Values = (SerialPacket) {
+	/*
+	 * 	double kP;
+	double kI;
+	double kD;
+	double kS;
+	double kV;
+	double kA;
+	double kG;
+	 * */
+
+	.invalid = 0,
+	.header = 0x7F,
+	.CAN_ID = 0x7F
+	.kP = 0x7F,
+	.kI = 0x7F,
+	.kD  = 0x7F,
+	.kS = 0x7F,
+	.kV  = 0x7F,
+	.kA  = 0x7F,
+	.kG  = 0x7F,
+};
+SerialPacket voltageCycleClosedLoopRampPeriod_Values = (SerialPacket) {
+	//float
+	.invalid = 0,
+	.header = 0x7F,
+	.value = 0x7F,
+};
+SerialPacket appleSupplyCurrentLimit_Values = (SerialPacket) {
+	//float
+	.invalid = 0,
+	.header = 0x7F,
+	.value = 0x7F,
 };
 int count = 0;
 
@@ -637,20 +675,87 @@ void can_irq(CAN_HandleTypeDef *pcan)
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {
+	if (HAL_UART_Receive_IT(&huart6, headerSelect, 1) != HAL_OK) {
 		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
 	}
 	count = 0;
-	motorValues = (SerialPacket) {
-		.invalid = 0,
-		.header = rx_buff[0],
-		.top_left_wheel = rx_buff[1],
-		.back_left_wheel = rx_buff[2],
-		.top_right_wheel  = rx_buff[3],
-		.back_right_wheel = rx_buff[4],
-		.drum  = rx_buff[5],
-		.actuator  = rx_buff[6],
+
+	//new max code
+	//set speed if 0x01 header
+	if(headerSelect[0]==0x01){
+		if (HAL_UART_Receive_IT(&huart6, rx_buff, 6) != HAL_OK) {
+				writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
+			}
+		motorValues = (SerialPacket) {
+				.invalid = 0,
+				.header = headerSelect[0],
+				.top_left_wheel = rx_buff[0],
+				.back_left_wheel = rx_buff[1],
+				.top_right_wheel  = rx_buff[2],
+				.back_right_wheel = rx_buff[3],
+				.drum  = rx_buff[4],
+				.actuator  = rx_buff[5],
 	};
+	//set PID if 0x02 header
+		//the 2nd byte in the packet corresponds to the CAN ID of the motor we want to configure and the 3rd to 9th bytes correspond to the PID parameters
+
+	if(headerSelect[0]==0x02){
+		if (HAL_UART_Receive_IT(&huart6, pid_settings, 8) != HAL_OK) {
+				writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
+			}
+		pid_Values = (SerialPacket) {
+			.invalid = 0,
+			.header = headerSelect[0],
+			.CAN_ID = pid_settings[0],
+			.kP = pid_settings[1],
+			.kI = pid_settings[2],
+			.kD  = pid_settings[3],
+			.kS = pid_settings[4],
+			.kV  = pid_settings[5],
+			.kA  = pid_settings[6],
+			.kG  = pid_settings[7],
+	};
+	//set voltageCycleClosedLoopRampPeriod_Values if 0x03 header
+		//the 2nd byte in the packet corresponds to the CAN ID of the motor we want to configure and the 3rd byte correspond to the PID parameters
+	if(headerSelect[0]==0x03){
+		if (HAL_UART_Receive_IT(&huart6, voltageCycleClosedLoopRampPeriod_settings, 2) != HAL_OK) {
+				writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
+			}
+		voltageCycleClosedLoopRampPeriod_Values = (SerialPacket) {
+			.invalid = 0,
+			.header = headerSelect[0],
+			.CAN_ID = voltageCycleClosedLoopRampPeriod_settings[0],
+			.value = voltageCycleClosedLoopRampPeriod_settings[1],
+	};
+	//set appleSupplyCurrentLimit_Values if 0x04 header
+		//the 2nd byte in the packet corresponds to the CAN ID of the motor we want to configure and the 3rd byte correspond to the PID parameters
+	if(headerSelect[0]==0x04){
+		if (HAL_UART_Receive_IT(&huart6, rx_buff, 2) != HAL_OK) {
+				writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
+			}
+		appleSupplyCurrentLimit_Values = (SerialPacket) {
+			.invalid = 0,
+			.header = headerSelect[0],
+			.CAN_ID = appleSupplyCurrentLimit_settings[1],
+			.value = appleSupplyCurrentLimit_settings[2],
+	};
+	//old code
+//	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {
+//			writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
+//		}
+//		count = 0;
+//	motorValues = (SerialPacket) {
+//		.invalid = 0,
+//		.header = rx_buff[0],
+//		.top_left_wheel = rx_buff[1],
+//		.back_left_wheel = rx_buff[2],
+//		.top_right_wheel  = rx_buff[3],
+//		.back_right_wheel = rx_buff[4],
+//		.drum  = rx_buff[5],
+//		.actuator  = rx_buff[6],
+//	};
+
+
 }
 /* USER CODE END 4 */
 

@@ -77,3 +77,20 @@ void directControl(SerialPacket packet)
 		setActuatorLength(leftActuator, rightActuator, percentExtension);
 	}
 }
+
+void pid_control(SerialPacket packet){
+	//write to the slot0Configs
+
+}
+
+void voltageCycleClosedLoopRampPeriod_control(SerialPacket packet){
+	//write to voltageCycleClosedLoopRampPeriod
+
+}
+
+void appleSupplyCurrentLimit_control(SerialPacket packet){
+	//write to applySupplyCurrentLimit
+
+}
+
+
