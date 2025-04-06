@@ -4,5 +4,5 @@
 ../Core/Src/TalonFX.c:28:6:applySupplyCurrentLimitFX	24	static
 ../Core/Src/TalonFX.c:39:6:applyConfigFX	56	static
 ../Core/Src/TalonFX.c:73:6:setControlFX	40	static
-../Core/Src/TalonFX.c:93:6:voltageCycleClosedLoopRampPeriodFX	24	static
-../Core/Src/TalonFX.c:105:9:TalonFXInit	64	static
+../Core/Src/TalonFX.c:95:6:voltageCycleClosedLoopRampPeriodFX	24	static
+../Core/Src/TalonFX.c:107:9:TalonFXInit	64	static

@@ -74,9 +74,11 @@ void setControlFX(TalonFX *talonFX, int velocity, double feedforward)
 {
 	// Get velocity value (3 bytes)
 	if (velocity >= 0) {
+		velocity *= 2;
 		velocity *= 16;
 	}
 	else {
+		velocity *= 2;
 		velocity = 0x40000 - (-16 * velocity);
 	}
 	// Get feedforward value
