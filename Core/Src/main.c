@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <math.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -45,6 +46,8 @@
 #define OPCODE_DIRECT_CONTROL 1
 #define OPCODE_PID_CONTROL 2
 #define OPCODE_NOP 3
+
+#define INA219_SAMPLE_COUNT 500
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -487,8 +490,9 @@ int main(void)
   // 7-bit slave address = 0x40 (default when pins A0,A1 = GND)
   // 8-bit device address = 0x80 (used in the HAL_I2C_Transmit/Receive function)
   uint8_t buffer[2]; // for I2C reading, data storage
-  uint16_t rawValue;
+  int16_t rawValue;
   float currentValue;
+  float rmsCurrent;
 
   writeRegister(0x00, 0x399F); // CONFIGURATION
 
@@ -505,16 +509,25 @@ int main(void)
   while (1)
   {
 	/* USER CODE END WHILE */
-	  HAL_Delay(125); // data readability
+	  //HAL_Delay(125); // data readability
 
-	  readRegister(0x04, buffer); // MEASUREMENT (of the current register)
 
-	  // CONVERSION of the current register value to Amperes
-	  rawValue = (buffer[0] << 8) | buffer[1]; // Combine MSB and LSB to form raw current value
-	  currentValue = rawValue * LSB; // Undo "LSB" scaling factor to get Ampere units
+	  for (int sample = 0; sample < INA219_SAMPLE_COUNT; sample++) {
+		  readRegister(0x04, buffer); // MEASUREMENT (of the current register)
+
+		  // CONVERSION of the current register value to Amperes
+		  rawValue = (buffer[0] << 8) | buffer[1]; // Combine MSB and LSB to form raw current value
+		  currentValue = rawValue * LSB; // Undo "LSB" scaling factor to get Ampere units
+
+		  rmsCurrent += pow(currentValue, 2); // RMS step 1: sum up the squares
+	  }
+
+	  rmsCurrent /= INA219_SAMPLE_COUNT; // RMS step 2: divide by the # samples
+	  rmsCurrent = sqrt(rmsCurrent); // RMS step 3: take the square root
+
 
 	  //writeDebugFormat("%x raw \r\n", rawValue);
-	  writeDebugFormat("%.6f Amps\r\n", currentValue);
+	  writeDebugFormat("%.6f Amps\r\n", rmsCurrent);
 	/* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
