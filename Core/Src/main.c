@@ -683,9 +683,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	//new max code
 	//set speed if 0x01 header
 	if(headerSelect[0]==0x01){
-		if (HAL_UART_Receive_IT(&huart6, rx_buff, 6) != HAL_OK) {
-				writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
-			}
+		if (HAL_UART_Receive_IT(&huart6, rx_buff, 6) != HAL_OK) writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
 		motorValues = (SerialPacket) {
 				.invalid = 0,
 				.header = headerSelect[0],
@@ -695,14 +693,13 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 				.back_right_wheel = rx_buff[3],
 				.drum  = rx_buff[4],
 				.actuator  = rx_buff[5],
-	};
+		};
+	}
 	//set PID if 0x02 header
 		//the 2nd byte in the packet corresponds to the CAN ID of the motor we want to configure and the 3rd to 9th bytes correspond to the PID parameters
 
-	if(headerSelect[0]==0x02){
-		if (HAL_UART_Receive_IT(&huart6, pid_settings, 8) != HAL_OK) {
-				writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
-			}
+	else if(headerSelect[0]==0x02){
+		if (HAL_UART_Receive_IT(&huart6, pid_settings, 8) != HAL_OK) writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
 		pid_Values = (SerialPacket) {
 			.invalid = 0,
 			.header = headerSelect[0],
@@ -714,31 +711,33 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 			.kV  = pid_settings[5],
 			.kA  = pid_settings[6],
 			.kG  = pid_settings[7],
-	};
+		};
+		pid_control(pid_Values);
+	}
 	//set voltageCycleClosedLoopRampPeriod_Values if 0x03 header
 		//the 2nd byte in the packet corresponds to the CAN ID of the motor we want to configure and the 3rd byte correspond to the PID parameters
-	if(headerSelect[0]==0x03){
-		if (HAL_UART_Receive_IT(&huart6, voltageCycleClosedLoopRampPeriod_settings, 2) != HAL_OK) {
-				writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
-			}
+	else if(headerSelect[0]==0x03){
+		if (HAL_UART_Receive_IT(&huart6, voltageCycleClosedLoopRampPeriod_settings, 2) != HAL_OK) writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
 		voltageCycleClosedLoopRampPeriod_Values = (SerialPacket) {
 			.invalid = 0,
 			.header = headerSelect[0],
 			.CAN_ID = voltageCycleClosedLoopRampPeriod_settings[0],
 			.value = voltageCycleClosedLoopRampPeriod_settings[1],
-	};
+		};
+		voltageCycleClosedLoopRampPeriod_control(voltageCycleClosedLoopRampPeriod_Values);
+	}
 	//set appleSupplyCurrentLimit_Values if 0x04 header
 		//the 2nd byte in the packet corresponds to the CAN ID of the motor we want to configure and the 3rd byte correspond to the PID parameters
-	if(headerSelect[0]==0x04){
-		if (HAL_UART_Receive_IT(&huart6, rx_buff, 2) != HAL_OK) {
-				writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
-			}
+	else if(headerSelect[0]==0x04){
+		if (HAL_UART_Receive_IT(&huart6, appleSupplyCurrentLimit_settings, 2) != HAL_OK) writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
 		appleSupplyCurrentLimit_Values = (SerialPacket) {
 			.invalid = 0,
 			.header = headerSelect[0],
-			.CAN_ID = appleSupplyCurrentLimit_settings[1],
-			.value = appleSupplyCurrentLimit_settings[2],
-	};
+			.CAN_ID = appleSupplyCurrentLimit_settings[0],
+			.value = appleSupplyCurrentLimit_settings[1],
+		};
+		appleSupplyCurrentLimit_control(appleSupplyCurrentLimit_Values);
+	}
 	//old code
 //	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {
 //			writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
