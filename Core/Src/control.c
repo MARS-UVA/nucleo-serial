@@ -13,6 +13,7 @@ TalonSRX rightActuator;
 
 
 // Initialize Talon "objects"
+
 void initializeTalons() {
 	frontLeft = TalonFXInit(&hcan1, FRONT_LEFT_WHEEL_ID);
 	backLeft = TalonFXInit(&hcan1, BACK_LEFT_WHEEL_ID);
@@ -77,74 +78,3 @@ void directControl(SerialPacket packet)
 		setActuatorLength(leftActuator, rightActuator, percentExtension);
 	}
 }
-
-void pid_control(SerialPacket packet){
-	//write to the slot0Configs
-	int8_t CAN_ID = packet.CAN_ID;
-	    /*.kP = pid_settings[1],
-			.kI = pid_settings[2],
-			.kD  = pid_settings[3],
-			.kS = pid_settings[4],
-			.kV  = pid_settings[5],
-			.kA  = pid_settings[6],
-			.kG  = pid_settings[7]*/
-	struct slot0Configs pidConfigs = {
-			(double) packet.kP / 255.0,
-			(double) packet.kI / 255.0,
-			(double) packet.kD / 255.0,
-			(double) packet.kS / 255.0,
-			(double) packet.kV / 255.0,
-			(double) packet.kA / 255.0,
-			(double) packet.kG / 255.0
-		};
-	switch (CAN_ID)
-	case FRONT_LEFT_WHEEL_ID:
-		frontLeft.applyConfig(&frontLeft, &pidConfigs);
-	case BACK_LEFT_WHEEL_ID:
-		backLeft.applyConfig(&backLeft, &pidConfigs);
-	case FRONT_RIGHT_WHEEL_ID:
-		frontRight.applyConfig(&frontRight, &pidConfigs);
-	case BACK_RIGHT_WHEEL_ID:
-		backRight.applyConfig(&backRight, &pidConfigs);
-	case BUCKET_DRUM_ID:
-		bucketDrum.applyConfig(&bucketDrum, &pidConfigs);
-
-}
-
-void voltageCycleClosedLoopRampPeriod_control(SerialPacket packet){
-	//write to voltageCycleClosedLoopRampPeriod
-	int8_t CAN_ID = packet.CAN_ID;
-	int8_t value = packet.value;
-
-	switch (CAN_ID)
-	case FRONT_LEFT_WHEEL_ID:
-		voltageCycleClosedLoopRampPeriod(&frontLeft, (float) value / 255.0);
-	case BACK_LEFT_WHEEL_ID:
-		voltageCycleClosedLoopRampPeriod(&backLeft, (float) value / 255.0);
-	case FRONT_RIGHT_WHEEL_ID:
-		voltageCycleClosedLoopRampPeriod(&frontRight, (float) value / 255.0);
-	case BACK_RIGHT_WHEEL_ID:
-		voltageCycleClosedLoopRampPeriod(&backRight, (float) value / 255.0);
-	case BUCKET_DRUM_ID:
-		voltageCycleClosedLoopRampPeriod(&bucketDrum, (float) value / 255.0);
-}
-
-void appleSupplyCurrentLimit_control(SerialPacket packet){
-	//write to applySupplyCurrentLimit
-	int8_t CAN_ID = packet.CAN_ID;
-	int8_t value = packet.value;
-//valuee is just integers basically but still float
-	switch (CAN_ID)
-	case FRONT_LEFT_WHEEL_ID:
-		applySupplyCurrentLimit(&frontLeft, (float) value);
-	case BACK_LEFT_WHEEL_ID:
-		applySupplyCurrentLimit(&backLeft, (float) value);
-	case FRONT_RIGHT_WHEEL_ID:
-		applySupplyCurrentLimit(&frontRight, (float) value);
-	case BACK_RIGHT_WHEEL_ID:
-		applySupplyCurrentLimit(&backRight, (float) value);
-	case BUCKET_DRUM_ID:
-		applySupplyCurrentLimit(&bucketDrum, (float) value);
-}
-
-

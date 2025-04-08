@@ -3,6 +3,7 @@
 "./Core/Src/TalonSRX.o"
 "./Core/Src/actuatorControl.o"
 "./Core/Src/can.o"
+"./Core/Src/configuration.o"
 "./Core/Src/control.o"
 "./Core/Src/debug.o"
 "./Core/Src/main.o"

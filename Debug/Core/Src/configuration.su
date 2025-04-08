@@ -1,0 +1,3 @@
+../Core/Src/configuration.c:45:6:pid_control	88	static
+../Core/Src/configuration.c:88:6:voltageCycleClosedLoopRampPeriod_control	24	static
+../Core/Src/configuration.c:117:6:appleSupplyCurrentLimit_control	24	static

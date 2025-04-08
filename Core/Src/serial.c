@@ -3,6 +3,7 @@
 
 extern UART_HandleTypeDef huart6;
 
+//for motor speed
 // reads a single packet from Jetson on UART 2
 SerialPacket readFromJetson() {
 	uint8_t RxBuffer[7]; // buffer to store received bytes
@@ -25,6 +26,61 @@ SerialPacket readFromJetson() {
 		.back_right_wheel = RxBuffer[4],
 		.drum  = RxBuffer[5],
 		.actuator  = RxBuffer[6],
+	};
+}
+
+//for pid
+SerialPacketPID readFromJetsonPID() {
+	uint8_t RxBuffer[9]; // buffer to store received bytes
+	uint8_t packetLength = 9; // expected packet length (1 header plus 1 byte for each motor/actuator)
+
+	HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart6, RxBuffer, packetLength, 0xFFFFFF); // making delay large seems to break CAN communication
+	if (hal_status != HAL_OK) {
+		writeDebugFormat("Error during UART Receive: %d\r\n");
+	    return (SerialPacketPID) {
+	        .invalid = 1
+	    };
+	}
+/*	uint8_t CAN_ID;
+	uint8_t kP;
+	uint8_t kI;
+	uint8_t kD;
+	uint8_t kS;
+	uint8_t kV;
+	uint8_t kA;
+	uint8_t kG;*/
+	return (SerialPacketPID) {
+		.invalid = 0,
+		.header = RxBuffer[0],
+		.CAN_ID = RxBuffer[1],
+		.kP = RxBuffer[2],
+		.kI  = RxBuffer[3],
+		.kD = RxBuffer[4],
+		.kS  = RxBuffer[5],
+		.kV  = RxBuffer[6],
+		.kA = RxBuffer[7],
+		.kG = RxBuffer[8],
+	};
+}
+
+//for voltage/current
+SerialPacketCV readFromJetsonCV() {
+	uint8_t RxBuffer[3]; // buffer to store received bytes
+	uint8_t packetLength = 3; // expected packet length (1 header plus 1 byte for each motor/actuator)
+
+	HAL_StatusTypeDef hal_status = HAL_UART_Receive(&huart6, RxBuffer, packetLength, 0xFFFFFF); // making delay large seems to break CAN communication
+	if (hal_status != HAL_OK) {
+		writeDebugFormat("Error during UART Receive: %d\r\n");
+	    return (SerialPacketCV) {
+	        .invalid = 1
+	    };
+	}
+
+	return (SerialPacketCV) {
+		.invalid = 0,
+		.header = RxBuffer[0],
+		.CAN_ID = RxBuffer[1],
+		.value = RxBuffer[2],
 	};
 }
 

@@ -35,6 +35,8 @@
 
 void directControl(SerialPacket packet);
 void initializeTalons();
-
+void pid_control(SerialPacketPID packet);
+void voltageCycleClosedLoopRampPeriod_control(SerialPacketCV packet);
+void appleSupplyCurrentLimit_control(SerialPacketCV packet);
 
 #endif

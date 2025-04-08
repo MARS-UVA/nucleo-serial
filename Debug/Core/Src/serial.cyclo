@@ -1,2 +1,4 @@
-../Core/Src/serial.c:7:14:readFromJetson	2
-../Core/Src/serial.c:31:6:writeToJetson	2
+../Core/Src/serial.c:8:14:readFromJetson	2
+../Core/Src/serial.c:33:17:readFromJetsonPID	2
+../Core/Src/serial.c:67:16:readFromJetsonCV	2
+../Core/Src/serial.c:87:6:writeToJetson	2
