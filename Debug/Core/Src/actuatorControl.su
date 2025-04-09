@@ -1,2 +1,0 @@
-../Core/Src/actuatorControl.c:10:6:setActuatorLength	40	static
-../Core/Src/actuatorControl.c:44:23:syncLinearActuators	48	static

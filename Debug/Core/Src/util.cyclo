@@ -1,3 +1,0 @@
-../Core/Src/util.c:9:6:floatToByteArray	2
-../Core/Src/util.c:17:6:altFloatToByteArray	2
-../Core/Src/util.c:26:6:float16ToByteArray	2
