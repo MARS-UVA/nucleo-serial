@@ -27,8 +27,8 @@
 #define FRONT_RIGHT_WHEEL_PDP_ID 3
 #define BACK_RIGHT_WHEEL_PDP_ID 1
 #define BUCKET_DRUM_PDP_ID 0
-#define LEFT_ACTUATOR_PDP_ID -1
-#define RIGHT_ACTUATOR_PDP_ID -1
+#define LEFT_ACTUATOR_PDP_ID 15
+#define RIGHT_ACTUATOR_PDP_ID 14
 
 #define DIRECT_ACTUATOR_CONTROL 1 // 1 if we want to set the outputs of the Talon SRXs directly and bypass the potentiometer feedback
 
