@@ -202,6 +202,8 @@ int main(void)
 		};
 	}
 
+
+
 	// every 10 cycles, poll motor currents and send to Jetson
 	if (count % 10 == 0) {
 		float motorCurrents[5];
@@ -230,7 +232,7 @@ int main(void)
 	    }
 
 		//send packet to Jetson
-	    writeToJetson(packet, 21);
+//	    writeToJetson(packet, 21);
 	}
 
 
@@ -238,7 +240,19 @@ int main(void)
 //	}
 
 
-	directControl(motorValues); // set motor outputs accordingly
+//	directControl(motorValues); // set motor outputs accordingly
+
+	// code for testing string pot values
+	HAL_ADC_Start(&hadc1);
+	HAL_ADC_Start(&hadc2);
+	HAL_ADC_PollForConversion(&hadc1, 20);
+	uint16_t leftPosition = HAL_ADC_GetValue(&hadc1); // Change to HAL_ADCEx_MultiModeStart_DMA or HAL_ADC_Start_DMA for speed
+	HAL_ADC_PollForConversion(&hadc2, 20);
+	uint16_t rightPosition = HAL_ADC_GetValue(&hadc2); // todo: also check rightPosition once we know this logic works.
+
+	writeDebugFormat("Left Pot value: %d\r\n", leftPosition);
+	writeDebugFormat("Right Pot value: %d\r\n", rightPosition);
+
 	HAL_Delay(1);
 
   }
