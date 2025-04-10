@@ -178,7 +178,8 @@ int main(void)
 		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
 		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
 
-		writeDebugFormat("Current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID));
+		writeDebugFormat("Current: %f\r\n", pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID));
+		writeDebugFormat("Current: %f\r\n", pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID));
 	}
 
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
@@ -215,10 +216,13 @@ int main(void)
 //		writeDebugFormat("Back right current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID));
 		motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
 
+		motorCurrents[5] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
+		motorCurrents[6] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
 
+		motorCurrents[7] = 0;
 
 		// convert floats to bytes, put in packet
-	    uint8_t packet[21];  // 1-byte header + 5 floats × 4 bytes
+	    uint8_t packet[1 + 4 * 8];  // 1-byte header + 5 floats × 4 bytes
 	    packet[0] = 0x1; // header 0x1 to indicate motor current feedback
 	    for (int i = 0; i < 5; i++) {
 	        floatToByteArray(motorCurrents[i], &packet[1 + i * 4]);
@@ -230,7 +234,7 @@ int main(void)
 	    }
 
 		//send packet to Jetson
-	    writeToJetson(packet, 21);
+	    writeToJetson(packet, 1 + 4 * 8);
 	}
 
 
@@ -640,6 +644,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {
 		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
 	}
+
 	count = 0;
 	motorValues = (SerialPacket) {
 		.invalid = 0,

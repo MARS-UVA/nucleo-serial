@@ -19,7 +19,7 @@ void getSixParamPDP(PDP* pdp, uint64_t *cache) {
 		if (pdp->receivedNew)
 			break;
 
-		HAL_Delay(10);
+		HAL_Delay(1);
 	}
 
 
