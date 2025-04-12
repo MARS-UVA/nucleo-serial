@@ -45,7 +45,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define DEBUG 0
+#define DEBUG 1
 
 #define OPCODE_STOP 0
 #define OPCODE_DIRECT_CONTROL 1
@@ -173,13 +173,13 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	if (DEBUG){
-		writeDebugString("Running\r\n");
-		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
-		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
-		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
-
-		writeDebugFormat("Current: %f\r\n", pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID));
-		writeDebugFormat("Current: %f\r\n", pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID));
+//		writeDebugString("Running\r\n");
+//		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
+//		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
+//		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
+//
+		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
+		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
 	}
 
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
@@ -190,7 +190,7 @@ int main(void)
 	count += 1;
 	// After a certain period without receiving packets, stop the robot. todo: ensure this logic is robust
 	// right now it stops ~2s after we stop sending packets from the Jetson
-	if (count > 100) {
+	if (count > 10) {
 		motorValues = (SerialPacket) {
 			.invalid = 0,
 			.header = 0x7F,
@@ -221,7 +221,7 @@ int main(void)
 
 		motorCurrents[7] = 0;
 
-		// convert floats to bytes, put in packet
+//		// convert floats to bytes, put in packet
 	    uint8_t packet[1 + 4 * 8];  // 1-byte header + 5 floats × 4 bytes
 	    packet[0] = 0x1; // header 0x1 to indicate motor current feedback
 	    for (int i = 0; i < 5; i++) {
@@ -232,8 +232,8 @@ int main(void)
 //			writeDebugFormat("b4: %d\r\n", packet[4]);
 
 	    }
-
-		//send packet to Jetson
+////
+////		//send packet to Jetson
 	    writeToJetson(packet, 1 + 4 * 8);
 	}
 
@@ -436,13 +436,13 @@ static void MX_CAN1_Init(void)
   sf.FilterActivation = CAN_FILTER_ENABLE;
   if (HAL_CAN_ConfigFilter(&hcan1, &sf) != HAL_OK)
 	Error_Handler();
-
+//
   if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO0_MSG_PENDING_CB_ID, can_irq))
 	Error_Handler();
-
+//
   if (HAL_CAN_Start(&hcan1) != HAL_OK)
 	Error_Handler();
-
+//
   if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
 	Error_Handler();
   /* USER CODE END CAN1_Init 2 */
