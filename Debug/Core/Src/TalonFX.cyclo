@@ -1,8 +1,0 @@
-../Core/Src/TalonFX.c:4:6:sendFXCANMessage	1
-../Core/Src/TalonFX.c:9:6:setFX	2
-../Core/Src/TalonFX.c:19:6:setNeutralModeFX	3
-../Core/Src/TalonFX.c:28:6:applySupplyCurrentLimitFX	1
-../Core/Src/TalonFX.c:39:6:applyConfigFX	2
-../Core/Src/TalonFX.c:73:6:setControlFX	2
-../Core/Src/TalonFX.c:95:6:voltageCycleClosedLoopRampPeriodFX	1
-../Core/Src/TalonFX.c:107:9:TalonFXInit	1

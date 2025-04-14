@@ -45,11 +45,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 #define DEBUG 1
-
-#define OPCODE_STOP 0
-#define OPCODE_DIRECT_CONTROL 1
-#define OPCODE_PID_CONTROL 2
-#define OPCODE_NOP 3
+#define WAIT_TIME 100 // how many loops the nucleo waits when no packets are received before setting all motors to neutral
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -66,9 +62,7 @@ UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 uint8_t rx_buff[7];
-SerialPacket motorValues = (SerialPacket) {
-	.invalid = 0,
-	.header = 0x7F,
+MotorValues motorValues = (MotorValues) {
 	.front_left_wheel = 0x7F,
 	.back_left_wheel = 0x7F,
 	.front_right_wheel  = 0x7F,
@@ -99,7 +93,7 @@ static void MX_ADC2_Init(void);
 /* USER CODE BEGIN 0 */
 
 
-// stop all systems
+// emergency stop: stop all systems (temporarily)
 void stop()
 {
 	// TODO: Implement
@@ -149,7 +143,9 @@ int main(void)
   MX_USART6_UART_Init();
   MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
-  writeDebugString("Starting program!");
+  if (DEBUG) {
+	  writeDebugString("Starting program!");
+  }
   initializeTalons();
   HAL_UART_Receive_IT(&huart6, rx_buff, 7);
 
@@ -166,25 +162,18 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	if (DEBUG){
-//		writeDebugString("Running\r\n");
-		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.front_left_wheel);
-		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.front_right_wheel);
+		writeDebugString("Running\r\n");
+		writeDebugFormat("Front Left Wheel Output: %d\r\n", motorValues.front_left_wheel);
+		writeDebugFormat("Front Right Wheel Output: %d\r\n", motorValues.front_right_wheel);
 		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
 	}
 
-	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
-//	if (count % 5 == 0) {
-//		motorValues = readFromJetson(); // receive a packet from Jetson
-
-//		writeDebugFormat("Top Left Wheel Output: %x\r\n", rx_buff[1]);
 
 	count += 1;
 	// After a certain period without receiving packets, stop the robot. todo: ensure this logic is robust
 	// right now it stops ~2s after we stop sending packets from the Jetson
-	if (count > 100) {
-		motorValues = (SerialPacket) {
-			.invalid = 0,
-			.header = 0x7F,
+	if (count > WAIT_TIME) {
+		motorValues = (MotorValues) {
 			.front_left_wheel = 0x7F,
 			.back_left_wheel = 0x7F,
 			.front_right_wheel  = 0x7F,
@@ -194,8 +183,6 @@ int main(void)
 		};
 	}
 
-
-//	}
 
 	directControl(motorValues); // set motor outputs accordingly
 	HAL_Delay(1);
@@ -571,14 +558,16 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+// Interrupt, callback is triggered upon receiving serial packet from Jetson
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	// receive a packet, save it into rx_buff
 	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {
 		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
 	}
-	count = 0;
-	motorValues = (SerialPacket) {
-		.invalid = 0,
-		.header = rx_buff[0],
+	count = 0; // packet received, reset wait counter
+	uint8_t header = rx_buff[0];
+	motorValues = (MotorValues) {
 		.front_left_wheel = rx_buff[1],
 		.back_left_wheel = rx_buff[2],
 		.front_right_wheel  = rx_buff[3],
