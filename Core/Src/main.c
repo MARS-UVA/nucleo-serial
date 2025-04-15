@@ -250,8 +250,11 @@ int main(void)
 	HAL_ADC_PollForConversion(&hadc2, 20);
 	uint16_t rightPosition = HAL_ADC_GetValue(&hadc2); // todo: also check rightPosition once we know this logic works.
 
-	writeDebugFormat("Left Pot value: %d\r\n", leftPosition);
-	writeDebugFormat("Right Pot value: %d\r\n", rightPosition);
+	//writeDebugFormat("Left Pot value: %d\r\n", leftPosition);
+	//writeDebugFormat("Right Pot value: %d\r\n", rightPosition);
+
+	writeDebugFormat("Right Pot float: %f\r\n", (rightPosition- 815)/(3275.0));
+	writeDebugFormat("Left Pot float: %f\r\n", (leftPosition- 35)/(3214.0));
 
 	HAL_Delay(1);
 
