@@ -177,9 +177,10 @@ int main(void)
 //		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
 //		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
 //		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
-//
-		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
-		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
+
+//		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
+//		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
+		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID));
 	}
 
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
@@ -205,6 +206,18 @@ int main(void)
 
 	// every 10 cycles, poll motor currents and send to Jetson
 	if (count % 10 == 0) {
+
+
+		pdp.requestCurrentReadings(&pdp);
+
+		for (int i = 0; i < 10; i++)
+		{
+			if (pdp.receivedNew0 && pdp.receivedNew40 && pdp.receivedNew80)
+				break;
+
+			HAL_Delay(1);
+		}
+
 		float motorCurrents[5];
 		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
 //		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
@@ -219,13 +232,17 @@ int main(void)
 		motorCurrents[5] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
 		motorCurrents[6] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
 
+		pdp.receivedNew0 = false;
+		pdp.receivedNew40 = false;
+		pdp.receivedNew80 = false;
+
 		motorCurrents[7] = 0;
 
 //		// convert floats to bytes, put in packet
-	    uint8_t packet[1 + 4 * 8];  // 1-byte header + 5 floats × 4 bytes
+	    uint8_t packet[4 + 4 * 8];  // 4-byte header + 5 floats × 4 bytes
 	    packet[0] = 0x1; // header 0x1 to indicate motor current feedback
-	    for (int i = 0; i < 5; i++) {
-	        floatToByteArray(motorCurrents[i], &packet[1 + i * 4]);
+	    for (int i = 0; i < 8; i++) {
+	        floatToByteArray(motorCurrents[i], &packet[4 + i * 4]);
 //	        writeDebugFormat("b1: %d\r\n", packet[1]);
 //	        writeDebugFormat("b2: %d\r\n", packet[2]);
 //	        writeDebugFormat("b3: %d\r\n", packet[3]);
@@ -234,7 +251,7 @@ int main(void)
 	    }
 ////
 ////		//send packet to Jetson
-	    writeToJetson(packet, 1 + 4 * 8);
+	    writeToJetson(packet, 4 + 4 * 8);
 	}
 
 

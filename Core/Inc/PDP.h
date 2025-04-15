@@ -23,7 +23,9 @@ typedef struct pdp {
 	void (*getSixParam) (struct pdp*, uint64_t *cache);
 	void (*requestCurrentReadings) (struct pdp*);
 	void (*receiveCAN) (struct pdp*, CAN_RxHeaderTypeDef *msg, uint64_t *data);
-	bool receivedNew;
+	bool receivedNew0;
+	bool receivedNew40;
+	bool receivedNew80;
 } PDP;
 
 PDP PDPInit();

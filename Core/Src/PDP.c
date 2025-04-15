@@ -6,6 +6,7 @@
  */
 
 #include "PDP.h"
+#include "can.h"
 
 void requestCurrentReadingsPDP(PDP *pdp)
 {
@@ -14,13 +15,6 @@ void requestCurrentReadingsPDP(PDP *pdp)
 
 
 void getSixParamPDP(PDP* pdp, uint64_t *cache) {
-	for (int i = 0; i < 5; i++)
-	{
-		if (pdp->receivedNew)
-			break;
-
-		HAL_Delay(1);
-	}
 
 
 	pdp->cacheWords[0] = (uint8_t) *cache;
@@ -70,8 +64,6 @@ void getSixParamPDP(PDP* pdp, uint64_t *cache) {
 // given PDP channel ID, returns the current in Amps at the channel
 float getChannelCurrentPDP(PDP* pdp, int channelID)
 {
-	pdp->requestCurrentReadings(pdp);
-
 	float num = 0;
 	if (channelID >= 0 && channelID <= 5) {
 		pdp->getSixParam(pdp, &(pdp->cache0));
@@ -83,8 +75,6 @@ float getChannelCurrentPDP(PDP* pdp, int channelID)
 		pdp->getSixParam(pdp, &(pdp->cache80));
 		num = pdp->cacheWords[channelID - 12] * 0.125;
 	}
-
-	pdp->receivedNew = false;
 
 	return num;
 }
@@ -103,16 +93,17 @@ void receiveCANPDP(PDP *pdp, CAN_RxHeaderTypeDef *msg, uint64_t *data)
 	  {
 	  case 0x00:
 		  pdp->cache0 = *data;
+		  pdp->receivedNew0 = true;
 		  break;
 	  case 0x40:
 		  pdp->cache40 = *data;
+		  pdp->receivedNew40 = true;
 		  break;
 	  case 0x80:
 		  pdp->cache80 = *data;
+		  pdp->receivedNew80 = true;
 		  break;
 	  }
-
-	  pdp->receivedNew = true;
 }
 
 PDP PDPInit(CAN_HandleTypeDef *hcan, int32_t identifier)
@@ -128,7 +119,9 @@ PDP PDPInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 		.getSixParam = getSixParamPDP,
 		.requestCurrentReadings = requestCurrentReadingsPDP,
 		.receiveCAN = receiveCANPDP,
-		.receivedNew = false
+		.receivedNew0 = false,
+		.receivedNew40 = false,
+		.receivedNew80 = false
 	};
 
 	return pdp;
