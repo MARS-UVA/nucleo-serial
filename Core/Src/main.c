@@ -31,6 +31,7 @@
 #include "control.h"
 #include "TalonFX.h"
 #include "PDP.h"
+#include "pot.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,6 +71,8 @@ UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
 PDP pdp;
+Pot leftPot;
+Pot rightPot;
 
 uint8_t rx_buff[7];
 SerialPacket motorValues = (SerialPacket) {
@@ -142,7 +145,6 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
-  pdp = PDPInit(&hcan1, 62);
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
@@ -164,6 +166,11 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  pdp = PDPInit(&hcan1, 62);
+  leftPot = PotInit(&hadc1);
+  rightPot = PotInit(&hadc2);
+  calibrateYourMom(&leftPot, &rightPot);
+
   writeDebugString("Entering while loop!\r\n");
 
   while (1)
@@ -180,7 +187,8 @@ int main(void)
 
 //		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
 //		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
-		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID));
+//		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID));
+		writeDebugFormat("Actuator Position: %f %f %f\r\n", leftPot.read(&leftPot), rightPot.read(&rightPot), (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0);
 	}
 
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
@@ -231,6 +239,8 @@ int main(void)
 
 		motorCurrents[5] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
 		motorCurrents[6] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
+
+		motorCurrents[7] = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
 
 		pdp.receivedNew0 = false;
 		pdp.receivedNew40 = false;
