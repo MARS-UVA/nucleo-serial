@@ -69,6 +69,7 @@ UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
+uint32_t rightActuatorOffset;
 PDP pdp;
 
 uint8_t rx_buff[7];
@@ -166,6 +167,22 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   writeDebugString("Entering while loop!\r\n");
 
+  HAL_ADC_Start(&hadc1);
+  HAL_ADC_Start(&hadc2);
+
+
+  rightActuatorOffset = 0;
+  for (int i = 0; i < 20; i++) {
+	  HAL_ADC_PollForConversion(&hadc1, 20);
+	  HAL_ADC_PollForConversion(&hadc2, 20);
+	  rightActuatorOffset += (HAL_ADC_GetValue(&hadc1) - HAL_ADC_GetValue(&hadc2)) / 20;
+  }
+//  rightActuatorOffset = rightActuatorOffset / 10;
+  writeDebugFormat("Offset: %ld \r \n", (int)(rightActuatorOffset));
+  int minPos = 1190;
+  int maxPos = 3153;
+
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -240,24 +257,27 @@ int main(void)
 //	}
 
 
-//	directControl(motorValues); // set motor outputs accordingly
+	directControl(motorValues); // set motor outputs accordingly
 
 	// code for testing string pot values
-	HAL_ADC_Start(&hadc1);
-	HAL_ADC_Start(&hadc2);
+	// 38 cm
+	  HAL_ADC_Start(&hadc1);
+	  HAL_ADC_Start(&hadc2);
+
 	HAL_ADC_PollForConversion(&hadc1, 20);
 	uint16_t leftPosition = HAL_ADC_GetValue(&hadc1); // Change to HAL_ADCEx_MultiModeStart_DMA or HAL_ADC_Start_DMA for speed
 	HAL_ADC_PollForConversion(&hadc2, 20);
-	uint16_t rightPosition = HAL_ADC_GetValue(&hadc2); // todo: also check rightPosition once we know this logic works.
+	uint16_t rightPosition = HAL_ADC_GetValue(&hadc2) + rightActuatorOffset; // todo: also check rightPosition once we know this logic works.
 
-	//writeDebugFormat("Left Pot value: %d\r\n", leftPosition);
-	//writeDebugFormat("Right Pot value: %d\r\n", rightPosition);
+//	maxPos = max(max(leftPosition, maxPos), rightPosition);
+//	writeDebugFormat("RAW Left Pot value: %d\r\n", leftPosition);
+//	writeDebugFormat("RAW Right Pot value: %d\r\n", rightPosition);
 
-	writeDebugFormat("Right Pot float: %f\r\n", (rightPosition- 815)/(3275.0));
-	writeDebugFormat("Left Pot float: %f\r\n", (leftPosition- 35)/(3214.0));
+	writeDebugFormat("Pots: %f %f\r\n", map(minPos, maxPos, leftPosition), map(minPos, maxPos, rightPosition));
+	writeDebugFormat("RAW Pots: %d %d\r\n", leftPosition, rightPosition);
+//	writeDebugFormat("Minimum: %d\r\n", maxPos);
 
-	HAL_Delay(1);
-
+	HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }

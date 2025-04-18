@@ -1,3 +1,6 @@
 ../Core/Src/util.c:9:6:floatToByteArray	24	static
 ../Core/Src/util.c:17:6:altFloatToByteArray	24	static
 ../Core/Src/util.c:26:6:float16ToByteArray	24	static
+../Core/Src/util.c:34:5:min	16	static
+../Core/Src/util.c:39:5:max	16	static
+../Core/Src/util.c:44:7:map	24	static
