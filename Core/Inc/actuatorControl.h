@@ -14,8 +14,7 @@
 #include "TalonSRX.h"
 #include "debug.h"
 
-#define TOLERANCE 1.004
-#define SLOWFACTOR 0.99
+
 
 
 // percent output values for left and right actuators

@@ -5,6 +5,7 @@
 #define POT_CALIBRATION_COUNT 20
 
 float readPot(Pot* pot) {
+	HAL_ADC_Start(pot->hadc);
 	HAL_ADC_PollForConversion(pot->hadc, 20);
 	return map(pot->minPos, pot->maxPos, HAL_ADC_GetValue(pot->hadc) + pot->actuatorOffset);
 }
@@ -13,6 +14,8 @@ void calibrateYourMom(Pot *leftPot, Pot *rightPot) {
 	  int offset = 0;
 
 	  for (int i = 0; i < POT_CALIBRATION_COUNT; i++) {
+		  HAL_ADC_Start(leftPot->hadc);
+		  HAL_ADC_Start(rightPot->hadc);
 		  HAL_ADC_PollForConversion(leftPot->hadc, 20);
 		  HAL_ADC_PollForConversion(rightPot->hadc, 20);
 		  offset += (HAL_ADC_GetValue(leftPot->hadc) - HAL_ADC_GetValue(rightPot->hadc)) / POT_CALIBRATION_COUNT;
@@ -21,6 +24,8 @@ void calibrateYourMom(Pot *leftPot, Pot *rightPot) {
 	  rightPot->actuatorOffset = offset;
 }
 
+
+// todo: create state that stores current value of potentiometer
 Pot PotInit(ADC_HandleTypeDef *hadc) {
 	Pot pot = {
 		.hadc = hadc,

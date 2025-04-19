@@ -64,17 +64,25 @@ void directControl(SerialPacket packet)
 	bucketDrum.setControl(&bucketDrum, ((int8_t)(bucketDrumSpeed - 127)), 0);
 
 	// Set outputs of linear actuators
-	int8_t actuatorPosition = packet.actuator;
-	float percentExtension = (float) actuatorPosition / 255; // convert value between 0 and 255 to decimal between 0 and 1
+
+	// todo: check if packet.actuator is 0xFFs
+    struct ActuatorValues actuatorSyncOutputs; // to store the percent outputs of left and right actuator after synchronization
 	if (DIRECT_ACTUATOR_CONTROL) {
-		// this expects packet.actuator to be a two's complement value between -127 and 127
-		// eg. a 0xff corresponds to -1/128 = 0.8% output, 0x7F corresponds to 128/128 = 100% output
+		int actuatorInteger = packet.actuator - 127;
+		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
-//		writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
+		actuatorSyncOutputs = syncLinearActuators(actuatorOutput);
+		writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
+//		leftActuator.set(&leftActuator, actuatorSyncOutputs.left); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
+//		rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
+
+
 		leftActuator.set(&leftActuator, actuatorOutput); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
 		rightActuator.set(&rightActuator, actuatorOutput);
 	}
 	else {
+		int8_t actuatorPosition = packet.actuator;
+		float percentExtension = (float) actuatorPosition / 255; // convert value between 0 and 255 to decimal between 0 and 1
 		setActuatorLength(leftActuator, rightActuator, percentExtension);
 	}
 }

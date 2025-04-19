@@ -73,6 +73,9 @@ UART_HandleTypeDef huart6;
 PDP pdp;
 Pot leftPot;
 Pot rightPot;
+extern TalonSRX leftActuator;
+extern TalonSRX rightActuator;
+
 
 uint8_t rx_buff[7];
 SerialPacket motorValues = (SerialPacket) {
@@ -86,6 +89,7 @@ SerialPacket motorValues = (SerialPacket) {
 	.actuator  = 0x7F,
 };
 int count = 0;
+int actuatorUpCount = 0;
 
 /* USER CODE END PV */
 
@@ -169,9 +173,18 @@ int main(void)
   pdp = PDPInit(&hcan1, 62);
   leftPot = PotInit(&hadc1);
   rightPot = PotInit(&hadc2);
+
+  // calibration routine: raise actuator all the way up before calibrating
+  for (actuatorUpCount = 0; actuatorUpCount < 800; actuatorUpCount ++) {
+	  sendGlobalEnableFrame(&hcan1);
+	  leftActuator.set(&leftActuator, 1);
+	  rightActuator.set(&rightActuator, 1);
+	  HAL_Delay(10);
+  }
   calibrateYourMom(&leftPot, &rightPot);
 
   writeDebugString("Entering while loop!\r\n");
+
 
   while (1)
   {
@@ -208,8 +221,38 @@ int main(void)
 			.top_right_wheel  = 0x7F,
 			.back_right_wheel = 0x7F,
 			.drum  = 0x7F,
-			.actuator  = 0x7F,
+			.actuator  = 0x00,
 		};
+	}
+
+	// testing code
+
+	if (count > 200) {
+		motorValues.actuator = 0x7F;
+	}
+	if (count > 400) {
+		motorValues.actuator = 0xFE;
+	}
+	if (count > 600) {
+		motorValues.actuator = 0x7F;
+	}
+	if (count > 800) {
+		motorValues.actuator = 0x00;
+	}
+	if (count > 1000) {
+		motorValues.actuator = 0x7F;
+	}
+	if (count > 1200) {
+		motorValues.actuator = 0xFE;
+	}
+	if (count > 1400) {
+		motorValues.actuator = 0x7F;
+	}
+	if (count > 1600) {
+		motorValues.actuator = 0x00;
+	}
+	if (count > 1800) {
+		motorValues.actuator = 0x7F;
 	}
 
 	// every 10 cycles, poll motor currents and send to Jetson
@@ -259,7 +302,6 @@ int main(void)
 //			writeDebugFormat("b4: %d\r\n", packet[4]);
 
 	    }
-////
 ////		//send packet to Jetson
 	    writeToJetson(packet, 4 + 4 * 8);
 	}
@@ -267,7 +309,6 @@ int main(void)
 
 
 //	}
-
 
 	directControl(motorValues); // set motor outputs accordingly
 	HAL_Delay(1);
