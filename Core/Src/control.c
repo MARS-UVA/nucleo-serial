@@ -40,7 +40,7 @@ void initializeTalons() {
 }
 
 // Given packet from Jetson, set outputs of motors and actuators
-void directControl(SerialPacket packet)
+void directControl(SerialPacket packet, int enableSync)
 {
 	// Send global enable frame (so that Talons actively receive CAN packets)
 	sendGlobalEnableFrame(&hcan1);
@@ -71,14 +71,20 @@ void directControl(SerialPacket packet)
 		int actuatorInteger = packet.actuator - 127;
 		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
-		actuatorSyncOutputs = syncLinearActuators(actuatorOutput);
-		writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
-		leftActuator.set(&leftActuator, actuatorSyncOutputs.left); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
-		rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
 
 
-//		leftActuator.set(&leftActuator, actuatorOutput); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
-//		rightActuator.set(&rightActuator, actuatorOutput);
+		if (enableSync == 1) {
+			actuatorSyncOutputs = syncLinearActuators(actuatorOutput);
+			writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
+			leftActuator.set(&leftActuator, actuatorSyncOutputs.left); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
+			rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
+		}
+
+		else {
+			leftActuator.set(&leftActuator, actuatorOutput); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
+			rightActuator.set(&rightActuator, actuatorOutput);
+		}
+
 	}
 	else {
 		int8_t actuatorPosition = packet.actuator;

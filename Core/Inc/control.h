@@ -33,7 +33,7 @@
 #define DIRECT_ACTUATOR_CONTROL 1 // 1 if we want to set the outputs of the Talon SRXs directly and bypass the potentiometer feedback
 
 
-void directControl(SerialPacket packet);
+void directControl(SerialPacket packet, int enableSync);
 void initializeTalons();
 
 

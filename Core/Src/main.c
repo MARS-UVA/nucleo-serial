@@ -75,6 +75,7 @@ Pot leftPot;
 Pot rightPot;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
+int enableSync = 0; // todo; receive a value over serial that enables synchronization
 
 
 uint8_t rx_buff[7];
@@ -221,72 +222,72 @@ int main(void)
 			.top_right_wheel  = 0x7F,
 			.back_right_wheel = 0x7F,
 			.drum  = 0x7F,
-			.actuator  = 0x00,
+			.actuator  = 0x7F,
 		};
 	}
 
 	// testing code
 
-	if (count > 200) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 400) {
-		motorValues.actuator = 0xFE;
-	}
-	if (count > 650) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 800) {
-		motorValues.actuator = 0x00;
-	}
-	if (count > 1000) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 1200) {
-		motorValues.actuator = 0xFE;
-	}
-	if (count > 1450) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 1600) {
-		motorValues.actuator = 0x00;
-	}
-	if (count > 1800) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 2000) {
-		motorValues.actuator = 0xFE;
-	}
-	if (count > 2250) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 2400) {
-		motorValues.actuator = 0x00;
-	}
-	if (count > 2600) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 2800) {
-		motorValues.actuator = 0xFE;
-	}
-	if (count > 3050) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 3200) {
-		motorValues.actuator = 0x00;
-	}
-	if (count > 3400) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 3600) {
-		motorValues.actuator = 0xFE;
-	}
-	if (count > 3850) {
-		motorValues.actuator = 0x7F;
-	}
-	if (count > 4000) {
-		count = 0;
-	}
+//	if (count > 200) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 400) {
+//		motorValues.actuator = 0xFE;
+//	}
+//	if (count > 650) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 800) {
+//		motorValues.actuator = 0x00;
+//	}
+//	if (count > 1000) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 1200) {
+//		motorValues.actuator = 0xFE;
+//	}
+//	if (count > 1450) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 1600) {
+//		motorValues.actuator = 0x00;
+//	}
+//	if (count > 1800) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 2000) {
+//		motorValues.actuator = 0xFE;
+//	}
+//	if (count > 2250) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 2400) {
+//		motorValues.actuator = 0x00;
+//	}
+//	if (count > 2600) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 2800) {
+//		motorValues.actuator = 0xFE;
+//	}
+//	if (count > 3050) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 3200) {
+//		motorValues.actuator = 0x00;
+//	}
+//	if (count > 3400) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 3600) {
+//		motorValues.actuator = 0xFE;
+//	}
+//	if (count > 3850) {
+//		motorValues.actuator = 0x7F;
+//	}
+//	if (count > 4000) {
+//		count = 0;
+//	}
 
 
 	// every 10 cycles, poll motor currents and send to Jetson
@@ -344,7 +345,7 @@ int main(void)
 
 //	}
 
-	directControl(motorValues); // set motor outputs accordingly
+	directControl(motorValues, enableSync); // set motor outputs accordingly
 	HAL_Delay(1);
 
   }
