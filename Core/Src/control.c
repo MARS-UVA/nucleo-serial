@@ -73,12 +73,12 @@ void directControl(SerialPacket packet)
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
 		actuatorSyncOutputs = syncLinearActuators(actuatorOutput);
 		writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
-//		leftActuator.set(&leftActuator, actuatorSyncOutputs.left); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
-//		rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
+		leftActuator.set(&leftActuator, actuatorSyncOutputs.left); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
+		rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
 
 
-		leftActuator.set(&leftActuator, actuatorOutput); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
-		rightActuator.set(&rightActuator, actuatorOutput);
+//		leftActuator.set(&leftActuator, actuatorOutput); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
+//		rightActuator.set(&rightActuator, actuatorOutput);
 	}
 	else {
 		int8_t actuatorPosition = packet.actuator;

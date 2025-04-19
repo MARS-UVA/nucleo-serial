@@ -11,7 +11,7 @@ extern Pot rightPot;
 #define FULL_ADC_RANGE 4096 // todo: check if this value is right
 #define POSITION_TOLERANCE 10
 #define TOLERANCE 1.01
-#define SLOWFACTOR 0.99
+#define SLOWFACTOR 0.98
 
 
 // sets actuator length for a length between 0 (fully retracted) and 1 (fully extended)

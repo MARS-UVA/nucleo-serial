@@ -233,7 +233,7 @@ int main(void)
 	if (count > 400) {
 		motorValues.actuator = 0xFE;
 	}
-	if (count > 600) {
+	if (count > 650) {
 		motorValues.actuator = 0x7F;
 	}
 	if (count > 800) {
@@ -245,7 +245,7 @@ int main(void)
 	if (count > 1200) {
 		motorValues.actuator = 0xFE;
 	}
-	if (count > 1400) {
+	if (count > 1450) {
 		motorValues.actuator = 0x7F;
 	}
 	if (count > 1600) {
@@ -254,6 +254,40 @@ int main(void)
 	if (count > 1800) {
 		motorValues.actuator = 0x7F;
 	}
+	if (count > 2000) {
+		motorValues.actuator = 0xFE;
+	}
+	if (count > 2250) {
+		motorValues.actuator = 0x7F;
+	}
+	if (count > 2400) {
+		motorValues.actuator = 0x00;
+	}
+	if (count > 2600) {
+		motorValues.actuator = 0x7F;
+	}
+	if (count > 2800) {
+		motorValues.actuator = 0xFE;
+	}
+	if (count > 3050) {
+		motorValues.actuator = 0x7F;
+	}
+	if (count > 3200) {
+		motorValues.actuator = 0x00;
+	}
+	if (count > 3400) {
+		motorValues.actuator = 0x7F;
+	}
+	if (count > 3600) {
+		motorValues.actuator = 0xFE;
+	}
+	if (count > 3850) {
+		motorValues.actuator = 0x7F;
+	}
+	if (count > 4000) {
+		count = 0;
+	}
+
 
 	// every 10 cycles, poll motor currents and send to Jetson
 	if (count % 10 == 0) {
