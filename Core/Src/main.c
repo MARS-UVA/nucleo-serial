@@ -47,11 +47,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 #define DEBUG 1
+#define DO_CALIBRATE 1
 
 #define OPCODE_STOP 0
 #define OPCODE_DIRECT_CONTROL 1
 #define OPCODE_PID_CONTROL 2
 #define OPCODE_NOP 3
+
 
 void can_irq(CAN_HandleTypeDef *pcan);
 
@@ -175,14 +177,17 @@ int main(void)
   leftPot = PotInit(&hadc1);
   rightPot = PotInit(&hadc2);
 
-  // calibration routine: raise actuator all the way up before calibrating
-  for (actuatorUpCount = 0; actuatorUpCount < 800; actuatorUpCount ++) {
-	  sendGlobalEnableFrame(&hcan1);
-	  leftActuator.set(&leftActuator, 1);
-	  rightActuator.set(&rightActuator, 1);
-	  HAL_Delay(10);
+  if (DO_CALIBRATE) {
+	  // calibration routine: raise actuator all the way up before calibrating
+	  for (actuatorUpCount = 0; actuatorUpCount < 800; actuatorUpCount ++) {
+		  sendGlobalEnableFrame(&hcan1);
+		  leftActuator.set(&leftActuator, 1);
+		  rightActuator.set(&rightActuator, 1);
+		  HAL_Delay(10);
+	  }
+	  calibrateYourMom(&leftPot, &rightPot);
   }
-  calibrateYourMom(&leftPot, &rightPot);
+
 
   writeDebugString("Entering while loop!\r\n");
 
@@ -227,7 +232,7 @@ int main(void)
 	}
 
 	// testing code
-
+//
 //	if (count > 200) {
 //		motorValues.actuator = 0x7F;
 //	}

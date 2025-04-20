@@ -76,12 +76,12 @@ void directControl(SerialPacket packet, int enableSync)
 		if (enableSync == 1) {
 			actuatorSyncOutputs = syncLinearActuators(actuatorOutput);
 			writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
-			leftActuator.set(&leftActuator, actuatorSyncOutputs.left); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
+			leftActuator.set(&leftActuator, actuatorSyncOutputs.left);
 			rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
 		}
 
 		else {
-			leftActuator.set(&leftActuator, actuatorOutput); //todo: debug why Jetson breaks when requesting Talon SRX to retract actuators
+			leftActuator.set(&leftActuator, actuatorOutput);
 			rightActuator.set(&rightActuator, actuatorOutput);
 		}
 
