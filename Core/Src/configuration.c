@@ -1,4 +1,5 @@
 #include "control.h"
+#include "configuration.h"
 
 extern CAN_HandleTypeDef hcan1;
 
@@ -10,7 +11,7 @@ extern TalonFX bucketDrum;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
 
-void pid_control(SerialPacketPID packet){
+void pid_config(SerialPacketPID packet){
 	//write to the slot0Configs
 	uint8_t CAN_ID = packet.CAN_ID;
 	    /*.kP = pid_settings[1],
@@ -53,7 +54,7 @@ void pid_control(SerialPacketPID packet){
 	}
 }
 
-void voltageCycleClosedLoopRampPeriod_control(SerialPacketCV packet){
+void voltageCycleClosedLoopRampPeriod_config(SerialPacketCV packet){
 	//write to voltageCycleClosedLoopRampPeriod
 	uint8_t CAN_ID = packet.CAN_ID;
 	int8_t value = packet.value;
@@ -82,7 +83,7 @@ void voltageCycleClosedLoopRampPeriod_control(SerialPacketCV packet){
 	}
 }
 
-void appleSupplyCurrentLimit_control(SerialPacketCV packet){
+void appleSupplyCurrentLimit_config(SerialPacketCV packet){
 	//write to applySupplyCurrentLimit
 	uint8_t CAN_ID = packet.CAN_ID;
 	int8_t value = packet.value;

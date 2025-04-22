@@ -31,6 +31,8 @@
 #include "control.h"
 #include "TalonFX.h"
 #include "PDP.h"
+#include "configuration.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -712,7 +714,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 			.kA  = pid_settings[6],
 			.kG  = pid_settings[7],
 		};
-		pid_control(pid_Values);
+		pid_config(pid_Values);
 	}
 	//set voltageCycleClosedLoopRampPeriod_Values if 0x03 header
 		//the 2nd byte in the packet corresponds to the CAN ID of the motor we want to configure and the 3rd byte correspond to the PID parameters
@@ -724,7 +726,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 			.CAN_ID = voltageCycleClosedLoopRampPeriod_settings[0],
 			.value = voltageCycleClosedLoopRampPeriod_settings[1],
 		};
-		voltageCycleClosedLoopRampPeriod_control(voltageCycleClosedLoopRampPeriod_Values);
+		voltageCycleClosedLoopRampPeriod_config(voltageCycleClosedLoopRampPeriod_Values);
 	}
 	//set appleSupplyCurrentLimit_Values if 0x04 header
 		//the 2nd byte in the packet corresponds to the CAN ID of the motor we want to configure and the 3rd byte correspond to the PID parameters
@@ -736,7 +738,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 			.CAN_ID = appleSupplyCurrentLimit_settings[0],
 			.value = appleSupplyCurrentLimit_settings[1],
 		};
-		appleSupplyCurrentLimit_control(appleSupplyCurrentLimit_Values);
+		appleSupplyCurrentLimit_config(appleSupplyCurrentLimit_Values);
 	}
 	//old code
 //	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {

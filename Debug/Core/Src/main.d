@@ -34,7 +34,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Core/Inc/serial.h ../Core/Inc/TalonSRX.h ../Core/Inc/main.h \
  ../Core/Inc/util.h ../Core/Inc/can.h ../Core/Inc/TalonFX.h \
  ../Core/Inc/debug.h ../Core/Inc/actuatorControl.h ../Core/Inc/TalonFX.h \
- ../Core/Inc/PDP.h
+ ../Core/Inc/PDP.h ../Core/Inc/configuration.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F7xx_HAL_Driver/Inc/stm32f7xx_hal.h:
 ../Core/Inc/stm32f7xx_hal_conf.h:
@@ -80,3 +80,4 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/actuatorControl.h:
 ../Core/Inc/TalonFX.h:
 ../Core/Inc/PDP.h:
+../Core/Inc/configuration.h:
