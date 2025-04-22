@@ -90,6 +90,14 @@ typedef struct serialPacket {
   uint8_t actuator;
 } SerialPacket;
 
+
+typedef struct {
+  I2C_HandleTypeDef *hi2c;
+  uint8_t *tx_buf;
+  uint8_t *rx_buf;
+} I2C_Context;
+
+
 // Probably unnecessary with new protocol
 /*
 uint8_t calculateChecksum(uint8_t *buffer, uint8_t length)
@@ -396,7 +404,7 @@ void writeToJetson(uint8_t *data, uint8_t payload_size)
 }
 */
 
-
+I2C_Context i2c_ctx;
 /**
   * @brief  Simplified I2C data transmission to the INA219 Current Sensor
   * 	in blocking (polling) mode. The 8-bit device address (0x80) is taken
@@ -416,7 +424,7 @@ void writeRegister(uint8_t registerAddress, uint16_t registerValue)
 	HAL_StatusTypeDef hal_status = HAL_I2C_Master_Transmit(&hi2c1, 0x0080, data, 3, 100);
 	if (hal_status != HAL_OK)
 	{
-		writeDebugString("I2C write error\n");
+		writeDebugString("I2C write error\r\n");
 	}
 }
 
@@ -428,24 +436,35 @@ void writeRegister(uint8_t registerAddress, uint16_t registerValue)
   * @param  receiveBuffer Location to store the read data
   * @retval none
   */
-void readRegister(uint8_t registerAddress, uint8_t *receiveBuffer)
+void readRegister(uint8_t registerAddress)
 {
 	HAL_StatusTypeDef hal_status;
 
 	// First send the address that we want to read from to the pointer register
-	hal_status = HAL_I2C_Master_Transmit(&hi2c1, 0x0080, &registerAddress, 1, 100); // could be optimized for lower power consumption
+  // using interrupt mode to prevent CPU from blocking
+  // 
+	hal_status = HAL_I2C_Master_Transmit_IT(&hi2c1, 0x0080, &registerAddress, 1); // could be optimized for lower power consumption
 	if (hal_status != HAL_OK)
 	{
-		writeDebugString("I2C write error (register address to read from)\n");
+		//writeDebugString("I2C write error (register address to read from)\r\n");
 	}
 
-	// Then read the 2 bytes from the register and store in receiveBuffer
-	hal_status = HAL_I2C_Master_Receive(&hi2c1, 0x0080, receiveBuffer, 2, 100);
+
+}
+
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
+
+  HAL_StatusTypeDef hal_status;
+  //writeDebugString("callback called\r\n");
+  // Then read the 2 bytes from the register and store in receiveBuffer
+	hal_status = HAL_I2C_Master_Receive_IT(&hi2c1, 0x0080, i2c_ctx.rx_buf, 2);
 	if (hal_status != HAL_OK)
 	{
-		writeDebugString("I2C read error\n");
+		writeDebugString("I2C read error\r\n");
 	}
 }
+
+
 
 /* USER CODE END 0 */
 
@@ -494,6 +513,12 @@ int main(void)
   float currentValue;
   float rmsCurrent;
 
+  //pass buffer to i2c callback context for use in the tx and rx callbacks 
+  i2c_ctx.hi2c = &hi2c1;
+  //i2c_ctx.tx_buf = tx_buf;
+  i2c_ctx.rx_buf = buffer;
+
+
   writeRegister(0x00, 0x399F); // CONFIGURATION
 
   float LSB = 0.001; // LSB scaling factor: milliAmperes
@@ -508,27 +533,23 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	/* USER CODE END WHILE */
-	  //HAL_Delay(125); // data readability
-
-
 	  for (int sample = 0; sample < INA219_SAMPLE_COUNT; sample++) {
-		  readRegister(0x04, buffer); // MEASUREMENT (of the current register)
+	  		  readRegister(0x04); // MEASUREMENT (of the current register)
 
-		  // CONVERSION of the current register value to Amperes
-		  rawValue = (buffer[0] << 8) | buffer[1]; // Combine MSB and LSB to form raw current value
-		  currentValue = rawValue * LSB; // Undo "LSB" scaling factor to get Ampere units
+	  		  // CONVERSION of the current register value to Amperes
+	  		  rawValue = (buffer[0] << 8) | buffer[1]; // Combine MSB and LSB to form raw current value
+	  		  currentValue = rawValue * LSB; // Undo "LSB" scaling factor to get Ampere units
 
-		  rmsCurrent += pow(currentValue, 2); // RMS step 1: sum up the squares
-	  }
+	  		  rmsCurrent += pow(currentValue, 2); // RMS step 1: sum up the squares
+	  	  }
 
-	  rmsCurrent /= INA219_SAMPLE_COUNT; // RMS step 2: divide by the # samples
-	  rmsCurrent = sqrt(rmsCurrent); // RMS step 3: take the square root
+	  	  rmsCurrent /= INA219_SAMPLE_COUNT; // RMS step 2: divide by the # samples
+	  	  rmsCurrent = sqrt(rmsCurrent); // RMS step 3: take the square root
 
 
-	  //writeDebugFormat("%x raw \r\n", rawValue);
-	  writeDebugFormat("%.6f Amps\r\n", rmsCurrent);
-	/* USER CODE END WHILE */
+	  	  //writeDebugFormat("%x raw \r\n", rawValue);
+	  	  writeDebugFormat("%.6f Amps\r\n", rmsCurrent);
+    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
