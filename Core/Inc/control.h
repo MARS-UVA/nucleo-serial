@@ -18,7 +18,7 @@
 #define FRONT_RIGHT_WHEEL_ID 38
 #define BACK_RIGHT_WHEEL_ID 13
 #define BUCKET_DRUM_ID 25
-#define LEFT_ACTUATOR_ID 0
+#define LEFT_ACTUATOR_ID 11
 #define RIGHT_ACTUATOR_ID 1
 
 // Define PDP IDs of each motor

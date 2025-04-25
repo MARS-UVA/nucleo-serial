@@ -287,7 +287,8 @@ void HAL_I2C_MspInit(I2C_HandleTypeDef* hi2c)
     /* Peripheral clock enable */
     __HAL_RCC_I2C1_CLK_ENABLE();
     /* USER CODE BEGIN I2C1_MspInit 1 */
-
+    HAL_NVIC_SetPriority(I2C1_EV_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(I2C1_EV_IRQn);
     /* USER CODE END I2C1_MspInit 1 */
 
   }

@@ -69,7 +69,7 @@ void directControl(SerialPacket packet, int enableSync)
     struct ActuatorValues actuatorSyncOutputs; // to store the percent outputs of left and right actuator after synchronization
 	if (DIRECT_ACTUATOR_CONTROL) {
 		int actuatorInteger = packet.actuator - 127;
-		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
+		//writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
 
 
