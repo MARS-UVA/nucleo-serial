@@ -7,6 +7,7 @@ TalonFX backLeft;
 TalonFX frontRight;
 TalonFX backRight;
 TalonFX bucketDrum;
+TalonFX bucketDrumLeft;
 TalonSRX leftActuator;
 TalonSRX rightActuator;
 
@@ -19,6 +20,8 @@ void initializeTalons() {
 	frontRight = TalonFXInit(&hcan1, FRONT_RIGHT_WHEEL_ID);
 	backRight = TalonFXInit(&hcan1, BACK_RIGHT_WHEEL_ID);
 	bucketDrum = TalonFXInit(&hcan1, BUCKET_DRUM_ID);
+	bucketDrumLeft = TalonFXInit(&hcan1, BUCKET_DRUM_LEFT_ID);
+
 	// TODO: apply PID Configs?
 	struct slot0Configs pidConfigs = {
 		0.1,
@@ -34,6 +37,8 @@ void initializeTalons() {
 	frontRight.applyConfig(&frontRight, &pidConfigs);
 	backRight.applyConfig(&backRight, &pidConfigs);
 	bucketDrum.applyConfig(&bucketDrum, &pidConfigs);
+	bucketDrumLeft.applyConfig(&bucketDrumLeft, &pidConfigs);
+
 
 	leftActuator = TalonSRXInit(&hcan1, LEFT_ACTUATOR_ID);
 	rightActuator = TalonSRXInit(&hcan1, RIGHT_ACTUATOR_ID);
@@ -62,6 +67,8 @@ void directControl(SerialPacket packet, int enableSync)
 	// Set output speed of the bucket drum
 	int8_t bucketDrumSpeed = packet.drum;
 	bucketDrum.setControl(&bucketDrum, ((int8_t)(bucketDrumSpeed - 127)), 0);
+	bucketDrumLeft.setControl(&bucketDrumLeft, ((int8_t)(bucketDrumSpeed - 127)) * -1, 0);
+
 
 	// Set outputs of linear actuators
 
