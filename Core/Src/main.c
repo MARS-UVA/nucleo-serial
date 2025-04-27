@@ -32,6 +32,7 @@
 #include "TalonFX.h"
 #include "PDP.h"
 #include "pot.h"
+#include "CurrentSensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,14 +48,13 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 #define DEBUG 1
-#define DO_CALIBRATE 1
+#define DO_CALIBRATE 0
 
 #define OPCODE_STOP 0
 #define OPCODE_DIRECT_CONTROL 1
 #define OPCODE_PID_CONTROL 2
 #define OPCODE_NOP 3
 
-#define INA219_SAMPLE_COUNT 500
 void can_irq(CAN_HandleTypeDef *pcan);
 
 /* USER CODE END PM */
@@ -75,6 +75,7 @@ UART_HandleTypeDef huart6;
 PDP pdp;
 Pot leftPot;
 Pot rightPot;
+CurrentSensor cs;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
 int enableSync = 0; // todo; receive a value over serial that enables synchronization
@@ -114,22 +115,12 @@ static void MX_ADC2_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-//
-typedef struct
-{
-  I2C_HandleTypeDef *hi2c;
-  uint8_t *tx_buf;
-  uint8_t *rx_buf;
-} I2C_Context;
-
 // stop all systems
 void stop()
 {
   // TODO: Implement
 }
 
-
-I2C_Context i2c_ctx;
 /**
   * @brief  Simplified I2C data transmission to the INA219 Current Sensor
   * 	in blocking (polling) mode. The 8-bit device address (0x80) is taken
@@ -170,22 +161,16 @@ void writeRegister(uint8_t registerAddress, uint16_t registerValue)
    hal_status = HAL_I2C_Master_Transmit_IT(&hi2c1, 0x0080, &registerAddress, 1); // could be optimized for lower power consumption
    if (hal_status != HAL_OK)
    {
-     //writeDebugString("I2C write error (register address to read from)\r\n");
+     writeDebugString("I2C write error (register address to read from)\r\n");
    }
  
  
  }
  
- void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c) {
- 
-   HAL_StatusTypeDef hal_status;
-   //writeDebugString("callback called\r\n");
-   // Then read the 2 bytes from the register and store in receiveBuffer
-   hal_status = HAL_I2C_Master_Receive_IT(&hi2c1, 0x0080, i2c_ctx.rx_buf, 2);
-   if (hal_status != HAL_OK)
-   {
-    writeDebugString("I2C read error\r\n");
-	}
+ void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	 if (cs.recv != NULL)
+		 cs.recv(&cs);
 }
 
 
@@ -193,9 +178,9 @@ void writeRegister(uint8_t registerAddress, uint16_t registerValue)
 /* USER CODE END 0 */
 
 /**
- * @brief  The application entry point.
- * @retval int
- */
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
 
@@ -234,31 +219,6 @@ int main(void)
   writeDebugString("Starting program!\r\n");
   initializeTalons();
   HAL_UART_Receive_IT(&huart6, rx_buff, 7);
-
-    /*** I2C Current Sensing ***/
-  // 7-bit slave address = 0x40 (default when pins A0,A1 = GND)
-  // 8-bit device address = 0x80 (used in the HAL_I2C_Transmit/Receive function)
-  uint8_t buffer[2]; // for I2C reading, data storage
-  int16_t rawValue;
-  float currentValue;
-  float rmsCurrent = 0.0;
-  float rmsCurrentAvg = 0.0f;
-
-  //pass buffer to i2c callback context for use in the tx and rx callbacks 
-  i2c_ctx.hi2c = &hi2c1;
-  //i2c_ctx.tx_buf = tx_buf;
-  i2c_ctx.rx_buf = buffer;
-
-  
-  writeRegister(0x00, 0x399F); // CONFIGURATION
-
-  float LSB = 0.001; // LSB scaling factor: milliAmperes
-  float shuntResistor = 0.1; // 0.1 ohm 1% sense resistor
-  float calibrationValue = 0.04096 / (LSB * shuntResistor); // truncated, refer to data sheet equation
-  writeDebugFormat("INA219 Calibration Register Value: 0x%x, 0d%d\r\n\n", calibrationValue);
-
-  writeRegister(0x05, 0x0199); // CALIBRATION (calibration register value: 0d409.6 --> 0d409 --> 0x0199)
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -266,6 +226,7 @@ int main(void)
   pdp = PDPInit(&hcan1, 62);
   leftPot = PotInit(&hadc1);
   rightPot = PotInit(&hadc2);
+  cs = CurrentSensorInit(&hi2c1, 0x40);
 
   if (DO_CALIBRATE)
   {
@@ -309,16 +270,6 @@ int main(void)
     count += 1;
     // After a certain period without receiving packets, stop the robot. todo: ensure this logic is robust
     // right now it stops ~2s after we stop sending packets from the Jetson
-    if(current_count == 500){
-    	current_count = 0;
-        rmsCurrent /= INA219_SAMPLE_COUNT; // RMS step 2: divide by the # samples
-        rmsCurrent = sqrt(rmsCurrent);     // RMS step 3: take the square root
-
-    	writeDebugFormat("%.6f Amps\r\n", rmsCurrent);
-    	rmsCurrent = 0;
-    }else{
-    	current_count++;
-    }
 
     if (count > 10)
     {
@@ -397,16 +348,10 @@ int main(void)
     //		count = 0;
     //	}
 
-   // for (int sample = 0; sample < INA219_SAMPLE_COUNT; sample++)
-   // {
-      readRegister(0x04); // MEASUREMENT (of the current register)
-
-      // CONVERSION of the current register value to Amperes
-      rawValue = (buffer[0] << 8) | buffer[1]; // Combine MSB and LSB to form raw current value
-      currentValue = rawValue * LSB;           // Undo "LSB" scaling factor to get Ampere units
-
-      rmsCurrent += pow(currentValue, 2); // RMS step 1: sum up the squares
-   // }
+    if (cs.tick(&cs))
+    {
+    	writeDebugFormat("Current: %f Amps\r\n", cs.read(&cs));
+    }
 
 
     // writeDebugFormat("%x raw \r\n", rawValue);
@@ -462,32 +407,35 @@ int main(void)
       ////		//send packet to Jetson
       writeToJetson(packet, 4 + 4 * 8);
     }
+	sendGlobalEnableFrame(&hcan1);
 
     //	}
+	sendGlobalEnableFrame(&hcan1);
+    leftActuator.set(&leftActuator, 1);
 
-    directControl(motorValues, enableSync); // set motor outputs accordingly
+//    directControl(motorValues, enableSync); // set motor outputs accordingly
     HAL_Delay(1);
   }
   /* USER CODE END 3 */
 }
 
 /**
- * @brief System Clock Configuration
- * @retval None
- */
+  * @brief System Clock Configuration
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
   /** Configure the main internal regulator output voltage
-   */
+  */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
 
   /** Initializes the RCC Oscillators according to the specified parameters
-   * in the RCC_OscInitTypeDef structure.
-   */
+  * in the RCC_OscInitTypeDef structure.
+  */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
@@ -498,8 +446,9 @@ void SystemClock_Config(void)
   }
 
   /** Initializes the CPU, AHB and APB buses clocks
-   */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
@@ -512,10 +461,10 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief ADC1 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_ADC1_Init(void)
 {
 
@@ -530,7 +479,7 @@ static void MX_ADC1_Init(void)
   /* USER CODE END ADC1_Init 1 */
 
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-   */
+  */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
@@ -549,7 +498,7 @@ static void MX_ADC1_Init(void)
   }
 
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-   */
+  */
   sConfig.Channel = ADC_CHANNEL_9;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
@@ -560,13 +509,14 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
 }
 
 /**
- * @brief ADC2 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief ADC2 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_ADC2_Init(void)
 {
 
@@ -581,7 +531,7 @@ static void MX_ADC2_Init(void)
   /* USER CODE END ADC2_Init 1 */
 
   /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-   */
+  */
   hadc2.Instance = ADC2;
   hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
@@ -600,7 +550,7 @@ static void MX_ADC2_Init(void)
   }
 
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-   */
+  */
   sConfig.Channel = ADC_CHANNEL_12;
   sConfig.Rank = ADC_REGULAR_RANK_1;
   sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
@@ -611,13 +561,14 @@ static void MX_ADC2_Init(void)
   /* USER CODE BEGIN ADC2_Init 2 */
 
   /* USER CODE END ADC2_Init 2 */
+
 }
 
 /**
- * @brief CAN1 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief CAN1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_CAN1_Init(void)
 {
 
@@ -665,13 +616,14 @@ static void MX_CAN1_Init(void)
   if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
     Error_Handler();
   /* USER CODE END CAN1_Init 2 */
+
 }
 
 /**
- * @brief I2C1 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief I2C1 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_I2C1_Init(void)
 {
 
@@ -697,14 +649,14 @@ static void MX_I2C1_Init(void)
   }
 
   /** Configure Analogue filter
-   */
+  */
   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
     Error_Handler();
   }
 
   /** Configure Digital filter
-   */
+  */
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
   {
     Error_Handler();
@@ -712,13 +664,14 @@ static void MX_I2C1_Init(void)
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
+
 }
 
 /**
- * @brief USART2 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief USART2 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_USART2_UART_Init(void)
 {
 
@@ -746,13 +699,14 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
+
 }
 
 /**
- * @brief USART3 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief USART3 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_USART3_UART_Init(void)
 {
 
@@ -780,13 +734,14 @@ static void MX_USART3_UART_Init(void)
   /* USER CODE BEGIN USART3_Init 2 */
 
   /* USER CODE END USART3_Init 2 */
+
 }
 
 /**
- * @brief USART6 Initialization Function
- * @param None
- * @retval None
- */
+  * @brief USART6 Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_USART6_UART_Init(void)
 {
 
@@ -814,13 +769,14 @@ static void MX_USART6_UART_Init(void)
   /* USER CODE BEGIN USART6_Init 2 */
 
   /* USER CODE END USART6_Init 2 */
+
 }
 
 /**
- * @brief GPIO Initialization Function
- * @param None
- * @retval None
- */
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
 static void MX_GPIO_Init(void)
 {
   GPIO_InitTypeDef GPIO_InitStruct = {0};
@@ -876,7 +832,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 }
 /* USER CODE END 4 */
 
-/* MPU Configuration */
+ /* MPU Configuration */
 
 void MPU_Config(void)
 {
@@ -886,7 +842,7 @@ void MPU_Config(void)
   HAL_MPU_Disable();
 
   /** Initializes and configures the Region and the memory to be protected
-   */
+  */
   MPU_InitStruct.Enable = MPU_REGION_ENABLE;
   MPU_InitStruct.Number = MPU_REGION_NUMBER0;
   MPU_InitStruct.BaseAddress = 0x0;
@@ -902,12 +858,13 @@ void MPU_Config(void)
   HAL_MPU_ConfigRegion(&MPU_InitStruct);
   /* Enables the MPU */
   HAL_MPU_Enable(MPU_PRIVILEGED_DEFAULT);
+
 }
 
 /**
- * @brief  This function is executed in case of error occurrence.
- * @retval None
- */
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
@@ -919,14 +876,14 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef USE_FULL_ASSERT
+#ifdef  USE_FULL_ASSERT
 /**
- * @brief  Reports the name of the source file and the source line number
- *         where the assert_param error has occurred.
- * @param  file: pointer to the source file name
- * @param  line: assert_param error line source number
- * @retval None
- */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t *file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
