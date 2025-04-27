@@ -54,8 +54,9 @@ bool tickCurrentSensor(CurrentSensor* cs) {
 
 	readRegisterCurrentSensor(cs, 0x04);
 
-	float rawValue = (cs->rxBuff[0] << 8) | cs->rxBuff[1];
-	cs->rmsCurrent += pow(rawValue * cs->lsb, 2);
+	int16_t rawValue = (cs->rxBuff[0] << 8) | cs->rxBuff[1];
+	float currentValue = rawValue * cs->lsb;
+	cs->rmsCurrent += pow(currentValue, 2);
 
 	return canRead;
 }

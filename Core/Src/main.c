@@ -407,7 +407,6 @@ int main(void)
       ////		//send packet to Jetson
       writeToJetson(packet, 4 + 4 * 8);
     }
-	sendGlobalEnableFrame(&hcan1);
 
     //	}
 	sendGlobalEnableFrame(&hcan1);
@@ -418,6 +417,29 @@ int main(void)
   }
   /* USER CODE END 3 */
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
   * @brief System Clock Configuration
