@@ -207,7 +207,11 @@ int main(void)
 //		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
 //		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
 //		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID));
-		writeDebugFormat("Actuator Position: %f %f %f\r\n", leftPot.read(&leftPot), rightPot.read(&rightPot), (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0);
+		if (count % 20 == 0) {
+//			writeDebugFormat("Left Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID));
+//			writeDebugFormat("Right Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID));
+		}
+//		writeDebugFormat("Actuator Position: %f %f %f\r\n", leftPot.read(&leftPot), rightPot.read(&rightPot), (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0);
 	}
 
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
@@ -310,9 +314,13 @@ int main(void)
 		}
 
 		float motorCurrents[8];
-		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
+//		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
+		motorCurrents[0] = 1;
+
 //		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
-		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
+//		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
+		motorCurrents[1] = 2;
+
 //		writeDebugFormat("Front right current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID));
 		motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID);
 //		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));

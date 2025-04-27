@@ -67,7 +67,7 @@ void directControl(SerialPacket packet, int enableSync)
 	// Set output speed of the bucket drum
 	int8_t bucketDrumSpeed = packet.drum;
 	bucketDrum.setControl(&bucketDrum, ((int8_t)(bucketDrumSpeed - 127)), 0);
-	bucketDrumLeft.setControl(&bucketDrumLeft, ((int8_t)(bucketDrumSpeed - 127)) * -1, 0);
+	bucketDrumLeft.setControl(&bucketDrumLeft, ((int8_t)(bucketDrumSpeed - 127)), 0); // todo: talon fx 60 is possibly set to inverted.
 
 
 	// Set outputs of linear actuators
@@ -76,8 +76,14 @@ void directControl(SerialPacket packet, int enableSync)
     struct ActuatorValues actuatorSyncOutputs; // to store the percent outputs of left and right actuator after synchronization
 	if (DIRECT_ACTUATOR_CONTROL) {
 		int actuatorInteger = packet.actuator - 127;
-		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
+//		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
+		if (actuatorOutput > 0) {
+			actuatorOutput = 1;
+		}
+		else if (actuatorOutput < 0) {
+			actuatorOutput = -1;
+		}
 
 
 		if (enableSync == 1) {
