@@ -47,7 +47,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 #define DEBUG 1
-#define DO_CALIBRATE 1
+#define DO_CALIBRATE 0
 
 #define OPCODE_STOP 0
 #define OPCODE_DIRECT_CONTROL 1
@@ -237,7 +237,7 @@ int main(void)
 
 	// testing code
 //
-//	if (count > 200) {
+//	if (count > 12 ) {
 //		motorValues.actuator = 0x7F;
 //	}
 //	if (count > 400) {
@@ -314,22 +314,31 @@ int main(void)
 		}
 
 		float motorCurrents[8];
-//		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
-		motorCurrents[0] = 1;
+		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
+//		motorCurrents[0] = 1;
 
 //		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
-//		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
-		motorCurrents[1] = 2;
+		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
+//		motorCurrents[1] = 2;
 
 //		writeDebugFormat("Front right current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID));
 		motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID);
+//		motorCurrents[2] = 3;
 //		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
 		motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID);
+//		motorCurrents[3] = 4.5;
+
 //		writeDebugFormat("Back right current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID));
 		motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
 
 		motorCurrents[5] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
 		motorCurrents[6] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
+
+		if (DEBUG) {
+			float totalCurrent = motorCurrents[5] + motorCurrents[6];
+			float estimatedMass = currentToWeight(totalCurrent);
+			writeDebugFormat("Estimated mass: %f\r\n", estimatedMass);
+		}
 
 		motorCurrents[7] = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
 

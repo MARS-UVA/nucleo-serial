@@ -8,6 +8,7 @@
 typedef struct pot {
 	ADC_HandleTypeDef *hadc;
 	float(*read)(struct pot*);
+	float(*readCm)(struct pot*);
 	uint32_t actuatorOffset;
 	int minPos;
 	int maxPos;
