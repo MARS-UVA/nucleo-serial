@@ -32,6 +32,7 @@
 #include "TalonFX.h"
 #include "PDP.h"
 #include "pot.h"
+#include "CurrentSensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,7 +48,7 @@
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 #define DEBUG 1
-#define DO_CALIBRATE 0
+#define DO_CALIBRATE 1
 
 #define OPCODE_STOP 0
 #define OPCODE_DIRECT_CONTROL 1
@@ -75,6 +76,8 @@ UART_HandleTypeDef huart6;
 PDP pdp;
 Pot leftPot;
 Pot rightPot;
+CurrentSensor leftCurrentSensor;
+CurrentSensor rightCurrentSensor;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
 int enableSync = 0; // todo; receive a value over serial that enables synchronization
@@ -176,6 +179,8 @@ int main(void)
   pdp = PDPInit(&hcan1, 62);
   leftPot = PotInit(&hadc1);
   rightPot = PotInit(&hadc2);
+  leftCurrentSensor = CurrentSensorInit(&hi2c1, 0x41);
+  rightCurrentSensor = CurrentSensorInit(&hi2c1, 0x40);
 
   if (DO_CALIBRATE) {
 	  // calibration routine: raise actuator all the way up before calibrating
@@ -207,12 +212,6 @@ int main(void)
 //		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
 //		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
 //		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID));
-		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID));
-
-		if (count % 20 == 0) {
-//			writeDebugFormat("Left Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID));
-//			writeDebugFormat("Right Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID));
-		}
 //		writeDebugFormat("Actuator Position: %f %f %f\r\n", leftPot.read(&leftPot), rightPot.read(&rightPot), (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0);
 	}
 
@@ -233,15 +232,15 @@ int main(void)
 			.top_right_wheel  = 0x7F,
 			.back_right_wheel = 0x7F,
 			.drum  = 0x7F,
-			.actuator  = 0x7F,
+			.actuator  = 0x00,
 		};
 	}
 
 	// testing code
 //
-//	if (count > 12 ) {
-//		motorValues.actuator = 0x7F;
-//	}
+	if (count > 200) {
+		motorValues.actuator = 0x7F;
+	}
 //	if (count > 400) {
 //		motorValues.actuator = 0xFE;
 //	}
@@ -299,6 +298,15 @@ int main(void)
 //	if (count > 4000) {
 //		count = 0;
 //	}
+	if (leftCurrentSensor.tick(&leftCurrentSensor))
+	{
+		leftCurrentSensor.read(&leftCurrentSensor);
+	}
+
+	if (rightCurrentSensor.tick(&rightCurrentSensor))
+	{
+		rightCurrentSensor.read(&rightCurrentSensor);
+	}
 
 
 	// every 10 cycles, poll motor currents and send to Jetson
@@ -315,7 +323,7 @@ int main(void)
 			HAL_Delay(1);
 		}
 
-		float motorCurrents[8];
+		float motorCurrents[9];
 		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
 //		motorCurrents[0] = 1;
 
@@ -332,15 +340,15 @@ int main(void)
 
 //		writeDebugFormat("Back right current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID));
 
-		 motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID);
+		motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID);
 
-		 motorCurrents[5] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
+		motorCurrents[5] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
 
-
-		motorCurrents[6] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
-
-		motorCurrents[7] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
-
+		float leftActuatorCurrent = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
+		float rightActuatorCurrent = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
+		motorCurrents[6] = leftActuatorCurrent > 0 ? leftActuatorCurrent : leftCurrentSensor.read(&leftCurrentSensor);
+		motorCurrents[7] = rightActuatorCurrent > 0 ? rightActuatorCurrent : rightCurrentSensor.read(&rightCurrentSensor);
+		writeDebugFormat("Currents: %f %f\r\n", motorCurrents[6], motorCurrents[7]);
 
 		if (DEBUG) {
 			float totalCurrent = motorCurrents[6] + motorCurrents[7];
@@ -787,6 +795,15 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		.drum  = rx_buff[5],
 		.actuator  = rx_buff[6],
 	};
+}
+
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+	 if (leftCurrentSensor.recv != NULL)
+		 leftCurrentSensor.recv(&leftCurrentSensor);
+
+	 if (rightCurrentSensor.recv != NULL)
+		 rightCurrentSensor.recv(&rightCurrentSensor);
 }
 /* USER CODE END 4 */
 
