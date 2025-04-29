@@ -38,6 +38,9 @@ typedef struct talonFX {
 	void(*applyConfig)(struct talonFX*, Slot0Configs*);
 	void(*setControl)(struct talonFX*, int, double);
 	void(*voltageCycleClosedLoopRampPeriod) (struct talonFX*, float);
+    float(*getRotorVelocity) (struct talonFX*);
+    float rotorVelocity;
+    void(*receiveCAN)(struct talonFX*, CAN_RxHeaderTypeDef*, uint64_t*);
 } TalonFX;
 
 TalonFX TalonFXInit();
