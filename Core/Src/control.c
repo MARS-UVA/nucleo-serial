@@ -67,7 +67,7 @@ void directControl(SerialPacket packet, int enableSync)
 	// Set output speed of the bucket drum
 	int8_t bucketDrumSpeed = packet.drum;
 	bucketDrum.setControl(&bucketDrum, ((int8_t)(bucketDrumSpeed - 127)), 0);
-	bucketDrumLeft.setControl(&bucketDrumLeft, ((int8_t)(bucketDrumSpeed - 127)), 0); // todo: talon fx 60 is possibly set to inverted.
+	bucketDrumLeft.setControl(&bucketDrumLeft, ((int8_t)(bucketDrumSpeed - 127)) * -1, 0); // todo: talon fx 60 is possibly set to inverted.
 
 
 	// Set outputs of linear actuators
