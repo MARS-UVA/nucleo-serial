@@ -78,12 +78,7 @@ void directControl(SerialPacket packet, int enableSync)
 		int actuatorInteger = packet.actuator - 127;
 //		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
-		if (actuatorOutput > 0) {
-			actuatorOutput = 1;
-		}
-		else if (actuatorOutput < 0) {
-			actuatorOutput = -1;
-		}
+
 
 
 		if (enableSync == 1) {
