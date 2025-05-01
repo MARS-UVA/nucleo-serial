@@ -24,20 +24,21 @@ void initializeTalons() {
 
 	// TODO: apply PID Configs?
 	struct slot0Configs pidConfigs = {
-		0.1,
-		0,
+		0.25,
+		0.25,
 		0,
 		0,
 		0,
 		0,
 		0
 	};
-	frontLeft.applyConfig(&frontLeft, &pidConfigs);
-	backLeft.applyConfig(&backLeft, &pidConfigs);
-	frontRight.applyConfig(&frontRight, &pidConfigs);
-	backRight.applyConfig(&backRight, &pidConfigs);
-	bucketDrum.applyConfig(&bucketDrum, &pidConfigs);
-	bucketDrumLeft.applyConfig(&bucketDrumLeft, &pidConfigs);
+//	frontLeft.applyConfig(&frontLeft, &pidConfigs);
+//	backLeft.applyConfig(&backLeft, &pidConfigs);
+//	frontRight.applyConfig(&frontRight, &pidConfigs);
+//	backRight.applyConfig(&backRight, &pidConfigs);
+//	bucketDrum.applyConfig(&bucketDrum, &pidConfigs);
+//	bucketDrumLeft.applyConfig(&bucketDrumLeft, &pidConfigs);
+	backLeft.applySupplyCurrentLimit(&backLeft, 120);
 
 
 	leftActuator = TalonSRXInit(&hcan1, LEFT_ACTUATOR_ID);
