@@ -32,6 +32,7 @@
 #include "TalonFX.h"
 #include "PDP.h"
 #include "pot.h"
+#include "CurrentSensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -75,6 +76,7 @@ UART_HandleTypeDef huart6;
 PDP pdp;
 Pot leftPot;
 Pot rightPot;
+CurrentSensor rightCurrentSensor;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
 int enableSync = 0; // todo; receive a value over serial that enables synchronization
@@ -176,6 +178,7 @@ int main(void)
   pdp = PDPInit(&hcan1, 62);
   leftPot = PotInit(&hadc1);
   rightPot = PotInit(&hadc2);
+  rightCurrentSensor = CurrentSensorInit(&hi2c1, 0x40);
 
   if (DO_CALIBRATE) {
 	  // calibration routine: raise actuator all the way up before calibrating
@@ -207,7 +210,7 @@ int main(void)
 //		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
 //		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
 //		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID));
-		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID));
+//		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID));
 
 		if (count % 20 == 0) {
 //			writeDebugFormat("Left Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID));
@@ -235,6 +238,9 @@ int main(void)
 			.drum  = 0x7F,
 			.actuator  = 0x7F,
 		};
+		writeDebugFormat("Disconnected!!!\r\n");
+	} else {
+//		writeDebugFormat("Good!!!\r\n");
 	}
 
 	// testing code
@@ -299,6 +305,10 @@ int main(void)
 //	if (count > 4000) {
 //		count = 0;
 //	}
+
+	if (rightCurrentSensor.tick(&rightCurrentSensor)) {
+		writeDebugFormat("Current: %f\r\n", rightCurrentSensor.read(&rightCurrentSensor));
+	}
 
 
 	// every 10 cycles, poll motor currents and send to Jetson
@@ -378,6 +388,15 @@ int main(void)
 
   }
   /* USER CODE END 3 */
+}
+
+void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
+{
+//	 if (leftCurrentSensor.recv != NULL)
+//		 leftCurrentSensor.recv(&leftCurrentSensor);
+
+	 if (rightCurrentSensor.recv != NULL)
+		 rightCurrentSensor.recv(&rightCurrentSensor);
 }
 
 /**
