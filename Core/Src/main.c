@@ -207,7 +207,7 @@ int main(void)
 //		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
 //		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
 //		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID));
-		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID));
+//		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID));
 
 		if (count % 20 == 0) {
 //			writeDebugFormat("Left Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID));
@@ -221,7 +221,6 @@ int main(void)
 //		motorValues = readFromJetson(); // receive a packet from Jetson
 
 //		writeDebugFormat("Top Left Wheel Output: %x\r\n", rx_buff[1]);
-	count += 1;
 	// After a certain period without receiving packets, stop the robot. todo: ensure this logic is robust
 	// right now it stops ~2s after we stop sending packets from the Jetson
 	if (count > 10) {
@@ -304,7 +303,6 @@ int main(void)
 	// every 10 cycles, poll motor currents and send to Jetson
 	if (count % 10 == 0) {
 
-
 		pdp.requestCurrentReadings(&pdp);
 
 		for (int i = 0; i < 10; i++)
@@ -374,6 +372,8 @@ int main(void)
 //	}
 
 	directControl(motorValues, enableSync); // set motor outputs accordingly
+
+	count += 1;
 	HAL_Delay(1);
 
   }
