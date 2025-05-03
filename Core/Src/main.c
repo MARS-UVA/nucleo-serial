@@ -49,6 +49,7 @@
 /* USER CODE BEGIN PM */
 #define DEBUG 1
 #define DO_CALIBRATE 0
+#define DO_AUTOMATIC_RESTART 1
 
 #define OPCODE_STOP 0
 #define OPCODE_DIRECT_CONTROL 1
@@ -76,6 +77,7 @@ UART_HandleTypeDef huart6;
 PDP pdp;
 Pot leftPot;
 Pot rightPot;
+CurrentSensor leftCurrentSensor;
 CurrentSensor rightCurrentSensor;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
@@ -178,6 +180,7 @@ int main(void)
   pdp = PDPInit(&hcan1, 62);
   leftPot = PotInit(&hadc1);
   rightPot = PotInit(&hadc2);
+  leftCurrentSensor = CurrentSensorInit(&hi2c1, 0x41);
   rightCurrentSensor = CurrentSensorInit(&hi2c1, 0x40);
 
   if (DO_CALIBRATE) {
@@ -238,9 +241,11 @@ int main(void)
 			.drum  = 0x7F,
 			.actuator  = 0x7F,
 		};
-		writeDebugFormat("Disconnected!!!\r\n");
-	} else {
-//		writeDebugFormat("Good!!!\r\n");
+		writeDebugFormat("Disconnected from Jetson!\r\n");
+	}
+
+	if (count > 20 && DO_AUTOMATIC_RESTART)	{
+		HAL_NVIC_SystemReset();
 	}
 
 	// testing code
@@ -306,10 +311,11 @@ int main(void)
 //		count = 0;
 //	}
 
-	if (rightCurrentSensor.tick(&rightCurrentSensor)) {
-		writeDebugFormat("Current: %f\r\n", rightCurrentSensor.read(&rightCurrentSensor));
+	CurrentSensor *allCurrentSensors[2] = { &leftCurrentSensor, &rightCurrentSensor };
+	for (int i = 0; i < 2; i++)
+	{
+		allCurrentSensors[i]->tick(allCurrentSensors[i]);
 	}
-
 
 	// every 10 cycles, poll motor currents and send to Jetson
 	if (count % 10 == 0) {
@@ -325,7 +331,7 @@ int main(void)
 			HAL_Delay(1);
 		}
 
-		float motorCurrents[8];
+		float motorCurrents[9];
 		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
 //		motorCurrents[0] = 1;
 
@@ -347,15 +353,16 @@ int main(void)
 		 motorCurrents[5] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
 
 
-		motorCurrents[6] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
-
-		motorCurrents[7] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
-
+		float leftActuatorCurrent = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
+		float rightActuatorCurrent = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
+		motorCurrents[6] = leftActuatorCurrent > 0 ? leftActuatorCurrent : leftCurrentSensor.read(&leftCurrentSensor);
+		motorCurrents[7] = rightActuatorCurrent > 0 ? rightActuatorCurrent : rightCurrentSensor.read(&rightCurrentSensor);
 
 		if (DEBUG) {
 			float totalCurrent = motorCurrents[6] + motorCurrents[7];
 			float estimatedMass = currentToWeight(totalCurrent);
 			writeDebugFormat("Estimated mass: %f\r\n", estimatedMass);
+			writeDebugFormat("Linear actuator currents: %f %f\r\n", motorCurrents[6], motorCurrents[7]);
 		}
 
 		motorCurrents[8] = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
@@ -392,9 +399,8 @@ int main(void)
 
 void HAL_I2C_MasterTxCpltCallback(I2C_HandleTypeDef *hi2c)
 {
-//	 if (leftCurrentSensor.recv != NULL)
-//		 leftCurrentSensor.recv(&leftCurrentSensor);
-
+	 if (leftCurrentSensor.recv != NULL)
+		 leftCurrentSensor.recv(&leftCurrentSensor);
 	 if (rightCurrentSensor.recv != NULL)
 		 rightCurrentSensor.recv(&rightCurrentSensor);
 }
