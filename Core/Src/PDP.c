@@ -81,29 +81,38 @@ float getChannelCurrentPDP(PDP* pdp, int channelID)
 
 void receiveCANPDP(PDP *pdp, CAN_RxHeaderTypeDef *msg, uint64_t *data)
 {
-	  // not a pdp
-	  if ((msg->ExtId & 0x8041400) != 0x8041400)
-		  return;
-
 	  // not correct pdp id
 	  if ((msg->ExtId & pdp->identifier) != pdp->identifier)
 		  return;
 
-	  switch (msg->ExtId & 0xc0)
+	  if ((msg->ExtId & 0x8041400) != 0x8041400) // current readings
 	  {
-	  case 0x00:
-		  pdp->cache0 = *data;
-		  pdp->receivedNew0 = true;
-		  break;
-	  case 0x40:
-		  pdp->cache40 = *data;
-		  pdp->receivedNew40 = true;
-		  break;
-	  case 0x80:
-		  pdp->cache80 = *data;
-		  pdp->receivedNew80 = true;
-		  break;
+		  switch (msg->ExtId & 0xc0)
+		  {
+		  case 0x00:
+			  pdp->cache0 = *data;
+			  pdp->receivedNew0 = true;
+			  break;
+		  case 0x40:
+			  pdp->cache40 = *data;
+			  pdp->receivedNew40 = true;
+			  break;
+		  case 0x80:
+			  pdp->cache80 = *data;
+			  pdp->receivedNew80 = true;
+			  break;
+		  }
 	  }
+	  else if ((msg->ExtId & 0x8041480) != 0x8041480)
+	  {
+		  uint8_t *dataArray = (uint8_t *)data;
+		  pdp->busVoltage = (dataArray[6] * 0x10 + dataArray[7]) / 3444.0;
+	  }
+}
+
+float getBusVoltagePDP(PDP *pdp)
+{
+	return pdp->busVoltage;
 }
 
 PDP PDPInit(CAN_HandleTypeDef *hcan, int32_t identifier)
@@ -121,7 +130,9 @@ PDP PDPInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 		.receiveCAN = receiveCANPDP,
 		.receivedNew0 = false,
 		.receivedNew40 = false,
-		.receivedNew80 = false
+		.receivedNew80 = false,
+		.busVoltage = 0,
+		.getBusVoltage = getBusVoltagePDP,
 	};
 
 	return pdp;

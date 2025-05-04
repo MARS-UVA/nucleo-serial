@@ -26,6 +26,8 @@ typedef struct pdp {
 	bool receivedNew0;
 	bool receivedNew40;
 	bool receivedNew80;
+	float (*getBusVoltage) (struct pdp*);
+	float busVoltage;
 } PDP;
 
 PDP PDPInit();
