@@ -166,8 +166,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   writeDebugString("Starting program!\r\n");
   initializeTalons();
-  HAL_UART_Receive_IT(&huart6, rx_buff, 7);
-
+  HAL_UART_Receive_IT(&huart6, rx_buff, 16);
 
   /* USER CODE END 2 */
 
@@ -345,7 +344,7 @@ int main(void)
 		if (DEBUG) {
 			float totalCurrent = motorCurrents[6] + motorCurrents[7];
 			float estimatedMass = currentToWeight(totalCurrent);
-//			writeDebugFormat("Estimated mass: %f\r\n", estimatedMass);
+			writeDebugFormat("Estimated mass: %f\r\n", estimatedMass);
 		}
 
 		motorCurrents[8] = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
@@ -793,9 +792,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	{
 		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT\r\n");
 	}
-
-	for (int i = 0; i < 16; i++)
-		writeDebugFormat("%d: %x\r\n", i, rx_buff[i]);
 
 	int startByte = findStartByte(rx_buff, 8);
 	if (startByte == -1)
