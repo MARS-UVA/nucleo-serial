@@ -234,7 +234,7 @@ int main(void)
 			.actuator  = 0xFE,
 		};
 
-//		writeDebugString("Disconnected from Jetson!\r\n");
+		writeDebugString("Disconnected from Jetson!\r\n");
 	}
 
 	// testing code
@@ -812,25 +812,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		.actuator  = rx_buff[startByte + 7],
 	};
 
-	writeDebugFormat("%d %d %d %d %d %d %d %d\r\n", startByte, rx_buff[startByte + 1], rx_buff[startByte + 2], rx_buff[startByte + 3], rx_buff[startByte + 4], rx_buff[startByte + 5], rx_buff[startByte + 6], rx_buff[startByte + 7]);
-//	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {
-//		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
-//	}
-//
-//	count = 0;
-//	motorValues = (SerialPacket) {
-//		.invalid = 0,
-//		.header = rx_buff[0],
-//		.top_left_wheel = rx_buff[1],
-//		.back_left_wheel = rx_buff[2],
-//		.top_right_wheel  = rx_buff[3],
-//		.back_right_wheel = rx_buff[4],
-//		.drum  = rx_buff[5],
-//		.actuator  = rx_buff[6],
-//	};
-//
-//	writeDebugFormat("%d %d %d %d %d %d %d\r\n", rx_buff[0], rx_buff[1], rx_buff[2], rx_buff[3], rx_buff[4], rx_buff[5], rx_buff[6]);
-
+//	writeDebugFormat("%d %d %d %d %d %d %d %d\r\n", startByte, rx_buff[startByte + 1], rx_buff[startByte + 2], rx_buff[startByte + 3], rx_buff[startByte + 4], rx_buff[startByte + 5], rx_buff[startByte + 6], rx_buff[startByte + 7]);
 }
 /* USER CODE END 4 */
 
