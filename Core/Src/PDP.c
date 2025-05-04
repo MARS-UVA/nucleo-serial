@@ -85,7 +85,7 @@ void receiveCANPDP(PDP *pdp, CAN_RxHeaderTypeDef *msg, uint64_t *data)
 	  if ((msg->ExtId & pdp->identifier) != pdp->identifier)
 		  return;
 
-	  if ((msg->ExtId & 0x8041400) != 0x8041400) // current readings
+	  if ((msg->ExtId & 0x8041400) == 0x8041400) // current readings
 	  {
 		  switch (msg->ExtId & 0xc0)
 		  {
@@ -103,7 +103,7 @@ void receiveCANPDP(PDP *pdp, CAN_RxHeaderTypeDef *msg, uint64_t *data)
 			  break;
 		  }
 	  }
-	  else if ((msg->ExtId & 0x8041480) != 0x8041480)
+	  else if ((msg->ExtId & 0x8041480) == 0x8041480)
 	  {
 		  uint8_t *dataArray = (uint8_t *)data;
 		  pdp->busVoltage = (dataArray[6] * 0x10 + dataArray[7]) / 3444.0;
