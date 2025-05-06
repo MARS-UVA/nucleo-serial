@@ -24,20 +24,21 @@ void initializeTalons() {
 
 	// TODO: apply PID Configs?
 	struct slot0Configs pidConfigs = {
-		0.1,
-		0,
+		0.25,
+		0.25,
 		0,
 		0,
 		0,
 		0,
 		0
 	};
-	frontLeft.applyConfig(&frontLeft, &pidConfigs);
-	backLeft.applyConfig(&backLeft, &pidConfigs);
-	frontRight.applyConfig(&frontRight, &pidConfigs);
-	backRight.applyConfig(&backRight, &pidConfigs);
-	bucketDrum.applyConfig(&bucketDrum, &pidConfigs);
-	bucketDrumLeft.applyConfig(&bucketDrumLeft, &pidConfigs);
+//	frontLeft.applyConfig(&frontLeft, &pidConfigs);
+//	backLeft.applyConfig(&backLeft, &pidConfigs);
+//	frontRight.applyConfig(&frontRight, &pidConfigs);
+//	backRight.applyConfig(&backRight, &pidConfigs);
+//	bucketDrum.applyConfig(&bucketDrum, &pidConfigs);
+//	bucketDrumLeft.applyConfig(&bucketDrumLeft, &pidConfigs);
+	backLeft.applySupplyCurrentLimit(&backLeft, 120);
 
 
 	leftActuator = TalonSRXInit(&hcan1, LEFT_ACTUATOR_ID);
@@ -67,7 +68,7 @@ void directControl(SerialPacket packet, int enableSync)
 	// Set output speed of the bucket drum
 	int8_t bucketDrumSpeed = packet.drum;
 	bucketDrum.setControl(&bucketDrum, ((int8_t)(bucketDrumSpeed - 127)), 0);
-	bucketDrumLeft.setControl(&bucketDrumLeft, ((int8_t)(bucketDrumSpeed - 127)), 0); // todo: talon fx 60 is possibly set to inverted.
+	bucketDrumLeft.setControl(&bucketDrumLeft, ((int8_t)(bucketDrumSpeed - 127)) * -1, 0); // todo: talon fx 60 is possibly set to inverted.
 
 
 	// Set outputs of linear actuators
@@ -78,12 +79,7 @@ void directControl(SerialPacket packet, int enableSync)
 		int actuatorInteger = packet.actuator - 127;
 //		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
-		if (actuatorOutput > 0) {
-			actuatorOutput = 1;
-		}
-		else if (actuatorOutput < 0) {
-			actuatorOutput = -1;
-		}
+
 
 
 		if (enableSync == 1) {
