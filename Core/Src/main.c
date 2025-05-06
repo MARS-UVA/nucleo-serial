@@ -86,7 +86,7 @@ extern TalonFX bucketDrumLeft;
 int enableSync = 0; // todo; receive a value over serial that enables synchronization
 
 
-uint8_t rx_buff[7];
+uint8_t rx_buff[16];
 SerialPacket motorValues = (SerialPacket) {
 	.invalid = 0,
 	.header = 0x7F,
@@ -172,8 +172,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   writeDebugString("Starting program!\r\n");
   initializeTalons();
-  HAL_UART_Receive_IT(&huart6, rx_buff, 7);
-
+  HAL_UART_Receive_IT(&huart6, rx_buff, 16);
 
   /* USER CODE END 2 */
 
@@ -239,8 +238,10 @@ int main(void)
 			.top_right_wheel  = 0x7F,
 			.back_right_wheel = 0x7F,
 			.drum  = 0x7F,
-			.actuator  = 0x7F,
+			.actuator  = 0xFE,
 		};
+
+		writeDebugString("Disconnected from Jetson!\r\n");
 	}
 
 	// testing code
@@ -798,22 +799,47 @@ void can_irq(CAN_HandleTypeDef *pcan)
   }
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (HAL_UART_Receive_IT(&huart6, rx_buff, 7) != HAL_OK) {
-		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT");
+#define START_BYTE 255
+
+int findStartByte(uint8_t *rx_buff, int length)
+{
+	for (int i = 0; i < length; i++)
+	{
+		if (rx_buff[i] == START_BYTE)
+		{
+			return i;
+		}
 	}
+
+	return -1;
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+	if (HAL_UART_Receive_IT(&huart6, rx_buff, 16) != HAL_OK)
+	{
+		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT\r\n");
+	}
+
+	int startByte = findStartByte(rx_buff, 8);
+	if (startByte == -1)
+		return;
+
+	if (startByte == 0 && rx_buff[8] == START_BYTE)
+		startByte += 8;
 
 	count = 0;
 	motorValues = (SerialPacket) {
 		.invalid = 0,
-		.header = rx_buff[0],
-		.top_left_wheel = rx_buff[1],
-		.back_left_wheel = rx_buff[2],
-		.top_right_wheel  = rx_buff[3],
-		.back_right_wheel = rx_buff[4],
-		.drum  = rx_buff[5],
-		.actuator  = rx_buff[6],
+		.header = rx_buff[startByte + 1],
+		.top_left_wheel = rx_buff[startByte + 2],
+		.back_left_wheel = rx_buff[startByte + 3],
+		.top_right_wheel  = rx_buff[startByte + 4],
+		.back_right_wheel = rx_buff[startByte + 5],
+		.drum  = rx_buff[startByte + 6],
+		.actuator  = rx_buff[startByte + 7],
 	};
+
+//	writeDebugFormat("%d %d %d %d %d %d %d %d\r\n", startByte, rx_buff[startByte + 1], rx_buff[startByte + 2], rx_buff[startByte + 3], rx_buff[startByte + 4], rx_buff[startByte + 5], rx_buff[startByte + 6], rx_buff[startByte + 7]);
 }
 /* USER CODE END 4 */
 
