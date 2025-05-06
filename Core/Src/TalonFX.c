@@ -102,6 +102,26 @@ void voltageCycleClosedLoopRampPeriodFX(TalonFX *talonFX, float period)
 	HAL_Delay(1);
 }
 
+void receiveCANFX(TalonFX *talonFX, CAN_RxHeaderTypeDef *msg, uint64_t *data)
+{
+	// if bad
+	if (msg->ExtId != (0x2044780 | talonFX->identifier))
+		return;
+
+	uint32_t resInt = *data;
+	resInt &= 0xfffff;
+
+	if (resInt & 0x80000)
+		talonFX->rotorVelocity = -(((resInt ^ 0xfffff) + 1) / 2048.0);
+	else
+		talonFX->rotorVelocity = resInt / 2048.0;
+}
+
+float getRotorVelocity(TalonFX *talonFX)
+{
+	return talonFX->rotorVelocity;
+}
+
 TalonFX TalonFXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 {
 	TalonFX talonFX = {
@@ -112,7 +132,10 @@ TalonFX TalonFXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 			.identifier = identifier,
 			.applyConfig = applyConfigFX,
 			.voltageCycleClosedLoopRampPeriod = voltageCycleClosedLoopRampPeriodFX,
-			.setControl = setControlFX
+			.setControl = setControlFX,
+			.getRotorVelocity = getRotorVelocity,
+			.rotorVelocity = 0,
+			.receiveCAN = receiveCANFX
 	};
 
 	return talonFX;

@@ -77,6 +77,12 @@ Pot leftPot;
 Pot rightPot;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
+extern TalonFX frontLeft;
+extern TalonFX backLeft;
+extern TalonFX frontRight;
+extern TalonFX backRight;
+extern TalonFX bucketDrum;
+extern TalonFX bucketDrumLeft;
 int enableSync = 0; // todo; receive a value over serial that enables synchronization
 
 
@@ -212,6 +218,7 @@ int main(void)
 		if (count % 20 == 0) {
 //			writeDebugFormat("Left Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID));
 //			writeDebugFormat("Right Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID));
+			writeDebugFormat("Drum velocity: %f\r\n", backRight.getRotorVelocity(&backRight));
 		}
 //		writeDebugFormat("Actuator Position: %f %f %f\r\n", leftPot.read(&leftPot), rightPot.read(&rightPot), (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0);
 	}
@@ -769,6 +776,21 @@ void can_irq(CAN_HandleTypeDef *pcan)
   HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, (uint8_t *) &data);
   if (pdp.receiveCAN)
 	  pdp.receiveCAN(&pdp, &msg, &data);
+
+  TalonFX *talons[6] = {
+		  &frontLeft,
+		  &frontRight,
+		  &backLeft,
+		  &backRight,
+		  &bucketDrum,
+		  &bucketDrumLeft
+  };
+
+  for (int i = 0; i < 6; i++)
+  {
+	  if(talons[i]->receiveCAN)
+		  talons[i]->receiveCAN(talons[i], &msg, &data);
+  }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
