@@ -10,9 +10,10 @@ float readPot(Pot* pot) {
 	return map(pot->minPos, pot->maxPos, HAL_ADC_GetValue(pot->hadc) + pot->actuatorOffset);
 }
 
-float readPotCm(Pot *pot) {
-	float potReading = readPot(pot);
-	return (37.652 * potReading + 10.172);
+
+// converts raw potentiometer reading to the distance of the bucket drum from the bottom (in cm)
+float rawPotToCm(float rawReading) {
+ 	return (-74.9 * rawReading + 4.4625);
 }
 
 void calibrateYourMom(Pot *leftPot, Pot *rightPot) {
@@ -35,7 +36,6 @@ Pot PotInit(ADC_HandleTypeDef *hadc) {
 	Pot pot = {
 		.hadc = hadc,
 		.read = readPot,
-		.readCm = readPotCm,
 		.actuatorOffset = 0,
 		.minPos = 1190,
 		.maxPos = 3153,

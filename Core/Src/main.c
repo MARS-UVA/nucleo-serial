@@ -339,14 +339,19 @@ int main(void)
 
 		motorCurrents[7] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
 
+		motorCurrents[8] = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
+
 
 		if (DEBUG) {
 			float totalCurrent = motorCurrents[6] + motorCurrents[7];
 			float estimatedMass = currentToWeight(totalCurrent);
 			writeDebugFormat("Estimated mass: %f\r\n", estimatedMass);
+			writeDebugFormat("String pot raw reading: %f\r\n", motorCurrents[8]);
+			float estimatedHeight = rawPotToCm(motorCurrents[8]);
+			writeDebugFormat("String pot length from bottom: %f\r\n", estimatedHeight);
+
 		}
 
-		motorCurrents[8] = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
 
 		pdp.receivedNew0 = false;
 		pdp.receivedNew40 = false;

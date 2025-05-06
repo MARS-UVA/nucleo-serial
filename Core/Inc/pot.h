@@ -8,13 +8,13 @@
 typedef struct pot {
 	ADC_HandleTypeDef *hadc;
 	float(*read)(struct pot*);
-	float(*readCm)(struct pot*);
 	uint32_t actuatorOffset;
 	int minPos;
 	int maxPos;
 } Pot;
 
 Pot PotInit();
+float rawPotToCm(float rawReading);
 
 void calibrateYourMom(Pot *leftPot, Pot *rightPot);
 
