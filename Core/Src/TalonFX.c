@@ -55,6 +55,9 @@ void applyConfigFX(TalonFX *talonFX, Slot0Configs *config)
 		sendFXCANMessage(talonFX, 0x2047c00, x, 8);
 		sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
 		HAL_Delay(1);
+		sendFXCANMessage(talonFX, 0x2047c00, x, 8);
+		sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
+		HAL_Delay(1);
 	}
 
 //	char y[] = {0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
