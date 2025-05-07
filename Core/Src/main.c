@@ -53,6 +53,8 @@
 #define OPCODE_DIRECT_CONTROL 1
 #define OPCODE_PID_CONTROL 2
 #define OPCODE_NOP 3
+#define DO_AUTOMATIC_RESTART 1
+
 
 
 void can_irq(CAN_HandleTypeDef *pcan);
@@ -242,6 +244,10 @@ int main(void)
 		};
 
 		writeDebugString("Disconnected from Jetson!\r\n");
+	}
+
+  if (count > 20 && DO_AUTOMATIC_RESTART)	{
+		HAL_NVIC_SystemReset();
 	}
 
 	// testing code
