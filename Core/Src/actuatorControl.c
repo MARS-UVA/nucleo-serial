@@ -10,7 +10,7 @@ extern Pot rightPot;
 
 #define FULL_ADC_RANGE 4096 // todo: check if this value is right
 #define POSITION_TOLERANCE 10
-#define TOLERANCE 1.01
+#define SYNC_TOLERANCE 0.01
 #define SLOWFACTOR 0.98
 
 
@@ -58,9 +58,14 @@ struct ActuatorValues syncLinearActuators(float percentOutput) {
   newPercentOutputs.right = percentOutput;
 
   // if difference between left and right actuator lengths are larger than a certain tolerance, slow down faster actuator
-  if ((leftPosition > rightPosition * TOLERANCE && percentOutput > 0) || (leftPosition < rightPosition * TOLERANCE && percentOutput < 0)) {
+
+  // if left is faster than right, slow down left
+  if ((leftPosition > (rightPosition + SYNC_TOLERANCE) && percentOutput < 0) || ((leftPosition + SYNC_TOLERANCE)< rightPosition && percentOutput > 0)) {
     newPercentOutputs.left *= SLOWFACTOR;
-  } else if ((rightPosition > leftPosition * TOLERANCE && percentOutput > 0) || (rightPosition < leftPosition * TOLERANCE && percentOutput < 0)) {
+
+  }
+  // if right is faster than left, slow down right
+  else if ((rightPosition > (leftPosition + SYNC_TOLERANCE) && percentOutput < 0) || ((rightPosition + SYNC_TOLERANCE) < leftPosition && percentOutput > 0)) {
     newPercentOutputs.right *= SLOWFACTOR;
   }
   writeDebugFormat("Left Actuator new output: %f\r\n", newPercentOutputs.left);
