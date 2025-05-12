@@ -71,6 +71,6 @@ struct ActuatorValues syncLinearActuators(float percentOutput) {
 
 // Returns weight of material in bucket drum (in kg) given a the total current drawn by the 2 actuators
 float currentToWeight(float totalCurrent) {
-	return 4.315 * totalCurrent - 14.18;
+	return ((totalCurrent * 4.57) - 29.8);
 }
 
