@@ -23,15 +23,15 @@ void initializeTalons() {
 	bucketDrumLeft = TalonFXInit(&hcan1, BUCKET_DRUM_LEFT_ID);
 
 	// TODO: apply PID Configs?
-	struct slot0Configs pidConfigs = {
-		0.25,
-		0.25,
-		0,
-		0,
-		0,
-		0,
-		0
-	};
+//	struct slot0Configs pidConfigs = {
+//		0.25,
+//		0.25,
+//		0,
+//		0,
+//		0,
+//		0,
+//		0
+//	};
 //	frontLeft.applyConfig(&frontLeft, &pidConfigs);
 //	backLeft.applyConfig(&backLeft, &pidConfigs);
 //	frontRight.applyConfig(&frontRight, &pidConfigs);
@@ -74,25 +74,25 @@ void directControl(SerialPacket packet, int enableSync)
 	// Set outputs of linear actuators
 
 	// todo: check if packet.actuator is 0xFFs
-    struct ActuatorValues actuatorSyncOutputs; // to store the percent outputs of left and right actuator after synchronization
+//    struct ActuatorValues actuatorSyncOutputs; // to store the percent outputs of left and right actuator after synchronization
 	if (DIRECT_ACTUATOR_CONTROL) {
-		int actuatorInteger = packet.actuator - 127;
+//		int actuatorInteger = packet.actuator - 127;
 //		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
 
 
 
-		if (enableSync == 1) {
-			actuatorSyncOutputs = syncLinearActuators(actuatorOutput);
-			writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
-			leftActuator.set(&leftActuator, actuatorSyncOutputs.left);
-			rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
-		}
-
-		else {
-			leftActuator.set(&leftActuator, actuatorOutput);
-			rightActuator.set(&rightActuator, actuatorOutput);
-		}
+//		if (enableSync == 1) {
+//			actuatorSyncOutputs = syncLinearActuators(actuatorOutput);
+//			writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
+//			leftActuator.set(&leftActuator, actuatorSyncOutputs.left);
+//			rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
+//		}
+//
+//		else {
+		leftActuator.set(&leftActuator, actuatorOutput);
+		rightActuator.set(&rightActuator, actuatorOutput);
+//		}
 
 	}
 	else {

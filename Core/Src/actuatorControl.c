@@ -5,7 +5,7 @@
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern Pot leftPot;
-extern Pot rightPot;
+//extern Pot rightPot;
 
 
 #define FULL_ADC_RANGE 4096 // todo: check if this value is right
@@ -49,25 +49,25 @@ void setActuatorLength(TalonSRX leftActuator, TalonSRX rightActuator, float perc
 // given target actuator speed, use potentiometer feedback to ensure actuators are at approximately the same length of extension
 // if one actuator is ahead of the other, slow down the faster actuator by a set speed
 // returns percent outputs of the TalonSRXs controlling the actuators
-struct ActuatorValues syncLinearActuators(float percentOutput) {
-  float leftPosition = leftPot.read(&leftPot); // Change to HAL_ADCEx_MultiModeStart_DMA or HAL_ADC_Start_DMA for speed
-  float rightPosition = rightPot.read(&rightPot);
-
-  struct ActuatorValues newPercentOutputs;
-  newPercentOutputs.left = percentOutput;
-  newPercentOutputs.right = percentOutput;
-
-  // if difference between left and right actuator lengths are larger than a certain tolerance, slow down faster actuator
-  if ((leftPosition > rightPosition * TOLERANCE && percentOutput > 0) || (leftPosition < rightPosition * TOLERANCE && percentOutput < 0)) {
-    newPercentOutputs.left *= SLOWFACTOR;
-  } else if ((rightPosition > leftPosition * TOLERANCE && percentOutput > 0) || (rightPosition < leftPosition * TOLERANCE && percentOutput < 0)) {
-    newPercentOutputs.right *= SLOWFACTOR;
-  }
-  writeDebugFormat("Left Actuator new output: %f\r\n", newPercentOutputs.left);
-  writeDebugFormat("Right Actuator new output: %f\r\n", newPercentOutputs.right);
-
-  return newPercentOutputs;
-}
+//struct ActuatorValues syncLinearActuators(float percentOutput) {
+//  float leftPosition = leftPot.read(&leftPot); // Change to HAL_ADCEx_MultiModeStart_DMA or HAL_ADC_Start_DMA for speed
+//  float rightPosition = rightPot.read(&rightPot);
+//
+//  struct ActuatorValues newPercentOutputs;
+//  newPercentOutputs.left = percentOutput;
+//  newPercentOutputs.right = percentOutput;
+//
+//  // if difference between left and right actuator lengths are larger than a certain tolerance, slow down faster actuator
+//  if ((leftPosition > rightPosition * TOLERANCE && percentOutput > 0) || (leftPosition < rightPosition * TOLERANCE && percentOutput < 0)) {
+//    newPercentOutputs.left *= SLOWFACTOR;
+//  } else if ((rightPosition > leftPosition * TOLERANCE && percentOutput > 0) || (rightPosition < leftPosition * TOLERANCE && percentOutput < 0)) {
+//    newPercentOutputs.right *= SLOWFACTOR;
+//  }
+//  writeDebugFormat("Left Actuator new output: %f\r\n", newPercentOutputs.left);
+//  writeDebugFormat("Right Actuator new output: %f\r\n", newPercentOutputs.right);
+//
+//  return newPercentOutputs;
+//}
 
 // Returns weight of material in bucket drum (in kg) given a the total current drawn by the 2 actuators
 float currentToWeight(float totalCurrent) {
