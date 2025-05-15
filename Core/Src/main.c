@@ -63,7 +63,6 @@ void can_irq(CAN_HandleTypeDef *pcan);
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-ADC_HandleTypeDef hadc2;
 
 CAN_HandleTypeDef hcan1;
 
@@ -76,7 +75,6 @@ UART_HandleTypeDef huart6;
 /* USER CODE BEGIN PV */
 PDP pdp;
 Pot leftPot;
-Pot rightPot;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
 extern TalonFX frontLeft;
@@ -114,7 +112,6 @@ static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART6_UART_Init(void);
-static void MX_ADC2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -170,7 +167,6 @@ int main(void)
   MX_CAN1_Init();
   MX_I2C1_Init();
   MX_USART6_UART_Init();
-  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
   writeDebugString("Starting program!\r\n");
   initializeTalons();
@@ -182,19 +178,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   pdp = PDPInit(&hcan1, 62);
   leftPot = PotInit(&hadc1);
-  rightPot = PotInit(&hadc2);
-
-  if (DO_CALIBRATE) {
-	  // calibration routine: raise actuator all the way up before calibrating
-	  for (actuatorUpCount = 0; actuatorUpCount < 800; actuatorUpCount ++) {
-		  sendGlobalEnableFrame(&hcan1);
-		  leftActuator.set(&leftActuator, 1);
-		  rightActuator.set(&rightActuator, 1);
-		  HAL_Delay(10);
-	  }
-	  calibrateYourMom(&leftPot, &rightPot);
-  }
-
 
   writeDebugString("Entering while loop!\r\n");
 
@@ -250,68 +233,6 @@ int main(void)
 		HAL_NVIC_SystemReset();
 	}
 
-	// testing code
-//
-//	if (count > 12 ) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 400) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 650) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 800) {
-//		motorValues.actuator = 0x00;
-//	}
-//	if (count > 1000) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 1200) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 1450) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 1600) {
-//		motorValues.actuator = 0x00;
-//	}
-//	if (count > 1800) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 2000) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 2250) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 2400) {
-//		motorValues.actuator = 0x00;
-//	}
-//	if (count > 2600) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 2800) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 3050) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 3200) {
-//		motorValues.actuator = 0x00;
-//	}
-//	if (count > 3400) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 3600) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 3850) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 4000) {
-//		count = 0;
-//	}
 
 
 	// every 10 cycles, poll motor currents and send to Jetson
@@ -340,7 +261,6 @@ int main(void)
 //		motorCurrents[2] = 3;
 //		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
 		motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID);
-//		motorCurrents[3] = 4.5;
 
 //		writeDebugFormat("Back right current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID));
 
@@ -353,7 +273,7 @@ int main(void)
 
 		motorCurrents[7] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
 
-		float estimatedHeight = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
+		float estimatedHeight = leftPot.read(&leftPot);
 		motorCurrents[8] = rawPotToCm(estimatedHeight);
 
 
@@ -363,7 +283,7 @@ int main(void)
 //			float estimatedMass = currentToWeight(totalCurrent);
 //			float estimatedMass = (totalCurrent * 4.57) - 29.8;
 //			writeDebugFormat("Estimated mass: %f\r\n", estimatedMass);
-			writeDebugFormat("String pot raw reading: %f\r\n", (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0);
+			writeDebugFormat("String pot raw reading: %f\r\n", estimatedHeight);
 			writeDebugFormat("String pot length from bottom: %f\r\n", motorCurrents[8]);
 
 		}
@@ -491,58 +411,6 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
-
-}
-
-/**
-  * @brief ADC2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_ADC2_Init(void)
-{
-
-  /* USER CODE BEGIN ADC2_Init 0 */
-
-  /* USER CODE END ADC2_Init 0 */
-
-  ADC_ChannelConfTypeDef sConfig = {0};
-
-  /* USER CODE BEGIN ADC2_Init 1 */
-
-  /* USER CODE END ADC2_Init 1 */
-
-  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-  */
-  hadc2.Instance = ADC2;
-  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
-  hadc2.Init.Resolution = ADC_RESOLUTION_12B;
-  hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc2.Init.ContinuousConvMode = DISABLE;
-  hadc2.Init.DiscontinuousConvMode = DISABLE;
-  hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-  hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-  hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc2.Init.NbrOfConversion = 1;
-  hadc2.Init.DMAContinuousRequests = DISABLE;
-  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-  if (HAL_ADC_Init(&hadc2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-  */
-  sConfig.Channel = ADC_CHANNEL_12;
-  sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN ADC2_Init 2 */
-
-  /* USER CODE END ADC2_Init 2 */
 
 }
 
@@ -767,10 +635,10 @@ static void MX_GPIO_Init(void)
 
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOE_CLK_ENABLE();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin : PE2 */
   GPIO_InitStruct.Pin = GPIO_PIN_2;
