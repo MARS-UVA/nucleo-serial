@@ -276,8 +276,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	    getRGB(&red, &green, &blue);
-	    getHSL(&red, &green, &blue, &hue, &saturation, &luminosity);
+	    //getRGB(&red, &green, &blue);
+	    //getHSL(&red, &green, &blue, &hue, &saturation, &luminosity);
 
 	    HAL_Delay(500);
 
