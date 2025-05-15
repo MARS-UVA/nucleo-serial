@@ -13,7 +13,7 @@ float readPot(Pot* pot) {
 
 // converts raw potentiometer reading to the distance of the bucket drum from the bottom (in cm)
 float rawPotToCm(float rawReading) {
- 	return (-37.9 * rawReading + 37.7);
+ 	return (-37.5 * rawReading + 26.2);
 }
 
 void calibrateYourMom(Pot *leftPot, Pot *rightPot) {
