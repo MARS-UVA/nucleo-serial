@@ -61,6 +61,7 @@ void can_irq(CAN_HandleTypeDef *pcan);
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc2;
 
 CAN_HandleTypeDef hcan1;
 
@@ -73,10 +74,10 @@ UART_HandleTypeDef huart6;
 /* USER CODE BEGIN PV */
 PDP pdp;
 Pot leftPot;
-//Pot rightPot;
+Pot rightPot;
 extern TalonSRX leftActuator;
-extern TalonSRX rightActuator;
-int enableSync = 0; // todo; receive a value over serial that enables synchronization
+//extern TalonSRX rightActuator;
+int enableSync = 1; // todo; receive a value over serial that enables synchronization
 
 
 uint8_t rx_buff[16];
@@ -105,6 +106,7 @@ static void MX_ADC1_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART6_UART_Init(void);
+static void MX_ADC2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -160,6 +162,7 @@ int main(void)
   MX_CAN1_Init();
   MX_I2C1_Init();
   MX_USART6_UART_Init();
+  MX_ADC2_Init();
   /* USER CODE BEGIN 2 */
   writeDebugString("Starting program!\r\n");
   initializeTalons();
@@ -171,7 +174,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   pdp = PDPInit(&hcan1, 62);
   leftPot = PotInit(&hadc1);
-//  rightPot = PotInit(&hadc2);
+  rightPot = PotInit(&hadc2);
 
 //  if (DO_CALIBRATE) {
 //	  // calibration routine: raise actuator all the way up before calibrating
@@ -209,7 +212,7 @@ int main(void)
 //			writeDebugFormat("Left Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID));
 //			writeDebugFormat("Right Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID));
 		}
-//		writeDebugFormat("Actuator Position: %f %f %f\r\n", leftPot.read(&leftPot), rightPot.read(&rightPot), (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0);
+		writeDebugFormat("Actuator Position: %f\r\n", leftPot.read(&leftPot));
 	}
 
 	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
@@ -231,7 +234,7 @@ int main(void)
 			.actuator  = 0xFE,
 		};
 
-		writeDebugString("Disconnected from Jetson!\r\n");
+//		writeDebugString("Disconnected from Jetson!\r\n");
 	}
 
 	// testing code
@@ -299,72 +302,72 @@ int main(void)
 
 
 	// every 10 cycles, poll motor currents and send to Jetson
-	if (count % 10 == 0) {
-
-		pdp.requestCurrentReadings(&pdp);
-
-		for (int i = 0; i < 10; i++)
-		{
-			if (pdp.receivedNew0 && pdp.receivedNew40 && pdp.receivedNew80)
-				break;
-
-			HAL_Delay(1);
-		}
-
-		float motorCurrents[8];
-		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
-//		motorCurrents[0] = 1;
-
-//		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
-		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
-//		motorCurrents[1] = 2;
-
-//		writeDebugFormat("Front right current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID));
-		motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID);
-//		motorCurrents[2] = 3;
-//		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
-		motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID);
-//		motorCurrents[3] = 4.5;
-
-//		writeDebugFormat("Back right current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID));
-
-		 motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID);
-
-		 motorCurrents[5] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
-
-
-		motorCurrents[6] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
-
-		motorCurrents[7] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
-
-
-		if (DEBUG) {
-			float totalCurrent = motorCurrents[6] + motorCurrents[7];
-			float estimatedMass = currentToWeight(totalCurrent);
-			writeDebugFormat("Estimated mass: %f\r\n", estimatedMass);
-		}
-
-		motorCurrents[8] = leftPot.read(&leftPot);
-//		motorCurrents[8] = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
-
-		pdp.receivedNew0 = false;
-		pdp.receivedNew40 = false;
-		pdp.receivedNew80 = false;
-
-//		// convert floats to bytes, put in packet
-	    uint8_t packet[4 + 4 * 9];  // 4-byte header + 9 floats × 4 bytes
-	    packet[0] = 0x1; // header 0x1 to indicate motor current feedback
-	    for (int i = 0; i < 9; i++) {
-	        floatToByteArray(motorCurrents[i], &packet[4 + i * 4]);
-//	        writeDebugFormat("b1: %d\r\n", packet[1]);
-//	        writeDebugFormat("b2: %d\r\n", packet[2]);
-//	        writeDebugFormat("b3: %d\r\n", packet[3]);
-//			writeDebugFormat("b4: %d\r\n", packet[4]);
-
-	    }
-////		//send packet to Jetson
-	    writeToJetson(packet, 4 + 4 * 9);
-	}
+//	if (count % 10 == 0) {
+//
+//		pdp.requestCurrentReadings(&pdp);
+//
+//		for (int i = 0; i < 10; i++)
+//		{
+//			if (pdp.receivedNew0 && pdp.receivedNew40 && pdp.receivedNew80)
+//				break;
+//
+//			HAL_Delay(1);
+//		}
+//
+//		float motorCurrents[8];
+//		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
+////		motorCurrents[0] = 1;
+//
+////		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
+//		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
+////		motorCurrents[1] = 2;
+//
+////		writeDebugFormat("Front right current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID));
+//		motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID);
+////		motorCurrents[2] = 3;
+////		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
+//		motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID);
+////		motorCurrents[3] = 4.5;
+//
+////		writeDebugFormat("Back right current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID));
+//
+//		 motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID);
+//
+//		 motorCurrents[5] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
+//
+//
+//		motorCurrents[6] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
+//
+//		motorCurrents[7] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
+//
+//
+//		if (DEBUG) {
+//			float totalCurrent = motorCurrents[6] + motorCurrents[7];
+//			float estimatedMass = currentToWeight(totalCurrent);
+//			writeDebugFormat("Estimated mass: %f\r\n", estimatedMass);
+//		}
+//
+//		motorCurrents[8] = leftPot.read(&leftPot);
+////		motorCurrents[8] = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
+//
+//		pdp.receivedNew0 = false;
+//		pdp.receivedNew40 = false;
+//		pdp.receivedNew80 = false;
+//
+////		// convert floats to bytes, put in packet
+//	    uint8_t packet[4 + 4 * 9];  // 4-byte header + 9 floats × 4 bytes
+//	    packet[0] = 0x1; // header 0x1 to indicate motor current feedback
+//	    for (int i = 0; i < 9; i++) {
+//	        floatToByteArray(motorCurrents[i], &packet[4 + i * 4]);
+////	        writeDebugFormat("b1: %d\r\n", packet[1]);
+////	        writeDebugFormat("b2: %d\r\n", packet[2]);
+////	        writeDebugFormat("b3: %d\r\n", packet[3]);
+////			writeDebugFormat("b4: %d\r\n", packet[4]);
+//
+//	    }
+//////		//send packet to Jetson
+//	    writeToJetson(packet, 4 + 4 * 9);
+//	}
 
 
 
@@ -374,7 +377,6 @@ int main(void)
 
 	count += 1;
 	HAL_Delay(1);
-
   }
   /* USER CODE END 3 */
 }
@@ -469,6 +471,58 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief ADC2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC2_Init(void)
+{
+
+  /* USER CODE BEGIN ADC2_Init 0 */
+
+  /* USER CODE END ADC2_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC2_Init 1 */
+
+  /* USER CODE END ADC2_Init 1 */
+
+  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+  */
+  hadc2.Instance = ADC2;
+  hadc2.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc2.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc2.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc2.Init.ContinuousConvMode = DISABLE;
+  hadc2.Init.DiscontinuousConvMode = DISABLE;
+  hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc2.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc2.Init.NbrOfConversion = 1;
+  hadc2.Init.DMAContinuousRequests = DISABLE;
+  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  if (HAL_ADC_Init(&hadc2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+  */
+  sConfig.Channel = ADC_CHANNEL_12;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC2_Init 2 */
+
+  /* USER CODE END ADC2_Init 2 */
 
 }
 
@@ -703,12 +757,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PC2 */
-  GPIO_InitStruct.Pin = GPIO_PIN_2;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
   /* USER CODE END MX_GPIO_Init_2 */

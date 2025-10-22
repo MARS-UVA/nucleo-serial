@@ -25,6 +25,6 @@ struct ActuatorValues {
 
 
 void setActuatorLength(TalonSRX leftActuator, TalonSRX rightActuator, float percentExtension);
-struct ActuatorValues syncLinearActuators(float percentOutput);
+struct ActuatorValues syncLinearActuators(float percentOutput, float leftPosition, float rightPosition);
 
 #endif

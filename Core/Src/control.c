@@ -1,4 +1,5 @@
 #include "control.h"
+#include "pot.h"
 
 extern CAN_HandleTypeDef hcan1;
 
@@ -10,7 +11,8 @@ TalonFX bucketDrum;
 TalonFX bucketDrumLeft;
 TalonSRX leftActuator;
 TalonSRX rightActuator;
-
+extern Pot leftPot;
+extern Pot rightPot;
 
 
 // Initialize Talon "objects"
@@ -51,48 +53,47 @@ void directControl(SerialPacket packet, int enableSync)
 	// Send global enable frame (so that Talons actively receive CAN packets)
 	sendGlobalEnableFrame(&hcan1);
 
-	// Set output speeds of left motors
-	int8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff (-127 and 128)
-	// TODO: check if we want to scale up this value so that we can have a higher max speed (eg. scale up to above -127 and 128)
-	// invert because of the way the motors are mounted
-	frontLeft.setControl(&frontLeft, ((int8_t)(leftSpeed - 127)) * -1, 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
-	backLeft.setControl(&backLeft, ((int8_t)(leftSpeed - 127)) * -1, 0);
-
-
-	// Set output speeds of right motors
-	int8_t rightSpeed = packet.top_right_wheel;
-	frontRight.setControl(&frontRight, ((int8_t)(rightSpeed - 127)), 0);
-	backRight.setControl(&backRight, ((int8_t)(rightSpeed - 127)), 0);
-
-
-	// Set output speed of the bucket drum
-	int8_t bucketDrumSpeed = packet.drum;
-	bucketDrum.setControl(&bucketDrum, ((int8_t)(bucketDrumSpeed - 127)), 0);
-	bucketDrumLeft.setControl(&bucketDrumLeft, ((int8_t)(bucketDrumSpeed - 127)) * -1, 0); // todo: talon fx 60 is possibly set to inverted.
+//	// Set output speeds of left motors
+//	int8_t leftSpeed = packet.top_left_wheel; // a value between 0 and 0xff (-127 and 128)
+//	// TODO: check if we want to scale up this value so that we can have a higher max speed (eg. scale up to above -127 and 128)
+//	// invert because of the way the motors are mounted
+//	frontLeft.setControl(&frontLeft, ((int8_t)(leftSpeed - 127)) * -1, 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
+//	backLeft.setControl(&backLeft, ((int8_t)(leftSpeed - 127)) * -1, 0);
+//
+//
+//	// Set output speeds of right motors
+//	int8_t rightSpeed = packet.top_right_wheel;
+//	frontRight.setControl(&frontRight, ((int8_t)(rightSpeed - 127)), 0);
+//	backRight.setControl(&backRight, ((int8_t)(rightSpeed - 127)), 0);
+//
+//
+//	// Set output speed of the bucket drum
+//	int8_t bucketDrumSpeed = packet.drum;
+//	bucketDrum.setControl(&bucketDrum, ((int8_t)(bucketDrumSpeed - 127)), 0);
+//	bucketDrumLeft.setControl(&bucketDrumLeft, ((int8_t)(bucketDrumSpeed - 127)) * -1, 0); // todo: talon fx 60 is possibly set to inverted.
 
 
 	// Set outputs of linear actuators
 
 	// todo: check if packet.actuator is 0xFFs
-//    struct ActuatorValues actuatorSyncOutputs; // to store the percent outputs of left and right actuator after synchronization
+    struct ActuatorValues actuatorSyncOutputs; // to store the percent outputs of left and right actuator after synchronization
 	if (DIRECT_ACTUATOR_CONTROL) {
-//		int actuatorInteger = packet.actuator - 127;
-//		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
+		int actuatorInteger = packet.actuator - 127;
+		writeDebugFormat("Actuator Integer: %d\r\n", actuatorInteger);
 		float actuatorOutput = (packet.actuator - 127) / 127.0;
 
 
 
-//		if (enableSync == 1) {
-//			actuatorSyncOutputs = syncLinearActuators(actuatorOutput);
-//			writeDebugFormat("Actuator Output: %f\r\n", actuatorOutput);
-//			leftActuator.set(&leftActuator, actuatorSyncOutputs.left);
-//			rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
-//		}
-//
-//		else {
-		leftActuator.set(&leftActuator, actuatorOutput);
-		rightActuator.set(&rightActuator, actuatorOutput);
-//		}
+		if (enableSync == 1) {
+			actuatorSyncOutputs = syncLinearActuators(actuatorOutput, leftPot.read(&leftPot), rightPot.read(&rightPot));
+			writeDebugFormat("Actuator Output!!!: %f %f\r\n", actuatorSyncOutputs.left, actuatorSyncOutputs.right);
+			leftActuator.set(&leftActuator, actuatorSyncOutputs.left);
+			rightActuator.set(&rightActuator, actuatorSyncOutputs.right);
+		}
+		else {
+			leftActuator.set(&leftActuator, actuatorOutput);
+			rightActuator.set(&rightActuator, actuatorOutput);
+		}
 
 	}
 	else {
