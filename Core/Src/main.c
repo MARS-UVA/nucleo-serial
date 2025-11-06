@@ -192,7 +192,7 @@ int main(void)
 			.top_right_wheel  = 0x7F,
 			.back_right_wheel = 0x7F,
 			.drum  = 0x7F,
-			.actuator  = 0xFE,
+			.actuator  = 0x7F,
 		};
 
 		writeDebugString("Disconnected from Jetson!\r\n");
