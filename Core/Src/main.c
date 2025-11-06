@@ -46,14 +46,6 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define DEBUG 1
-#define DO_CALIBRATE 0
-
-#define OPCODE_STOP 0
-#define OPCODE_DIRECT_CONTROL 1
-#define OPCODE_PID_CONTROL 2
-#define OPCODE_NOP 3
-
 
 void can_irq(CAN_HandleTypeDef *pcan);
 
@@ -71,13 +63,23 @@ UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
 
 /* USER CODE BEGIN PV */
+
+/*
+ * Interfaces:
+ * ADC1 used for string potentiometer
+ * CAN1 used for motors
+ * I2C1 unused
+ * UART2 unused
+ * UART3 used for debugging (USB connection to laptop serial console)
+ * UART6 used for serial communication with Jetson
+ *
+ */
+
 PDP pdp;
 Pot leftPot;
-//Pot rightPot;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
-int enableSync = 0; // todo; receive a value over serial that enables synchronization
-
+int enableSync = 0; // used to enable actuator synchronization
 
 uint8_t rx_buff[16];
 SerialPacket motorValues = (SerialPacket) {
@@ -161,9 +163,8 @@ int main(void)
   MX_I2C1_Init();
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
-  writeDebugString("Starting program!\r\n");
   initializeTalons();
-  HAL_UART_Receive_IT(&huart6, rx_buff, 16);
+  HAL_UART_Receive_IT(&huart6, rx_buff, 16); // receive motor commands from the Jetson
 
   /* USER CODE END 2 */
 
@@ -171,21 +172,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   pdp = PDPInit(&hcan1, 62);
   leftPot = PotInit(&hadc1);
-//  rightPot = PotInit(&hadc2);
 
-//  if (DO_CALIBRATE) {
-//	  // calibration routine: raise actuator all the way up before calibrating
-//	  for (actuatorUpCount = 0; actuatorUpCount < 800; actuatorUpCount ++) {
-//		  sendGlobalEnableFrame(&hcan1);
-//		  leftActuator.set(&leftActuator, 1);
-//		  rightActuator.set(&rightActuator, 1);
-//		  HAL_Delay(10);
-//	  }
-//	  calibrateYourMom(&leftPot, &rightPot);
-//  }
-
-
-  writeDebugString("Entering while loop!\r\n");
 
 
   while (1)
@@ -194,30 +181,7 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	if (DEBUG){
-//		writeDebugString("Running\r\n");
-//		writeDebugFormat("Top Left Wheel Output: %d\r\n", motorValues.top_left_wheel);
-//		writeDebugFormat("Top Right Wheel Output: %d\r\n", motorValues.top_right_wheel);
-//		writeDebugFormat("Track Actuator Position Output: %d\r\n", motorValues.actuator);
-
-//		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
-//		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
-//		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID));
-//		writeDebugFormat("Drum current: %f\r\n", pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID));
-
-		if (count % 20 == 0) {
-//			writeDebugFormat("Left Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID));
-//			writeDebugFormat("Right Actuator current: %f\r\n", pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID));
-		}
-//		writeDebugFormat("Actuator Position: %f %f %f\r\n", leftPot.read(&leftPot), rightPot.read(&rightPot), (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0);
-	}
-
-	// Receive a packet over serial from the Jetson every 10 loops. This is so that it doesn't mess up the CAN bus timing
-//	if (count % 5 == 0) {
-//		motorValues = readFromJetson(); // receive a packet from Jetson
-
-//		writeDebugFormat("Top Left Wheel Output: %x\r\n", rx_buff[1]);
-	// After a certain period without receiving packets, stop the robot. todo: ensure this logic is robust
+	// After 10 loops  without receiving packets, stop the robot.
 	// right now it stops ~2s after we stop sending packets from the Jetson
 	if (count > 10) {
 		motorValues = (SerialPacket) {
@@ -234,70 +198,6 @@ int main(void)
 		writeDebugString("Disconnected from Jetson!\r\n");
 	}
 
-	// testing code
-//
-//	if (count > 12 ) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 400) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 650) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 800) {
-//		motorValues.actuator = 0x00;
-//	}
-//	if (count > 1000) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 1200) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 1450) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 1600) {
-//		motorValues.actuator = 0x00;
-//	}
-//	if (count > 1800) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 2000) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 2250) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 2400) {
-//		motorValues.actuator = 0x00;
-//	}
-//	if (count > 2600) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 2800) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 3050) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 3200) {
-//		motorValues.actuator = 0x00;
-//	}
-//	if (count > 3400) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 3600) {
-//		motorValues.actuator = 0xFE;
-//	}
-//	if (count > 3850) {
-//		motorValues.actuator = 0x7F;
-//	}
-//	if (count > 4000) {
-//		count = 0;
-//	}
-
-
 	// every 10 cycles, poll motor currents and send to Jetson
 	if (count % 10 == 0) {
 
@@ -313,64 +213,34 @@ int main(void)
 
 		float motorCurrents[8];
 		motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
-//		motorCurrents[0] = 1;
-
-//		writeDebugFormat("Front left current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID));
 		motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
-//		motorCurrents[1] = 2;
-
-//		writeDebugFormat("Front right current: %f\r\n", pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID));
 		motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID);
-//		motorCurrents[2] = 3;
-//		writeDebugFormat("Back left current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID));
 		motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID);
-//		motorCurrents[3] = 4.5;
-
-//		writeDebugFormat("Back right current: %f\r\n", pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID));
-
-		 motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID);
-
-		 motorCurrents[5] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
-
-
+		motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID);
+		motorCurrents[5] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
 		motorCurrents[6] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
-
 		motorCurrents[7] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
 
-
-		if (DEBUG) {
-			float totalCurrent = motorCurrents[6] + motorCurrents[7];
-			float estimatedMass = currentToWeight(totalCurrent);
-			writeDebugFormat("Estimated mass: %f\r\n", estimatedMass);
-		}
-
-		motorCurrents[8] = leftPot.read(&leftPot);
-//		motorCurrents[8] = (leftPot.read(&leftPot) + rightPot.read(&rightPot)) / 2.0;
+		motorCurrents[8] = leftPot.read(&leftPot); // read a calibrated value from left potentiometer
 
 		pdp.receivedNew0 = false;
 		pdp.receivedNew40 = false;
 		pdp.receivedNew80 = false;
 
-//		// convert floats to bytes, put in packet
-	    uint8_t packet[4 + 4 * 9];  // 4-byte header + 9 floats × 4 bytes
-	    packet[0] = 0x1; // header 0x1 to indicate motor current feedback
+		// convert floats to bytes, package bytes in packet
+	    uint8_t packet[4 + 4 * 9];  // 4-byte header + 9 floats (each has size of 4 bytes)
+	    packet[0] = 0x1; // use header 0x1 to indicate motor current feedback
 	    for (int i = 0; i < 9; i++) {
-	        floatToByteArray(motorCurrents[i], &packet[4 + i * 4]);
-//	        writeDebugFormat("b1: %d\r\n", packet[1]);
-//	        writeDebugFormat("b2: %d\r\n", packet[2]);
-//	        writeDebugFormat("b3: %d\r\n", packet[3]);
-//			writeDebugFormat("b4: %d\r\n", packet[4]);
+	    	// add each float in motorCurrents as 4 bytes in packet
+	        floatToByteArray(motorCurrents[i], (char *) &packet[4 + i * 4]);
 
 	    }
-////		//send packet to Jetson
+		//send packet to Jetson
 	    writeToJetson(packet, 4 + 4 * 9);
 	}
 
 
-
-//	}
-
-	directControl(motorValues, enableSync); // set motor outputs accordingly
+	directControl(motorValues, enableSync); // send CAN packets to motors to set motor speeds
 
 	count += 1;
 	HAL_Delay(1);
@@ -715,6 +585,8 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
+// read CAN packets and check if the packets are PDP current feedback packets
 void can_irq(CAN_HandleTypeDef *pcan)
 {
   CAN_RxHeaderTypeDef msg;
@@ -726,6 +598,7 @@ void can_irq(CAN_HandleTypeDef *pcan)
 
 #define START_BYTE 255
 
+// Check if start byte exists in motor command packets
 int findStartByte(uint8_t *rx_buff, int length)
 {
 	for (int i = 0; i < length; i++)
@@ -739,6 +612,7 @@ int findStartByte(uint8_t *rx_buff, int length)
 	return -1;
 }
 
+// This function is called upon receiving a motor command packet over UART
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 	if (HAL_UART_Receive_IT(&huart6, rx_buff, 16) != HAL_OK)
 	{
@@ -763,8 +637,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		.drum  = rx_buff[startByte + 6],
 		.actuator  = rx_buff[startByte + 7],
 	};
-
-//	writeDebugFormat("%d %d %d %d %d %d %d %d\r\n", startByte, rx_buff[startByte + 1], rx_buff[startByte + 2], rx_buff[startByte + 3], rx_buff[startByte + 4], rx_buff[startByte + 5], rx_buff[startByte + 6], rx_buff[startByte + 7]);
 }
 /* USER CODE END 4 */
 

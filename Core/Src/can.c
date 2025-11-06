@@ -7,6 +7,7 @@
 
 #include "can.h"
 
+// send a CAN packet
 void sendCANMessage(CAN_HandleTypeDef *hcan, int identifier, char *message, uint8_t length)
 {
 	  uint32_t mb;
@@ -22,6 +23,7 @@ void sendCANMessage(CAN_HandleTypeDef *hcan, int identifier, char *message, uint
 		Error_Handler();
 }
 
+// send the Global Enable Frame required to enable the Talon motor controllers
 void sendGlobalEnableFrame(CAN_HandleTypeDef *hcan)
 {
 	  uint32_t mb;

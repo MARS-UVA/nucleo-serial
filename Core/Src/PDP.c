@@ -13,7 +13,7 @@ void requestCurrentReadingsPDP(PDP *pdp)
 	sendCANMessage(pdp->hcan, 0x8041640 | pdp->identifier, "\x00\x00\x00\x00\x20\x00", 6);
 }
 
-
+// decode current values from the CAN packet values stored in the cache
 void getSixParamPDP(PDP* pdp, uint64_t *cache) {
 
 
@@ -79,6 +79,7 @@ float getChannelCurrentPDP(PDP* pdp, int channelID)
 	return num;
 }
 
+// process CAN packets received from the PDP (either current or voltage readings)
 void receiveCANPDP(PDP *pdp, CAN_RxHeaderTypeDef *msg, uint64_t *data)
 {
 	  // not correct pdp id
@@ -103,13 +104,14 @@ void receiveCANPDP(PDP *pdp, CAN_RxHeaderTypeDef *msg, uint64_t *data)
 			  break;
 		  }
 	  }
-	  else if ((msg->ExtId & 0x8041480) == 0x8041480)
+	  else if ((msg->ExtId & 0x8041480) == 0x8041480) // voltage readings
 	  {
 		  uint8_t *dataArray = (uint8_t *)data;
 		  pdp->busVoltage = (dataArray[6] * 0x10 + dataArray[7]) / 3444.0;
 	  }
 }
 
+// get the power rail voltage reading from the PDP
 float getBusVoltagePDP(PDP *pdp)
 {
 	return pdp->busVoltage;

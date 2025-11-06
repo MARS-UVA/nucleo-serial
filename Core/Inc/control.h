@@ -9,7 +9,6 @@
 #include "TalonFX.h"
 #include "debug.h"
 #include "can.h"
-#include "actuatorControl.h"
 
 
 // Define CAN IDs of each motor/actuator
@@ -31,8 +30,6 @@
 #define BUCKET_DRUM_LEFT_PDP_ID 2
 #define LEFT_ACTUATOR_PDP_ID 15
 #define RIGHT_ACTUATOR_PDP_ID 14
-
-#define DIRECT_ACTUATOR_CONTROL 1 // 1 if we want to set the outputs of the Talon SRXs directly and bypass the potentiometer feedback
 
 
 void directControl(SerialPacket packet, int enableSync);

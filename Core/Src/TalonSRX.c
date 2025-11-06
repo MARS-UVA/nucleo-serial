@@ -1,15 +1,18 @@
 #include "TalonSRX.h"
 
+// send a CAN message to a Talon SRX
 void sendSRXCANMessage(TalonSRX *talonSRX, int identifier, char *message, uint8_t length)
 {
 	sendCANMessage(talonSRX->hcan, talonSRX->identifier | identifier, message, length);
 }
 
+// set the direction of a Talon SRX to be inverted
 void setInvertedSRX(TalonSRX *talonSRX, bool invert)
 {
   talonSRX->inverted = invert;
 }
 
+// set the output magnitude of a Talon SRX
 void setSRX(TalonSRX *talonSRX, double value)
 {
 	int valueInt = (int) (value * 1023);

@@ -11,6 +11,7 @@
 #define INC_UTIL_H_
 
 #include "main.h"
+#include <string.h>
 
 void floatToByteArray(float f, char *arr);
 void altFloatToByteArray(float f, char *arr);

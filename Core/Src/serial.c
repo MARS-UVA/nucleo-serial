@@ -3,7 +3,7 @@
 
 extern UART_HandleTypeDef huart6;
 
-// reads a single packet from Jetson on UART 2
+// reads a single packet from Jetson on UART 6
 SerialPacket readFromJetson() {
 	uint8_t RxBuffer[7]; // buffer to store received bytes
 	uint8_t packetLength = 7; // expected packet length (1 header plus 1 byte for each motor/actuator)
@@ -28,18 +28,8 @@ SerialPacket readFromJetson() {
 	};
 }
 
+// writes a single packet to Jetson on UART 6
 void writeToJetson(uint8_t *packet, uint8_t payload_size)
 {
-//	uint8_t packetLength = 7; // expected packet length (1 header plus 1 byte for each motor/actuator)
-//	uint8_t txBuffer = {
-//			1,
-//			p->top_left_wheel,
-//			p->back_left_wheel,
-//			p->top_right_wheel,
-//			p->back_right_wheel,
-//			p->drum,
-//			p->actuator
-//	};
-
 	HAL_UART_Transmit_IT(&huart6, packet, payload_size);
 }

@@ -1,11 +1,12 @@
 #include "TalonFX.h"
 
-
+// send a CAN packet to a Talon FX
 void sendFXCANMessage(TalonFX *talonFX, int identifier, char *message, uint8_t length)
 {
 	sendCANMessage(talonFX->hcan, talonFX->identifier | identifier, message, length);
 }
 
+// set the percent output speed of a Talon FX (-1 to 1)
 void setFX(TalonFX *talonFX, double speed) {
 	short valueInt = (short) (speed * 1024);
 	if (valueInt < 0) {
@@ -16,6 +17,7 @@ void setFX(TalonFX *talonFX, double speed) {
 	HAL_Delay(1);
 }
 
+// set the Talon FX to coast or brake mode
 void setNeutralModeFX(TalonFX *talonFX, NeutralModeValue neutralModeValue) {
 	char mode[] = { 0x21, 0x6E, 0x08, (neutralModeValue == COAST ? 0 : 1), 0, 0, 0, 0xAA};
 	for (int pair = 0; pair < (neutralModeValue == COAST ? 2 : 1); pair++) {
@@ -25,6 +27,7 @@ void setNeutralModeFX(TalonFX *talonFX, NeutralModeValue neutralModeValue) {
 	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
 }
 
+// apply a maximum supply current limit to the Talon FX
 void applySupplyCurrentLimitFX(TalonFX *talonFX, float current) {
 	char x[] = {0x21, 0x70, 0x08, 0, 0, 0, 0, 0xaa};
 	floatToByteArray(current, &x[3]);
@@ -36,6 +39,7 @@ void applySupplyCurrentLimitFX(TalonFX *talonFX, float current) {
 	HAL_Delay(1);
 }
 
+// apply PID parameter configurations to the Talon FX
 void applyConfigFX(TalonFX *talonFX, Slot0Configs *config)
 {
 	double *configs[] = {
@@ -56,20 +60,9 @@ void applyConfigFX(TalonFX *talonFX, Slot0Configs *config)
 		sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
 		HAL_Delay(1);
 	}
-
-//	char y[] = {0x00, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-//	floatToByteArray(speed, &y[0]);
-//	y[0] = 0x00;
-//	y[1] = 0x01;
-//	floatToByteArray(feedforwardV, &y[4]);
-//	y[4] = 0x00;
-//	y[5] = 0x00;
-//	sendFXCANMessage(talonFX, 0x2047c00, y, 8);
-//	sendFXCANMessage(talonFX, 0x2047c00, "\x10\x0c\xc5\x06\x0d\x00\x00\x00", 8);
-//
-
 }
 
+// set the speed of a Talon FX using PID feedback
 void setControlFX(TalonFX *talonFX, int velocity, double feedforward)
 {
 	// Get velocity value (3 bytes)
@@ -90,6 +83,7 @@ void setControlFX(TalonFX *talonFX, int velocity, double feedforward)
 	HAL_Delay(1);
 }
 
+// Set the time taken (in seconds) to for the Talon FX to ramp up from 0% to 100% of target output speed
 void voltageCycleClosedLoopRampPeriodFX(TalonFX *talonFX, float period)
 {
 	char x[] = {0x21, 0x84, 0x08, 0x00, 0x00, 0x00, 0x00, 0xaa};

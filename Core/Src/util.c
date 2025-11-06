@@ -6,6 +6,7 @@
  */
 #include "util.h"
 
+// convert a float to an array of 4 bytes
 void floatToByteArray(float f, char *arr)
 {
     unsigned int asInt = *((int*) &f);
@@ -14,6 +15,7 @@ void floatToByteArray(float f, char *arr)
         arr[i] = (asInt >> 8 * i) & 0xFF;
 }
 
+// unused
 void altFloatToByteArray(float f, char *arr)
 {
 	uint32_t asInt;
@@ -23,6 +25,7 @@ void altFloatToByteArray(float f, char *arr)
 		arr[i] = (asInt >> (8 * i)) & 0xFF;
 }
 
+// unused
 void float16ToByteArray(float f, char *arr)
 {
     unsigned int asInt = *((int*) &f);
@@ -41,6 +44,7 @@ int max(int a, int b)
 	return a > b ? a : b;
 }
 
+// map a value "pos" from a range of "min" to "max" to a float between 0 and 1
 float map(int min, int max, int pos)
 {
 	return ((float) (pos - min)) / (max - min);

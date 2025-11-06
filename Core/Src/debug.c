@@ -8,11 +8,14 @@ void writeDebug(const char *buffer, uint8_t length)
 	HAL_UART_Transmit(&huart3, (uint8_t *) buffer, length, HAL_MAX_DELAY);
 }
 
+
+// print a string to the serial console
 void writeDebugString(const char *buffer)
 {
 	writeDebug(buffer, strlen(buffer));
 }
 
+// print a format string to the serial console
 void writeDebugFormat(const char *format, ...)
 {
 	va_list args;
