@@ -96,6 +96,33 @@ void voltageCycleClosedLoopRampPeriodFX(TalonFX *talonFX, float period)
 	HAL_Delay(1);
 }
 
+// set the position of a Talon FX using PID feedback
+void setPositionFX(TalonFX *talonFX, double position, double feedforward)
+{
+	uint32_t positionBytes = 0;
+	position *= 16;
+	// Get position value (3 bytes)
+	if (position >= 0) {
+		positionBytes = (uint32_t)position;
+	}
+	else { // if position is negative
+		positionBytes = 0x40000 - (uint32_t)(-1 * position);
+	}
+	// Get feedforward value (2 bytes)
+	uint16_t feedforwardBytes = 0;
+	feedforward *= 100;
+	if (feedforward >= 0) {
+		feedforwardBytes = (uint16_t)feedforward;
+	}
+	else { // if feedforward is negative
+		feedforwardBytes  = 0x1000 - (uint16_t)(-1 * feedforward);
+	}
+
+	char x[] = {0, 1, positionBytes & 0xff, (positionBytes >> 8) & 0xff, (positionBytes >> 16) & 0xff, 0, feedforwardBytes & 0xff, (feedforwardBytes >> 8) & 0xff};
+	sendFXCANMessage(talonFX, 0x204b640, x, 8);
+	HAL_Delay(1);
+}
+
 TalonFX TalonFXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 {
 	TalonFX talonFX = {
