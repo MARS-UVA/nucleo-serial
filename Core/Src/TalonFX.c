@@ -101,21 +101,21 @@ void setPositionFX(TalonFX *talonFX, double position, double feedforward)
 {
 	uint32_t positionBytes = 0;
 	position *= 16;
-	// Get position value (3 bytes)
+	// Get position value (18 bits, stored in 3 bytes)
 	if (position >= 0) {
 		positionBytes = (uint32_t)position;
 	}
 	else { // if position is negative
-		positionBytes = 0x40000 - (uint32_t)(-1 * position);
+		positionBytes = 0x40000 - (uint32_t)(-1 * position); // convert to 18-bit two's complement
 	}
-	// Get feedforward value (2 bytes)
+	// Get feedforward value (12 bits, stored in 2 bytes)
 	uint16_t feedforwardBytes = 0;
 	feedforward *= 100;
 	if (feedforward >= 0) {
 		feedforwardBytes = (uint16_t)feedforward;
 	}
 	else { // if feedforward is negative
-		feedforwardBytes  = 0x1000 - (uint16_t)(-1 * feedforward);
+		feedforwardBytes  = 0x1000 - (uint16_t)(-1 * feedforward); // convert to 12-bit two's complement
 	}
 
 	char x[] = {0, 1, positionBytes & 0xff, (positionBytes >> 8) & 0xff, (positionBytes >> 16) & 0xff, 0, feedforwardBytes & 0xff, (feedforwardBytes >> 8) & 0xff};
@@ -123,18 +123,22 @@ void setPositionFX(TalonFX *talonFX, double position, double feedforward)
 	HAL_Delay(1);
 }
 
-// process CAN packets received from the PDP (either current or voltage readings)
+// process CAN packets received from the TalonFX
 void receiveCANFX(TalonFX *talonFX, CAN_RxHeaderTypeDef *msg, uint8_t *data)
 {
-	  // not correct pdp id
+	  // not correct TalonFX id
 	  if ((msg->ExtId & talonFX->identifier) != talonFX->identifier)
 		  return;
 
 	  uint32_t mask = 0xFFFFFFC0; // last 6 bits can be different based on CAN ID of TalonFX
 	  if ((msg->ExtId & mask) == 0x20447c0) // position readings
 	  {
-		  int32_t positionBytes = ((data[5] << 24) | (data[4] << 16) | (data[3] << 8) | data[2]) >> 6;
-		  talonFX->position = (float) positionBytes / 2048;
+		// read bytes 2-5 of data as a little endian, then discard last 6 bits as only the first 26 bits are used for position
+		int32_t positionBytes = ((data[5] << 24) | (data[4] << 16) | (data[3] << 8) | data[2]) >> 6; // using int32_t instead of uint32_t to handle negative positions
+		talonFX->position = (float) positionBytes / 2048;
+	  }
+	  else {
+		  // other CAN messages can be processed here
 	  }
 }
 
