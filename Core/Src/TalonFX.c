@@ -123,6 +123,28 @@ void setPositionFX(TalonFX *talonFX, double position, double feedforward)
 	HAL_Delay(1);
 }
 
+// process CAN packets received from the PDP (either current or voltage readings)
+void receiveCANFX(TalonFX *talonFX, CAN_RxHeaderTypeDef *msg, uint8_t *data)
+{
+	  // not correct pdp id
+	  if ((msg->ExtId & talonFX->identifier) != talonFX->identifier)
+		  return;
+
+	  uint32_t mask = 0xFFFFFFC0; // last 6 bits can be different based on CAN ID of TalonFX
+	  if ((msg->ExtId & mask) == 0x20447c0) // position readings
+	  {
+		  int32_t positionBytes = ((data[5] << 24) | (data[4] << 16) | (data[3] << 8) | data[2]) >> 6;
+		  talonFX->position = (float) positionBytes / 2048;
+	  }
+}
+
+// gets the rotor position of a Talon FX based on its internal encoder
+float getPositionFX(TalonFX *talonFX) {
+	return talonFX->position;
+}
+
+
+
 TalonFX TalonFXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 {
 	TalonFX talonFX = {
@@ -133,7 +155,11 @@ TalonFX TalonFXInit(CAN_HandleTypeDef *hcan, int32_t identifier)
 			.identifier = identifier,
 			.applyConfig = applyConfigFX,
 			.voltageCycleClosedLoopRampPeriod = voltageCycleClosedLoopRampPeriodFX,
-			.setControl = setControlFX
+			.setControl = setControlFX,
+			.setPosition = setPositionFX,
+			.getPosition = getPositionFX,
+			.receiveCAN = receiveCANFX,
+
 	};
 
 	return talonFX;

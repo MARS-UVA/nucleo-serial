@@ -41,13 +41,13 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+void can_FXFeedback_IRQ(CAN_HandleTypeDef *pcan);
+void can_irq(CAN_HandleTypeDef *pcan);
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
 
-void can_irq(CAN_HandleTypeDef *pcan);
 
 /* USER CODE END PM */
 
@@ -393,6 +393,33 @@ static void MX_CAN1_Init(void)
 //
   if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
 	Error_Handler();
+
+//  // configure RX FIFO 1 for receiving TalonFX specific CAN messages
+//  uint32_t fxFeedbackId = 0x20447C0;
+//  uint32_t fxFeedbackFilterId = (fxFeedbackId << 3) | CAN_ID_EXT;   // specify extended ID format (refer to page 1528 of RM0410 rev 5)
+//  uint32_t fxFeedbackIdMask = (0xFFFFFFC0 << 3) | CAN_ID_EXT;
+//  // The last 6 bits, which depend on the TalonFX's CAN ID, don't have to match the target CAN packet ID
+//
+//  CAN_FilterTypeDef talonFXFilter;
+//  talonFXFilter.FilterIdHigh = (fxFeedbackFilterId >> 16) & 0xFF;
+//  talonFXFilter.FilterIdLow = fxFeedbackFilterId & 0xFF;
+//  talonFXFilter.FilterMaskIdHigh = (fxFeedbackIdMask >> 16) & 0xFF;
+//  talonFXFilter.FilterMaskIdLow = fxFeedbackIdMask & 0xFF;
+//  talonFXFilter.FilterFIFOAssignment = CAN_FILTER_FIFO1;
+//  talonFXFilter.FilterBank = 1;
+//  talonFXFilter.FilterMode = CAN_FILTERMODE_IDMASK;
+//  talonFXFilter.FilterScale = CAN_FILTERSCALE_32BIT;
+//  talonFXFilter.FilterActivation = CAN_FILTER_ENABLE;
+//  if (HAL_CAN_ConfigFilter(&hcan1, &talonFXFilter) != HAL_OK) {
+//	Error_Handler();
+//  }
+//  if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO1_MSG_PENDING_CB_ID, can_FXFeedback_IRQ)) {
+//	Error_Handler();
+//  }
+//  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK) {
+//	Error_Handler();
+//  }
+
   /* USER CODE END CAN1_Init 2 */
 
 }
@@ -587,6 +614,8 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 // read CAN packets and check if the packets are PDP current feedback packets
+
+
 void can_irq(CAN_HandleTypeDef *pcan)
 {
   CAN_RxHeaderTypeDef msg;
@@ -595,6 +624,14 @@ void can_irq(CAN_HandleTypeDef *pcan)
   if (pdp.receiveCAN)
 	  pdp.receiveCAN(&pdp, &msg, &data);
 }
+
+//void can_FXFeedback_IRQ(CAN_HandleTypeDef *pcan)
+//{
+//  CAN_RxHeaderTypeDef msg;
+//  uint8_t data[8]; // packets we deal with have max length of 8
+//  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO1, &msg, data);
+//  // todo: process message
+//}
 
 #define START_BYTE 255
 
