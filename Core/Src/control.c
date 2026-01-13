@@ -24,6 +24,7 @@ void initializeTalons() {
 
 	leftActuator = TalonSRXInit(&hcan1, LEFT_ACTUATOR_ID);
 	rightActuator = TalonSRXInit(&hcan1, RIGHT_ACTUATOR_ID);
+
 }
 
 // Given packet from Jetson, set outputs of motors and actuators

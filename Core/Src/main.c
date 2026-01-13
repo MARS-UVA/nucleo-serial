@@ -79,6 +79,12 @@ PDP pdp;
 Pot leftPot;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
+extern TalonFX frontLeft;
+extern TalonFX backLeft;
+extern TalonFX frontRight;
+extern TalonFX backRight;
+extern TalonFX bucketDrumRight;
+extern TalonFX bucketDrumLeft;
 int enableSync = 0; // used to enable actuator synchronization
 
 uint8_t rx_buff[16];
@@ -94,6 +100,7 @@ SerialPacket motorValues = (SerialPacket) {
 };
 int count = 0;
 int actuatorUpCount = 0;
+uint8_t talonInitDone = 0;
 
 /* USER CODE END PV */
 
@@ -164,7 +171,19 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   initializeTalons();
+  talonInitDone = 1;
+  Slot0Configs positionControlPID = (Slot0Configs) {
+  	1.2,
+	0,
+	0.3,
+	0,
+	0,
+	0,
+	0
+  };
+  bucketDrumRight.applyConfig(&bucketDrumRight, &positionControlPID);
   HAL_UART_Receive_IT(&huart6, rx_buff, 16); // receive motor commands from the Jetson
+
 
   /* USER CODE END 2 */
 
@@ -177,6 +196,9 @@ int main(void)
 
   while (1)
   {
+	sendGlobalEnableFrame(&hcan1);
+	bucketDrumRight.setPosition(&bucketDrumRight, 0, 0);
+//	bucketDrumRight.setControl(&bucketDrumRight, 1, 0);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -236,11 +258,11 @@ int main(void)
 
 	    }
 		//send packet to Jetson
-	    writeToJetson(packet, 4 + 4 * 9);
+//	    writeToJetson(packet, 4 + 4 * 9);
 	}
 
 
-	directControl(motorValues, enableSync); // send CAN packets to motors to set motor speeds
+//	directControl(motorValues, enableSync); // send CAN packets to motors to set motor speeds
 
 	count += 1;
 	HAL_Delay(1);
@@ -394,31 +416,31 @@ static void MX_CAN1_Init(void)
   if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
 	Error_Handler();
 
-//  // configure RX FIFO 1 for receiving TalonFX specific CAN messages
-//  uint32_t fxFeedbackId = 0x20447C0;
-//  uint32_t fxFeedbackFilterId = (fxFeedbackId << 3) | CAN_ID_EXT;   // specify extended ID format (refer to page 1528 of RM0410 rev 5)
-//  uint32_t fxFeedbackIdMask = (0xFFFFFFC0 << 3) | CAN_ID_EXT;
-//  // The last 6 bits, which depend on the TalonFX's CAN ID, don't have to match the target CAN packet ID
-//
-//  CAN_FilterTypeDef talonFXFilter;
-//  talonFXFilter.FilterIdHigh = (fxFeedbackFilterId >> 16) & 0xFF;
-//  talonFXFilter.FilterIdLow = fxFeedbackFilterId & 0xFF;
-//  talonFXFilter.FilterMaskIdHigh = (fxFeedbackIdMask >> 16) & 0xFF;
-//  talonFXFilter.FilterMaskIdLow = fxFeedbackIdMask & 0xFF;
-//  talonFXFilter.FilterFIFOAssignment = CAN_FILTER_FIFO1;
-//  talonFXFilter.FilterBank = 1;
-//  talonFXFilter.FilterMode = CAN_FILTERMODE_IDMASK;
-//  talonFXFilter.FilterScale = CAN_FILTERSCALE_32BIT;
-//  talonFXFilter.FilterActivation = CAN_FILTER_ENABLE;
-//  if (HAL_CAN_ConfigFilter(&hcan1, &talonFXFilter) != HAL_OK) {
-//	Error_Handler();
-//  }
-//  if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO1_MSG_PENDING_CB_ID, can_FXFeedback_IRQ)) {
-//	Error_Handler();
-//  }
-//  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK) {
-//	Error_Handler();
-//  }
+  // configure RX FIFO 1 for receiving TalonFX specific CAN messages
+  uint32_t fxFeedbackId = 0x20447C0;
+  uint32_t fxFeedbackFilterId = (fxFeedbackId << 3) | CAN_ID_EXT;   // specify extended ID format (refer to page 1528 of RM0410 rev 5)
+  uint32_t fxFeedbackIdMask = (0xFFFFFFC0 << 3) | CAN_ID_EXT;
+  // The last 6 bits, which depend on the TalonFX's CAN ID, don't have to match the target CAN packet ID
+
+  CAN_FilterTypeDef talonFXFilter;
+  talonFXFilter.FilterIdHigh = (fxFeedbackFilterId >> 16) & 0xFF;
+  talonFXFilter.FilterIdLow = fxFeedbackFilterId & 0xFF;
+  talonFXFilter.FilterMaskIdHigh = (fxFeedbackIdMask >> 16) & 0xFF;
+  talonFXFilter.FilterMaskIdLow = fxFeedbackIdMask & 0xFF;
+  talonFXFilter.FilterFIFOAssignment = CAN_FILTER_FIFO1;
+  talonFXFilter.FilterBank = 1;
+  talonFXFilter.FilterMode = CAN_FILTERMODE_IDMASK;
+  talonFXFilter.FilterScale = CAN_FILTERSCALE_32BIT;
+  talonFXFilter.FilterActivation = CAN_FILTER_ENABLE;
+  if (HAL_CAN_ConfigFilter(&hcan1, &talonFXFilter) != HAL_OK) {
+	Error_Handler();
+  }
+  if (HAL_CAN_RegisterCallback(&hcan1, HAL_CAN_RX_FIFO1_MSG_PENDING_CB_ID, can_FXFeedback_IRQ)) {
+	Error_Handler();
+  }
+  if (HAL_CAN_ActivateNotification(&hcan1, CAN_IT_RX_FIFO1_MSG_PENDING) != HAL_OK) {
+	Error_Handler();
+  }
 
   /* USER CODE END CAN1_Init 2 */
 
@@ -625,13 +647,40 @@ void can_irq(CAN_HandleTypeDef *pcan)
 	  pdp.receiveCAN(&pdp, &msg, &data);
 }
 
-//void can_FXFeedback_IRQ(CAN_HandleTypeDef *pcan)
-//{
-//  CAN_RxHeaderTypeDef msg;
-//  uint8_t data[8]; // packets we deal with have max length of 8
-//  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO1, &msg, data);
-//  // todo: process message
-//}
+void can_FXFeedback_IRQ(CAN_HandleTypeDef *pcan)
+{
+  CAN_RxHeaderTypeDef msg;
+  uint8_t data[8]; // packets we deal with have max length of 8
+  HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO1, &msg, data);
+  // todo: process message. can't process inside a TalonFX function because we don't know which TalonFX packet is related to yet.
+  // could use a switch statement to determine which talonFX we're targeting...
+  if (talonInitDone == 1) {
+    switch(msg.StdId & 0x3F) // last 6 bits of standard ID correspond to TalonFX ID
+    {
+      case FRONT_LEFT_WHEEL_ID:
+        frontLeft.receiveCAN(&frontLeft, &msg, data);
+        break;
+      case BACK_LEFT_WHEEL_ID:
+        backLeft.receiveCAN(&backLeft, &msg, data);
+        break;
+      case FRONT_RIGHT_WHEEL_ID:
+        frontRight.receiveCAN(&frontRight, &msg, data);
+        break;
+      case BACK_RIGHT_WHEEL_ID:
+        backRight.receiveCAN(&backRight, &msg, data);
+        break;
+      case BUCKET_DRUM_ID:
+        bucketDrumRight.receiveCAN(&bucketDrumRight, &msg, data);
+        break;
+      case BUCKET_DRUM_LEFT_ID:
+        bucketDrumLeft.receiveCAN(&bucketDrumLeft, &msg, data);
+        break;
+      default:
+        break;
+    }
+  }
+  
+}
 
 #define START_BYTE 255
 
