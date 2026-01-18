@@ -52,7 +52,7 @@ void directControl(SerialPacket packet, int enableSync)
 
 	// Set output speeds of the arms
 	int8_t leftArmSpeed = packet.left_arm;
-	leftArm.setControl(&leftArm, leftArmSpeed, 0);
+	leftArm.setControl(&leftArm, (int8_t)(leftArmSpeed - 127), 0);
 	int8_t rightArmSpeed = packet.right_arm;
-	rightArm.setControl(&rightArm, rightArmSpeed, 0);
+	rightArm.setControl(&rightArm, (int8_t)(rightArmSpeed - 127), 0);
 }

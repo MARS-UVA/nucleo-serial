@@ -75,7 +75,7 @@ UART_HandleTypeDef huart6;
  *
  */
 
-// PDP pdp;
+ PDP pdp;
 Pot leftPot;
 extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
@@ -172,7 +172,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  // pdp = PDPInit(&hcan1, 62);
+   pdp = PDPInit(&hcan1, 62);
   leftPot = PotInit(&hadc1);
 
 
@@ -202,46 +202,46 @@ int main(void)
 		writeDebugString("Disconnected from Jetson!\r\n");
 	}
 
-	// // every 10 cycles, poll motor currents and send to Jetson
-	// if (count % 10 == 0) {
+	 // every 10 cycles, poll motor currents and send to Jetson
+	 if (count % 10 == 0) {
 
-	// 	pdp.requestCurrentReadings(&pdp);
+	 	pdp.requestCurrentReadings(&pdp);
 
-	// 	for (int i = 0; i < 10; i++)
-	// 	{
-	// 		if (pdp.receivedNew0 && pdp.receivedNew40 && pdp.receivedNew80)
-	// 			break;
+	 	for (int i = 0; i < 10; i++)
+	 	{
+	 		if (pdp.receivedNew0 && pdp.receivedNew40 && pdp.receivedNew80)
+	 			break;
 
-	// 		HAL_Delay(1);
-	// 	}
+	 		HAL_Delay(1);
+	 	}
 
-	// 	float motorCurrents[8];
-	// 	motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
-	// 	motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
-	// 	motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID);
-	// 	motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID);
-	// 	motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID);
-	// 	motorCurrents[5] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
-	// 	motorCurrents[6] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
-	// 	motorCurrents[7] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
+	 	float motorCurrents[8];
+	 	motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
+	 	motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
+	 	motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID);
+	 	motorCurrents[3] = pdp.getChannelCurrent(&pdp, BACK_RIGHT_WHEEL_PDP_ID);
+	 	motorCurrents[4] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_LEFT_PDP_ID);
+	 	motorCurrents[5] = pdp.getChannelCurrent(&pdp, BUCKET_DRUM_PDP_ID);
+	 	motorCurrents[6] = pdp.getChannelCurrent(&pdp, LEFT_ACTUATOR_PDP_ID);
+	 	motorCurrents[7] = pdp.getChannelCurrent(&pdp, RIGHT_ACTUATOR_PDP_ID);
 
-	// 	motorCurrents[8] = leftPot.read(&leftPot); // read a calibrated value from left potentiometer
+	 	motorCurrents[8] = leftPot.read(&leftPot); // read a calibrated value from left potentiometer
 
-	// 	pdp.receivedNew0 = false;
-	// 	pdp.receivedNew40 = false;
-	// 	pdp.receivedNew80 = false;
+	 	pdp.receivedNew0 = false;
+	 	pdp.receivedNew40 = false;
+	 	pdp.receivedNew80 = false;
 
-	// 	// convert floats to bytes, package bytes in packet
-	//     uint8_t packet[4 + 4 * 9];  // 4-byte header + 9 floats (each has size of 4 bytes)
-	//     packet[0] = 0x1; // use header 0x1 to indicate motor current feedback
-	//     for (int i = 0; i < 9; i++) {
-	//     	// add each float in motorCurrents as 4 bytes in packet
-	//         floatToByteArray(motorCurrents[i], (char *) &packet[4 + i * 4]);
+	 	// convert floats to bytes, package bytes in packet
+	     uint8_t packet[4 + 4 * 9];  // 4-byte header + 9 floats (each has size of 4 bytes)
+	     packet[0] = 0x1; // use header 0x1 to indicate motor current feedback
+	     for (int i = 0; i < 9; i++) {
+	     	// add each float in motorCurrents as 4 bytes in packet
+	         floatToByteArray(motorCurrents[i], (char *) &packet[4 + i * 4]);
 
-	//     }
-	// 	//send packet to Jetson
-	//     writeToJetson(packet, 4 + 4 * 9);
-	// }
+	     }
+	 	//send packet to Jetson
+	     writeToJetson(packet, 4 + 4 * 9);
+	 }
 
 
 	directControl(motorValues, enableSync); // send CAN packets to motors to set motor speeds
@@ -593,11 +593,11 @@ static void MX_GPIO_Init(void)
 // read CAN packets and check if the packets are PDP current feedback packets
 void can_irq(CAN_HandleTypeDef *pcan)
 {
-  // CAN_RxHeaderTypeDef msg;
-  // uint64_t data;
-  // HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, (uint8_t *) &data);
-  // if (pdp.receiveCAN)
-	//   pdp.receiveCAN(&pdp, &msg, &data);
+   CAN_RxHeaderTypeDef msg;
+   uint64_t data;
+   HAL_CAN_GetRxMessage(pcan, CAN_RX_FIFO0, &msg, (uint8_t *) &data);
+   if (pdp.receiveCAN)
+	   pdp.receiveCAN(&pdp, &msg, &data);
 }
 
 #define START_BYTE 255
@@ -618,7 +618,7 @@ int findStartByte(uint8_t *rx_buff, int length)
 
 // This function is called upon receiving a motor command packet over UART
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (HAL_UART_Receive_IT(&huart6, rx_buff, 16) != HAL_OK)
+	if (HAL_UART_Receive_IT(&huart6, rx_buff, 18) != HAL_OK)
 	{
 		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT\r\n");
 	}
