@@ -17,10 +17,10 @@ typedef struct serialPacket {
   uint8_t back_left_wheel;
   uint8_t front_right_wheel;
   uint8_t back_right_wheel;
-  uint8_t left_drum;
-  uint8_t left_arm;
-  uint8_t right_drum;
-  uint8_t right_arm;
+  uint8_t front_drum;
+  uint8_t front_arm;
+  uint8_t back_drum;
+  uint8_t back_arm;
 } SerialPacket;
 
 SerialPacket readFromJetson();

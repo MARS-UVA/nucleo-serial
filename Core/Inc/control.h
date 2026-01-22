@@ -13,16 +13,16 @@
 
 // TODO: Update these IDs as necessary
 // Define CAN IDs of each motor/actuator
-#define FRONT_LEFT_WHEEL_ID 25
-#define BACK_LEFT_WHEEL_ID 37
-#define FRONT_RIGHT_WHEEL_ID 38
-#define BACK_RIGHT_WHEEL_ID 13
-#define LEFT_DRUM_ID 25
-#define RIGHT_DRUM_ID 60
-#define LEFT_ARM_ID 0
-#define RIGHT_ARM_ID 1
+#define FRONT_LEFT_WHEEL_ID 38
+#define BACK_LEFT_WHEEL_ID 25
+#define FRONT_RIGHT_WHEEL_ID 36
+#define BACK_RIGHT_WHEEL_ID 37
+#define FRONT_DRUM_ID 13 // front bucket drum 
+#define BACK_DRUM_ID 60
+#define FRONT_ARM_ID 60 // front arm
+#define BACK_ARM_ID 27
 
-// Define PDP IDs of each motor
+// Define PDP IDs of each motor (these need to be updated)
  #define FRONT_LEFT_WHEEL_PDP_ID 12
  #define BACK_LEFT_WHEEL_PDP_ID 13
  #define FRONT_RIGHT_WHEEL_PDP_ID 3

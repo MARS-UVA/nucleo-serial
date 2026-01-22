@@ -81,7 +81,7 @@ extern TalonSRX leftActuator;
 extern TalonSRX rightActuator;
 int enableSync = 0; // used to enable actuator synchronization
 
-uint8_t rx_buff[16];
+uint8_t rx_buff[20];
 SerialPacket motorValues = (SerialPacket) {
 	.invalid = 0,
 	.header = 0x7F,
@@ -89,12 +89,12 @@ SerialPacket motorValues = (SerialPacket) {
 	.back_left_wheel = 0x7F,
 	.front_right_wheel  = 0x7F,
 	.back_right_wheel = 0x7F,
-  .left_drum  = 0x7F,
-  .left_arm  = 0x7F,
-  .right_drum  = 0x7F,
-  .right_arm  = 0x7F,
+  .front_drum  = 0x7F,
+  .front_arm  = 0x7F,
+  .back_drum  = 0x7F,
+  .back_arm  = 0x7F,
 };
-int count = 0;
+volatile int count = 0;
 int actuatorUpCount = 0;
 
 /* USER CODE END PV */
@@ -166,7 +166,7 @@ int main(void)
   MX_USART6_UART_Init();
   /* USER CODE BEGIN 2 */
   initializeTalons();
-  HAL_UART_Receive_IT(&huart6, rx_buff, 16); // receive motor commands from the Jetson
+  HAL_UART_Receive_IT(&huart6, rx_buff, 20); // receive motor commands from the Jetson
 
   /* USER CODE END 2 */
 
@@ -185,7 +185,8 @@ int main(void)
 
 	// After 10 loops  without receiving packets, stop the robot.
 	// right now it stops ~2s after we stop sending packets from the Jetson
-	if (count > 10) {
+//	writeDebugFormat("Count: %d\r\n", count);
+	  if (count > 10) {
 		motorValues = (SerialPacket) {
 			.invalid = 0,
 			.header = 0x7F,
@@ -193,13 +194,13 @@ int main(void)
 			.back_left_wheel = 0x7F,
 			.front_right_wheel  = 0x7F,
 			.back_right_wheel = 0x7F,
-      .left_drum  = 0x7F,
-      .left_arm  = 0x7F,
-      .right_drum  = 0x7F,
-      .right_arm  = 0x7F,
+      .front_drum  = 0x7F,
+      .front_arm  = 0x7F,
+      .back_drum  = 0x7F,
+      .back_arm  = 0x7F,
 		};
-
-		writeDebugString("Disconnected from Jetson!\r\n");
+			writeDebugFormat("Count: %d\r\n", count);
+		writeDebugString("Disconnected from Jetson!\n");
 	}
 
 	 // every 10 cycles, poll motor currents and send to Jetson
@@ -215,7 +216,7 @@ int main(void)
 	 		HAL_Delay(1);
 	 	}
 
-	 	float motorCurrents[8];
+	 	float motorCurrents[9];
 	 	motorCurrents[0] = pdp.getChannelCurrent(&pdp, FRONT_LEFT_WHEEL_PDP_ID);
 	 	motorCurrents[1] = pdp.getChannelCurrent(&pdp, BACK_LEFT_WHEEL_PDP_ID);
 	 	motorCurrents[2] = pdp.getChannelCurrent(&pdp, FRONT_RIGHT_WHEEL_PDP_ID);
@@ -247,7 +248,7 @@ int main(void)
 	directControl(motorValues, enableSync); // send CAN packets to motors to set motor speeds
 
 	count += 1;
-	HAL_Delay(1);
+//	HAL_Delay(1);
 
   }
   /* USER CODE END 3 */
@@ -618,17 +619,18 @@ int findStartByte(uint8_t *rx_buff, int length)
 
 // This function is called upon receiving a motor command packet over UART
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
-	if (HAL_UART_Receive_IT(&huart6, rx_buff, 18) != HAL_OK)
+	if (HAL_UART_Receive_IT(&huart6, rx_buff, 20) != HAL_OK)
 	{
 		writeDebugString("ERROR OCCURED DURING UART RX INTERRUPT\r\n");
 	}
+	count = 0;
 
-	int startByte = findStartByte(rx_buff, 8);
+	int startByte = findStartByte(rx_buff, 10);
 	if (startByte == -1)
 		return;
 
-	if (startByte == 0 && rx_buff[8] == START_BYTE)
-		startByte += 8;
+	if (startByte == 0 && rx_buff[10] == START_BYTE)
+		startByte += 10;
 
 	count = 0;
 	motorValues = (SerialPacket) {
@@ -638,10 +640,10 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 		.back_left_wheel = rx_buff[startByte + 3],
 		.front_right_wheel  = rx_buff[startByte + 4],
 		.back_right_wheel = rx_buff[startByte + 5],
-    .left_drum  = rx_buff[startByte + 6],
-    .left_arm  = rx_buff[startByte + 7],
-    .right_drum  = rx_buff[startByte + 8],
-    .right_arm  = rx_buff[startByte + 9],
+    .front_drum  = rx_buff[startByte + 6],
+    .front_arm  = rx_buff[startByte + 7],
+    .back_drum  = rx_buff[startByte + 8],
+    .back_arm  = rx_buff[startByte + 9],
 	};
 }
 /* USER CODE END 4 */

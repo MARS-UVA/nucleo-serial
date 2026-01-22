@@ -23,10 +23,10 @@ SerialPacket readFromJetson() {
 		.back_left_wheel = RxBuffer[2],
 		.front_right_wheel  = RxBuffer[3],
 		.back_right_wheel = RxBuffer[4],
-		.left_drum  = RxBuffer[5],
-		.left_arm  = RxBuffer[6],
-		.right_drum  = RxBuffer[7],
-		.right_arm  = RxBuffer[8],
+		.front_drum  = RxBuffer[5],
+		.front_arm  = RxBuffer[6],
+		.back_drum  = RxBuffer[7],
+		.back_arm  = RxBuffer[8],
 	};
 }
 
