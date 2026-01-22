@@ -18,9 +18,9 @@
 #define FRONT_RIGHT_WHEEL_ID 36
 #define BACK_RIGHT_WHEEL_ID 37
 #define FRONT_DRUM_ID 13 // front bucket drum 
-#define BACK_DRUM_ID 60
+#define BACK_DRUM_ID 0 // placeholder ID, update when known
 #define FRONT_ARM_ID 60 // front arm
-#define BACK_ARM_ID 27
+#define BACK_ARM_ID 27 // placeholder ID, update when known
 
 // Define PDP IDs of each motor (these need to be updated)
  #define FRONT_LEFT_WHEEL_PDP_ID 12
