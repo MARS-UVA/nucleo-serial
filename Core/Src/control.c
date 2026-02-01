@@ -34,13 +34,13 @@ void directControl(SerialPacket packet, int enableSync)
 	// Set output speeds of left motors
 	int8_t leftSpeed = packet.front_left_wheel; // a value between 0 and 0xff (-127 and 128)
 	// invert because of the way the motors are mounted
-	frontLeft.setControl(&frontLeft, ((int8_t)(leftSpeed - 127)) * -1, 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
+	frontLeft.setControl(&frontLeft, ((int8_t)(leftSpeed - 127)), 0); // sets velocity of TalonFX (in turns per second) to leftSpeed
 	backLeft.setControl(&backLeft, ((int8_t)(leftSpeed - 127)) * -1, 0);
 
 
 	// Set output speeds of right motors
 	int8_t rightSpeed = packet.front_right_wheel;
-	frontRight.setControl(&frontRight, ((int8_t)(rightSpeed - 127)), 0);
+	frontRight.setControl(&frontRight, ((int8_t)(rightSpeed - 127)) * -1, 0);
 	backRight.setControl(&backRight, ((int8_t)(rightSpeed - 127)), 0);
 
 	// Set output speeds of the bucket drum motors
